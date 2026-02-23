@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 export function Navbar() {
   return (
     <nav className="bg-background/80 sticky top-0 z-50 w-full border-b backdrop-blur-xl">
-      <div className="flex h-16 items-center justify-between gap-4">
+      <div className="container flex h-16 items-center justify-between gap-4">
         <div className="flex items-center gap-2 md:gap-6">
           <Link href="/" className="flex items-center space-x-2 transition-opacity hover:opacity-80">
             <div className="bg-primary text-primary-foreground rounded-xl p-1.5">
