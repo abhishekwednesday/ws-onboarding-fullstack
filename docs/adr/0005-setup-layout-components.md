@@ -1,9 +1,5 @@
 # ADR 0005: Setup Layout Components for Music Service
 
-## Status
-
-Accepted
-
 ## Context
 
 The project is evolving into a Music Service ("MusicStream"). A consistent layout is required to provide a unified user experience across different pages (Home, Catalog, etc.).
