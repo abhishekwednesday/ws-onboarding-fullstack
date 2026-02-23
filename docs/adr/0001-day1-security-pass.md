@@ -15,16 +15,16 @@ Furthermore, the repository lacked automated gatekeeping for code quality and se
 
 ## Decision
 
-### 1. Security Upgrades
+### 1. Security and Compatibility Upgrades
 
-Upgraded critical packages to resolve high-severity CVEs:
+Upgraded critical packages to resolve high-severity CVEs and ensure toolchain compatibility:
 
-| Package                            | From    | To       | Fixes                                      |
-| ---------------------------------- | ------- | -------- | ------------------------------------------ |
-| `next`                             | 15.3.8  | ^15.5.12 | 5 high CVEs in Next.js itself              |
-| `eslint`                           | ^9.26.0 | latest   | `minimatch` upgraded to ^10.2.1 internally |
-| `typescript-eslint`                | ^8.32.0 | latest   | `minimatch` upgraded to ^10.2.1 internally |
-| `@typescript-eslint/eslint-plugin` | 8.21.0  | latest   | `minimatch` upgraded to ^10.2.1 internally |
+| Package                            | From    | To       | Fixes                                             |
+| ---------------------------------- | ------- | -------- | ------------------------------------------------- |
+| `next`                             | 15.3.8  | ^15.5.12 | 5 high CVEs in Next.js itself                     |
+| `eslint`                           | ^9.26.0 | ^9.21.0  | Ensured plugin compatibility; `minimatch` ^10.2.1 |
+| `typescript-eslint`                | ^8.32.0 | latest   | `minimatch` ^10.2.1 internally                    |
+| `@typescript-eslint/eslint-plugin` | 8.21.0  | latest   | `minimatch` ^10.2.1 internally                    |
 
 Result: **85 → 81 vulnerabilities** (4 high severity cleared).
 
@@ -36,6 +36,8 @@ Implemented a multi-layered pre-commit validation strategy:
 - **Lint-Staged**: Ensures only changed files are linted (`eslint --fix`) and formatted (`prettier --write`).
 - **Commitlint**: Enforces [Conventional Commits](https://www.conventionalcommits.org/).
 - **Secretlint**: Scans for sensitive data exposure before it enters git history.
+
+Updated ESLint configuration to ignore build-specific scripts (`report-bundle-size.js`) that use legacy patterns.
 
 Used `--legacy-peer-deps` during installation to resolve upstream Radix UI conflicts in a predictable manner.
 
