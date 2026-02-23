@@ -15,7 +15,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="bg-background relative w-full overflow-hidden py-20 lg:py-32">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_45%_at_50%_50%,var(--color-primary)_0%,transparent_100%)] opacity-[0.08]" />
-        <div className="px-4 md:px-6">
+        <div className="w-full">
           <div className="grid gap-12 lg:grid-cols-[1fr_400px] lg:gap-24 xl:grid-cols-[1fr_500px]">
             <div className="flex flex-col justify-center space-y-8">
               <div className="space-y-4">
@@ -88,7 +88,7 @@ export default function LandingPage() {
 
       {/* Stats Section */}
       <section className="bg-muted/30 w-full border-y py-12">
-        <div className="px-4 md:px-6">
+        <div className="w-full">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
             <div className="flex flex-col items-center justify-center space-y-1 text-center font-bold">
               <span className="text-3xl lg:text-4xl">70M+</span>
@@ -112,7 +112,7 @@ export default function LandingPage() {
 
       {/* Features Section */}
       <section className="w-full py-20 lg:py-32">
-        <div className="px-4 md:px-6">
+        <div className="w-full">
           <div className="mb-12 flex flex-col items-center space-y-4 text-center">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Everything you need</h2>
             <p className="text-muted-foreground max-w-[700px] md:text-xl">
@@ -147,7 +147,7 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="w-full py-20 lg:py-32">
-        <div className="px-4 md:px-6">
+        <div className="w-full">
           <div className="bg-primary text-primary-foreground relative overflow-hidden rounded-[3rem] px-6 py-16 text-center sm:px-12">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.2),transparent)]" />
             <div className="relative z-10 mx-auto max-w-[600px] space-y-6">
