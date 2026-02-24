@@ -31,17 +31,20 @@ test.describe("Music Catalog Page", () => {
   })
 
   test("should handle search and show empty state for non-existent terms", async ({ page }) => {
+    // Wait for initial data so we know the page has fully loaded
+    await expect(page.getByText(/provided courtesy of iTunes/i).first()).toBeVisible({ timeout: 30000 })
+
     const searchInput = page.getByPlaceholder(/search for tracks, artists/i)
     await expect(searchInput).toBeVisible()
 
     // Search for something that won't exist
     await searchInput.fill("nonexistentqueryxyz123")
 
-    // Wait for the debounce and loading state (skeleton grid)
-    await expect(page.locator(".grid").first()).toBeVisible()
+    // Wait for the current results to clear (confirms the search reset triggered)
+    await expect(page.getByText(/provided courtesy of iTunes/i).first()).not.toBeVisible({ timeout: 15000 })
 
-    // Eventually should show empty state
-    await expect(page.getByText(/no results found/i)).toBeVisible({ timeout: 20000 })
+    // Eventually should show empty state (give enough time for debounce + fetch + render)
+    await expect(page.getByText(/no results found/i)).toBeVisible({ timeout: 30000 })
 
     // Clear search and verify return to default state
     await page.getByLabel("Clear search").click()
