@@ -81,6 +81,8 @@ export function Navbar() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="group text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-all hover:bg-white/10 md:hidden"
             aria-label="Toggle menu"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {isMobileMenuOpen ? (
               <X className="h-5 w-5 rotate-0 transition-transform duration-300 group-hover:scale-110" />
@@ -93,6 +95,7 @@ export function Navbar() {
 
       {/* Mobile Menu Overlay */}
       <div
+        id="mobile-menu"
         className={cn(
           "bg-background/90 fixed inset-0 z-40 flex flex-col backdrop-blur-2xl transition-all duration-500 ease-in-out md:hidden",
           isMobileMenuOpen
