@@ -1,9 +1,9 @@
-import * as fs from "fs"
 
 // https://github.com/francoismassart/eslint-plugin-tailwindcss/pull/381
 // import eslintPluginTailwindcss from "eslint-plugin-tailwindcss"
-import eslintPluginImport from "eslint-plugin-import"
+import * as fs from "fs"
 import eslintPluginNext from "@next/eslint-plugin-next"
+import eslintPluginImport from "eslint-plugin-import"
 import eslintPluginStorybook from "eslint-plugin-storybook"
 import typescriptEslint from "typescript-eslint"
 
@@ -17,6 +17,7 @@ const eslintIgnore = [
   "*.min.js",
   "*.config.js",
   "*.d.ts",
+  "report-bundle-size.js",
 ]
 
 const config = typescriptEslint.config(
