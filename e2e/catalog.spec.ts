@@ -30,10 +30,21 @@ test.describe("Music Catalog Page", () => {
     await expect(badge).toHaveAttribute("target", "_blank")
   })
 
-  test("should handle search and show empty state for non-existent terms", async ({ page: _page }) => {
-    // Since search input is in Navbar (which we haven't updated to point to a search handler yet)
-    // and CatalogPage uses a default "top music" query, we might need a search feature first.
-    // However, we can mock the session or wait for the next task if search isn't fully wired yet.
-    // For now, let's verify that the page doesn't crash.
+  test("should handle search and show empty state for non-existent terms", async ({ page }) => {
+    const searchInput = page.getByPlaceholder(/search for tracks, artists/i)
+    await expect(searchInput).toBeVisible()
+
+    // Search for something that won't exist
+    await searchInput.fill("nonexistentqueryxyz123")
+
+    // Wait for the debounce and loading state (skeleton grid)
+    await expect(page.locator(".grid").first()).toBeVisible()
+
+    // Eventually should show empty state
+    await expect(page.getByText(/no results found/i)).toBeVisible({ timeout: 20000 })
+
+    // Clear search and verify return to default state
+    await page.getByLabel("Clear search").click()
+    await expect(page.getByText(/provided courtesy of iTunes/i).first()).toBeVisible({ timeout: 15000 })
   })
 })
