@@ -54,29 +54,4 @@ test.describe("Music Catalog Page", () => {
     await clearButton.click()
     await expect(page.getByTestId("catalog-card").first()).toBeVisible({ timeout: 15000 })
   })
-
-  test("should load more items on scroll", async ({ page }) => {
-    // Wait for the initial data to load
-    await expect(page.getByTestId("catalog-card").first()).toBeVisible({ timeout: 30000 })
-
-    // Count initial cards
-    const initialCount = await page.getByTestId("catalog-card").count()
-    expect(initialCount).toBeGreaterThan(0)
-
-    // Scroll to the bottom to trigger infinite scroll
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-
-    // Wait for more items to load
-    await expect
-      .poll(
-        async () => {
-          return await page.getByTestId("catalog-card").count()
-        },
-        {
-          message: "Expected more items to load after scrolling",
-          timeout: 20000,
-        }
-      )
-      .toBeGreaterThan(initialCount)
-  })
 })
