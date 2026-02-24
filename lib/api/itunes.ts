@@ -27,3 +27,24 @@ export async function searchItunes(term: string, offset: number = 0): Promise<It
   // Validate and parse the response using Zod
   return ItunesSearchResponseSchema.parse(data)
 }
+
+export async function lookupItunesTrack(id: number): Promise<ItunesSearchResponseType> {
+  const url = new URL("/lookup", ITUNES_BASE_URL)
+  url.searchParams.set("id", String(id))
+  url.searchParams.set("entity", "song")
+
+  const response = await fetch(url.toString())
+
+  if (!response.ok) {
+    throw new Error(`iTunes API error: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  const parsed = ItunesSearchResponseSchema.parse(data)
+
+  if (parsed.resultCount === 0) {
+    throw new Error(`Track with id ${id} not found`)
+  }
+
+  return parsed
+}
