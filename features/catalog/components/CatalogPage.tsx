@@ -1,12 +1,17 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
 import * as React from "react"
 
-import { Button } from "@/components/ui/button"
 import { CatalogList } from "./CatalogList"
+import { EmptyState } from "./EmptyState"
+import { ErrorState } from "./ErrorState"
+import { LoadingState } from "./LoadingState"
 import { useCatalogQuery } from "../hooks/useCatalogQuery"
 
+/**
+ * The main container component for the Music Catalog.
+ * Manages the data and layout of the catalog view.
+ */
 export function CatalogPage() {
   const { data: items, isLoading, isError, error, refetch } = useCatalogQuery()
 
@@ -21,23 +26,15 @@ export function CatalogPage() {
       </div>
 
       <div className="border-t pt-10">
-        {isLoading && (
-          <div className="flex min-h-[400px] items-center justify-center">
-            <Loader2 className="text-primary h-8 w-8 animate-spin" />
-          </div>
-        )}
+        {isLoading && <LoadingState />}
 
         {isError && (
-          <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 text-center">
-            <p className="text-destructive text-lg font-medium">Something went wrong while fetching the catalog.</p>
-            <p className="text-muted-foreground text-sm">{(error as Error)?.message || "Please try again later."}</p>
-            <Button onClick={() => refetch()} variant="outline">
-              Retry
-            </Button>
-          </div>
+          <ErrorState message={(error as Error)?.message || "Please try again later."} onRetry={() => refetch()} />
         )}
 
-        {!isLoading && !isError && items && <CatalogList items={items} />}
+        {!isLoading && !isError && items && (
+          <>{items.length > 0 ? <CatalogList items={items} /> : <EmptyState onReset={() => refetch()} />}</>
+        )}
       </div>
     </div>
   )
