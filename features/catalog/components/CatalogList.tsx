@@ -1,15 +1,12 @@
 import * as React from "react"
 
-import { type CatalogItemType } from "./catalog-types"
 import { CatalogCard } from "./CatalogCard"
+import { type CatalogItemType } from "../types/catalog-types"
 
 interface CatalogListPropsType {
   items: CatalogItemType[]
 }
 
-/**
- * A grid component that renders a list of music items.
- */
 export function CatalogList({ items }: CatalogListPropsType) {
   if (items.length === 0) {
     return (

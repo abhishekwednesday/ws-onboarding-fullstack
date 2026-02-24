@@ -5,15 +5,12 @@ import * as React from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { type CatalogItemType } from "./catalog-types"
+import { type CatalogItemType } from "../types/catalog-types"
 
 interface CatalogCardPropsType {
   item: CatalogItemType
 }
 
-/**
- * A modular card component to display a single music track or album.
- */
 export function CatalogCard({ item }: CatalogCardPropsType) {
   const handlePlayClick = () => {
     if (item.previewUrl) {
