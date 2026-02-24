@@ -1,7 +1,9 @@
 import { Metadata } from "next"
 import * as React from "react"
+import { Suspense } from "react"
 
 import { CatalogPage } from "@/features/catalog/components/CatalogPage"
+import { LoadingState } from "@/features/catalog/components/LoadingState"
 
 export const metadata: Metadata = {
   title: "Catalog - MusicStream",
@@ -9,8 +11,13 @@ export const metadata: Metadata = {
 }
 
 /**
- * Route handler for the /catalog page.
+ * Route handler for /catalog.
+ * Wraps CatalogPage in Suspense because it uses useSearchParams (App Router requirement).
  */
 export default function Page() {
-  return <CatalogPage />
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <CatalogPage />
+    </Suspense>
+  )
 }

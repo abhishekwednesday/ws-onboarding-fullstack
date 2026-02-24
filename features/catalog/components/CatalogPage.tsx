@@ -10,6 +10,11 @@ import { SearchInput } from "./SearchInput"
 import { useCatalog } from "../hooks/useCatalog"
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
 
+/**
+ * Catalog page inner component.
+ * Must be rendered inside a <Suspense> boundary because useCatalog
+ * uses useSearchParams (required by App Router).
+ */
 export function CatalogPage() {
   const {
     data: items,

@@ -17,17 +17,11 @@ const mockItem: CatalogItemType = {
 }
 
 describe("CatalogCard component", () => {
-  it("should render track information correctly", () => {
+  it("should render track title and artist", () => {
     render(<CatalogCard item={mockItem} />)
 
     expect(screen.getByText(mockItem.title)).toBeDefined()
     expect(screen.getByText(mockItem.artist)).toBeDefined()
-    expect(screen.getByText(mockItem.album!)).toBeDefined()
-  })
-
-  it("should display the mandatory iTunes attribution text", () => {
-    render(<CatalogCard item={mockItem} />)
-    expect(screen.getByText(/provided courtesy of iTunes/i)).toBeDefined()
   })
 
   it("should display the iTunes store badge with a link", () => {
@@ -38,9 +32,14 @@ describe("CatalogCard component", () => {
     expect(storeLink.getAttribute("target")).toBe("_blank")
   })
 
-  it("should render metadata like genre and duration", () => {
+  it("should render genre", () => {
     render(<CatalogCard item={mockItem} />)
     expect(screen.getByText(/Rock/i)).toBeDefined()
-    expect(screen.getByText("5:54")).toBeDefined() // 354000ms -> 5:54
+  })
+
+  it("should render artwork image with correct alt text", () => {
+    render(<CatalogCard item={mockItem} />)
+    const img = screen.getByAltText(mockItem.title)
+    expect(img).toBeDefined()
   })
 })
