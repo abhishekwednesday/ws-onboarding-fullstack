@@ -34,10 +34,26 @@ jobs:
         run: pnpm run prettier
       - name: Unit & Integration tests
         run: pnpm run test
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm playwright install --with-deps
+
+      - name: Install Playwright system deps (cache hit)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: pnpm playwright install-deps
+
       - name: Smoke & Acceptance tests
         run: |
           pnpm run build-storybook --quiet
-          pnpm playwright install
           pnpm dlx concurrently -k -s first -n "SB,TEST" -c "magenta,blue" \
             "pnpm dlx http-server storybook-static --port 6006 --silent" \
             "pnpm dlx wait-on tcp:127.0.0.1:6006 && pnpm run test-storybook"
