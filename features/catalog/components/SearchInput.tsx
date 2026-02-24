@@ -13,9 +13,6 @@ interface SearchInputPropsType {
   placeholder?: string
 }
 
-/**
- * A controlled search input component with a search icon and a clear button.
- */
 export function SearchInput({
   value,
   onChange,

@@ -9,10 +9,6 @@ import { LoadingState } from "./LoadingState"
 import { SearchInput } from "./SearchInput"
 import { useCatalog } from "../hooks/useCatalog"
 
-/**
- * The main container component for the Music Catalog.
- * Manages the data and layout of the catalog view.
- */
 export function CatalogPage() {
   const { data: items, isLoading, isError, error, refetch, searchTerm, setSearchTerm, handleClear } = useCatalog()
 
