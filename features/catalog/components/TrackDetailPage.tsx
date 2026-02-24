@@ -5,12 +5,11 @@ import { useRouter } from "next/navigation"
 import * as React from "react"
 
 import { ErrorState } from "./ErrorState"
+import { FavoriteButton } from "./FavoriteButton"
 import { TrackDetailSkeleton } from "./TrackDetailSkeleton"
 import { useTrackDetail } from "../hooks/useTrackDetail"
 
-interface TrackDetailPagePropsType {
-  id: number
-}
+import { type CatalogItemType, type TrackDetailPagePropsType } from "../types/catalog-types"
 
 function formatDuration(ms: number): string {
   const m = Math.floor(ms / 1000 / 60)
@@ -159,11 +158,14 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
                     <p className="text-muted-foreground truncate text-base">{item.artist}</p>
                     {item.album && <p className="text-muted-foreground/50 truncate text-sm italic">{item.album}</p>}
                   </div>
-                  {item.genre && (
-                    <span className="text-muted-foreground mt-1 shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wider uppercase">
-                      {item.genre}
-                    </span>
-                  )}
+                  <div className="flex shrink-0 items-center gap-2">
+                    {item.genre && (
+                      <span className="text-muted-foreground shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wider uppercase">
+                        {item.genre}
+                      </span>
+                    )}
+                    <FavoriteButton track={item} className="h-9 w-9" />
+                  </div>
                 </div>
                 {item.duration && (
                   <div className="text-muted-foreground/60 flex items-center gap-1 pt-0.5 text-xs">
@@ -196,7 +198,7 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
                       <span>{audioDuration ? formatSeconds(audioDuration) : "0:30"} · preview</span>
                     </div>
                   </div>
-                  <div className="flex justify-center">
+                  <div className="relative flex justify-center">
                     <button
                       onClick={togglePreview}
                       aria-label={isPlaying ? "Pause preview" : "Play 30-second preview"}
@@ -208,6 +210,12 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
                         <Play className="ml-0.5 h-7 w-7 fill-current" />
                       )}
                     </button>
+                    <div className="absolute top-1/2 right-0 translate-x-12 -translate-y-1/2">
+                      <FavoriteButton
+                        track={item}
+                        className="h-12 w-12 bg-white/5 backdrop-blur-md hover:bg-white/10"
+                      />
+                    </div>
                   </div>
                 </div>
               ) : (

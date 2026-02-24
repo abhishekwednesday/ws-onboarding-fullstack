@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { itunesLookupAction } from "@/actions/catalog/catalog-detail-actions"
+import { itunesLookupSingleAction } from "@/actions/catalog/catalog-actions"
 import { type CatalogItemType } from "../types/catalog-types"
 
 /**
@@ -12,7 +12,7 @@ import { type CatalogItemType } from "../types/catalog-types"
 export function useTrackDetail(id: number) {
   return useQuery<CatalogItemType, Error>({
     queryKey: ["track", id],
-    queryFn: () => itunesLookupAction(id),
+    queryFn: () => itunesLookupSingleAction(id),
     staleTime: 1000 * 60 * 5, // 5 minutes — track metadata rarely changes
     retry: 1,
   })

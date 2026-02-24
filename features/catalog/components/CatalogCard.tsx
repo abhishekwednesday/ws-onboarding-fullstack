@@ -3,11 +3,8 @@
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
-import { type CatalogItemType } from "../types/catalog-types"
-
-interface CatalogCardPropsType {
-  item: CatalogItemType
-}
+import { FavoriteButton } from "./FavoriteButton"
+import { type CatalogCardPropsType } from "../types/catalog-types"
 
 export function CatalogCard({ item }: CatalogCardPropsType) {
   const router = useRouter()
@@ -28,6 +25,11 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
       aria-label={`View details for ${item.title}`}
       data-testid="catalog-card"
     >
+      {/* Favorite Button */}
+      <div className="absolute top-3 right-3 z-10">
+        <FavoriteButton track={item} className="bg-background/20 hover:bg-background/40 backdrop-blur-md" />
+      </div>
+
       {/* Artwork */}
       {highResArtwork ? (
         <img

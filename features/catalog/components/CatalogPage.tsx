@@ -1,7 +1,10 @@
 "use client"
 
+import { Heart } from "lucide-react"
 import * as React from "react"
 
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
 import { ErrorState } from "./ErrorState"
@@ -28,6 +31,8 @@ export function CatalogPage() {
     loadMore,
     hasMore,
     isFetchingMore,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
   } = useCatalog()
 
   const { sentinelRef } = useInfiniteScroll({
@@ -44,7 +49,28 @@ export function CatalogPage() {
             Discover and explore millions of tracks and artists from the iTunes library.
           </p>
         </div>
-        <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} />
+        <div className="flex items-center gap-2">
+          <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  className={cn(
+                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-all duration-300",
+                    showFavoritesOnly
+                      ? "border-rose-500 bg-rose-500 text-white shadow-lg shadow-rose-900/20"
+                      : "bg-background/50 text-muted-foreground hover:bg-background hover:text-foreground border-gray-300 backdrop-blur-sm"
+                  )}
+                  aria-label={showFavoritesOnly ? "Show all tracks" : "Show favorites only"}
+                >
+                  <Heart className={cn("h-5 w-5", showFavoritesOnly && "fill-current")} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>{showFavoritesOnly ? "Showing Favorites" : "Show Favorites Only"}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <div className="border-t pt-10">

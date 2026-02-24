@@ -16,6 +16,33 @@ export type CatalogItemType = {
   trackViewUrl?: string
 }
 
+export interface FavoritesState {
+  favorites: Record<number, CatalogItemType>
+  toggleFavorite: (track: CatalogItemType) => void
+  isFavorite: (id: number) => boolean
+}
+
+export interface FavoriteButtonProps {
+  track: CatalogItemType
+  className?: string
+  iconOnly?: boolean
+}
+
+export interface CatalogCardPropsType {
+  item: CatalogItemType
+}
+
+export interface TrackDetailPagePropsType {
+  id: number
+}
+
+export interface SearchInputPropsType {
+  value: string
+  onChange: (value: string) => void
+  onClear: () => void
+  placeholder?: string
+}
+
 /**
  * Mapper function to transform ItunesTrackType to CatalogItemType.
  */
