@@ -5,6 +5,7 @@ import * as React from "react"
 import { useCallback, useDeferredValue, useEffect, useRef, useState } from "react"
 
 import { itunesSearchAction } from "@/actions/catalog/catalog-actions"
+import { useFavoritesStore } from "../store/useFavoritesStore"
 import { type CatalogItemType, mapItunesTrackToCatalogItem } from "../types/catalog-types"
 
 const PAGE_SIZE = 50
@@ -23,6 +24,9 @@ export function useCatalog() {
   const [isError, setIsError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [hasMore, setHasMore] = useState(true)
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+
+  const favoritesMap = useFavoritesStore((state) => state.favorites)
 
   const offsetRef = useRef(0)
   const isFetchingRef = useRef(false)
@@ -101,40 +105,49 @@ export function useCatalog() {
   }, [])
 
   useEffect(() => {
+    if (showFavoritesOnly) return
+
     const query = deferredTerm || "top music"
     if (lastTermRef.current === null || query !== lastTermRef.current) {
       lastTermRef.current = query
       isFetchingRef.current = false
       fetchItems(deferredTerm, 0, true)
     }
-  }, [deferredTerm, fetchItems])
+  }, [deferredTerm, fetchItems, showFavoritesOnly])
 
-  const loadMore = useCallback(() => {
-    if (!isFetchingRef.current && hasMore) {
-      fetchItems(deferredTerm, offsetRef.current, false)
-    }
-  }, [deferredTerm, hasMore, fetchItems])
+  // Sync with favorites when mode is active
+  const favoriteItems = React.useMemo(() => Object.values(favoritesMap), [favoritesMap])
 
   const handleClear = useCallback(() => {
     setSearchTerm("")
   }, [setSearchTerm])
 
   const refetch = useCallback(() => {
+    if (showFavoritesOnly) return
     isFetchingRef.current = false
     fetchItems(deferredTerm, 0, true)
-  }, [deferredTerm, fetchItems])
+  }, [deferredTerm, fetchItems, showFavoritesOnly])
+
+  const loadMore = useCallback(() => {
+    if (showFavoritesOnly) return
+    if (!isFetchingRef.current && hasMore) {
+      fetchItems(deferredTerm, offsetRef.current, false)
+    }
+  }, [deferredTerm, hasMore, fetchItems, showFavoritesOnly])
 
   return {
     searchTerm,
     setSearchTerm,
     handleClear,
-    data: items,
-    isLoading,
+    data: showFavoritesOnly ? favoriteItems : items,
+    isLoading: showFavoritesOnly ? false : isLoading,
     isFetchingMore,
     isError,
     error,
     refetch,
     loadMore,
-    hasMore,
+    hasMore: showFavoritesOnly ? false : hasMore,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
   }
 }

@@ -6,12 +6,7 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
-interface SearchInputPropsType {
-  value: string
-  onChange: (value: string) => void
-  onClear: () => void
-  placeholder?: string
-}
+import { type SearchInputPropsType } from "../types/catalog-types"
 
 export function SearchInput({
   value,

@@ -48,3 +48,23 @@ export async function lookupItunesTrack(id: number): Promise<ItunesSearchRespons
 
   return parsed
 }
+
+/**
+ * Fetches specific tracks by their iTunes IDs.
+ */
+export async function lookupItunes(ids: number[]): Promise<ItunesSearchResponseType> {
+  if (ids.length === 0) return { resultCount: 0, results: [] }
+
+  const url = new URL("/lookup", ITUNES_BASE_URL)
+  url.searchParams.set("id", ids.join(","))
+  url.searchParams.set("entity", "song")
+
+  const response = await fetch(url.toString())
+
+  if (!response.ok) {
+    throw new Error(`iTunes API lookup error: ${response.statusText}`)
+  }
+
+  const data = await response.json()
+  return ItunesSearchResponseSchema.parse(data)
+}

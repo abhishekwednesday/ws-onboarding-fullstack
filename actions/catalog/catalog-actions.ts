@@ -1,6 +1,7 @@
 "use server"
 
-import { searchItunes } from "@/lib/api/itunes"
+import { type CatalogItemType, mapItunesTrackToCatalogItem } from "@/features/catalog/types/catalog-types"
+import { lookupItunes, lookupItunesTrack, searchItunes } from "@/lib/api/itunes"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
 /**
@@ -17,5 +18,37 @@ export async function itunesSearchAction(term: string, offset: number = 0): Prom
   } catch (error) {
     console.error("ITunes Search Server Action Error:", error)
     throw new Error("Failed to fetch data from ITunes API.")
+  }
+}
+
+/**
+ * Server action to look up tracks by ID.
+ *
+ * @param ids Array of iTunes track IDs.
+ * @returns A promise that resolves to the itunes response.
+ */
+export async function itunesLookupAction(ids: number[]): Promise<ItunesSearchResponseType> {
+  if (ids.length === 0) return { resultCount: 0, results: [] }
+  try {
+    return await lookupItunes(ids)
+  } catch (error) {
+    console.error("ITunes Lookup Server Action Error:", error)
+    throw new Error("Failed to lookup tracks from ITunes API.")
+  }
+}
+
+/**
+ * Server action to look up a single track by ID.
+ * Maps result to CatalogItemType.
+ */
+export async function itunesLookupSingleAction(id: number): Promise<CatalogItemType> {
+  try {
+    const response = await lookupItunesTrack(id)
+    const track = response.results[0]
+    if (!track) throw new Error(`Track with id ${id} not found`)
+    return mapItunesTrackToCatalogItem(track)
+  } catch (error) {
+    console.error("ITunes Single Lookup Error:", error)
+    throw new Error("Failed to load track details.")
   }
 }
