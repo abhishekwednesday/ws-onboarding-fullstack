@@ -1,33 +1,26 @@
 import * as React from "react"
 
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 /**
- * A skeleton component that mimics the CatalogCard layout.
+ * Skeleton for a single catalog card — matches the new artwork-blend square design.
  */
 export function CatalogCardSkeleton() {
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="p-0">
-        <Skeleton className="aspect-square w-full" />
-      </CardHeader>
-      <CardContent className="space-y-2 p-4">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-4 w-1/2" />
-        <Skeleton className="h-3 w-1/3" />
-      </CardContent>
-      <CardFooter className="flex items-center justify-between p-4 pt-0">
-        <Skeleton className="h-4 w-12 rounded-full" />
-        <Skeleton className="h-3 w-10" />
-      </CardFooter>
-    </Card>
+    <div className="relative aspect-square w-full overflow-hidden rounded-2xl">
+      <Skeleton className="absolute inset-0 h-full w-full" />
+      {/* Simulated overlay strip at the bottom */}
+      <div className="absolute right-0 bottom-0 left-0 space-y-1.5 p-4">
+        <Skeleton className="h-3.5 w-2/3 bg-white/20" />
+        <Skeleton className="h-3 w-1/2 bg-white/15" />
+      </div>
+    </div>
   )
 }
 
 /**
  * Loading state component for the catalog grid.
- * Renders a grid of skeletons to maintain layout consistency.
+ * Renders a grid of square skeleton cards matching the new artwork-blend layout.
  */
 export function LoadingState() {
   return (

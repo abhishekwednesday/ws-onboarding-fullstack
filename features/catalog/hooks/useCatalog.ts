@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 import { useCallback, useDeferredValue, useEffect, useRef, useState } from "react"
 
@@ -9,7 +10,11 @@ import { type CatalogItemType, mapItunesTrackToCatalogItem } from "../types/cata
 const PAGE_SIZE = 50
 
 export function useCatalog() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // Initialise from URL param so Back navigation restores the search term
+  const [searchTerm, setSearchTermState] = useState(() => searchParams.get("q") ?? "")
   const deferredTerm = useDeferredValue(searchTerm)
 
   const [items, setItems] = useState<CatalogItemType[]>([])
@@ -23,6 +28,21 @@ export function useCatalog() {
   const isFetchingRef = useRef(false)
   const fetchIdRef = useRef(0)
   const lastTermRef = useRef<string | null>(null)
+
+  // Write the search term back to the URL so it survives Back navigation
+  const setSearchTerm = useCallback(
+    (term: string) => {
+      setSearchTermState(term)
+      const params = new URLSearchParams(searchParams.toString())
+      if (term) {
+        params.set("q", term)
+      } else {
+        params.delete("q")
+      }
+      router.replace(`/catalog?${params.toString()}`, { scroll: false })
+    },
+    [router, searchParams]
+  )
 
   const fetchItems = useCallback(async (term: string, offset: number, isReset: boolean) => {
     if (isFetchingRef.current) return
@@ -48,19 +68,16 @@ export function useCatalog() {
 
       const newItems = response.results.map(mapItunesTrackToCatalogItem)
 
-      // Always advance by PAGE_SIZE for the next call
       offsetRef.current = offset + PAGE_SIZE
 
       if (isReset) {
         setItems(newItems)
         setHasMore(newItems.length === PAGE_SIZE)
       } else {
-        // Filter duplicates and check if we got any new unique items
         setItems((prev) => {
           const existingIds = new Set(prev.map((item) => item.id))
           const unique = newItems.filter((item) => !existingIds.has(item.id))
 
-          // If API returned full page but ALL were duplicates, stop paginating
           if (unique.length === 0) {
             setHasMore(false)
             return prev
@@ -100,7 +117,7 @@ export function useCatalog() {
 
   const handleClear = useCallback(() => {
     setSearchTerm("")
-  }, [])
+  }, [setSearchTerm])
 
   const refetch = useCallback(() => {
     isFetchingRef.current = false
