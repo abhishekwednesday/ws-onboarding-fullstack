@@ -1,10 +1,8 @@
 "use client"
 
-import { Play } from "lucide-react"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
-import { Button } from "@/components/ui/button"
 import { type CatalogItemType } from "../types/catalog-types"
 
 interface CatalogCardPropsType {
@@ -16,13 +14,6 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
 
   const handleCardClick = () => {
     router.push(`/catalog/${item.id}`)
-  }
-
-  const handlePlayClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (item.previewUrl) {
-      window.open(item.previewUrl, "_blank")
-    }
   }
 
   const highResArtwork = item.artworkUrl?.replace("100x100bb.jpg", "400x400bb.jpg")
@@ -49,23 +40,10 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
         </div>
       )}
 
-      {/* Gradient overlay — artwork blends into dark base at the bottom */}
+      {/* Gradient overlay — artwork blends into dark at the bottom */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-      {/* Play button overlay on hover */}
-      <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-        <Button
-          size="icon"
-          variant="secondary"
-          className="h-12 w-12 rounded-full shadow-lg backdrop-blur-sm"
-          onClick={handlePlayClick}
-          aria-label={`Play ${item.title}`}
-        >
-          <Play className="fill-current" />
-        </Button>
-      </div>
-
-      {/* Track info — lives on the gradient fade at the bottom */}
+      {/* Track info overlaid on the gradient */}
       <div className="absolute right-0 bottom-0 left-0 space-y-0.5 p-4">
         <p className="line-clamp-1 text-sm font-semibold text-white">{item.title}</p>
         <p className="line-clamp-1 text-xs text-white/70">{item.artist}</p>

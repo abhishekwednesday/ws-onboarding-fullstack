@@ -13,36 +13,40 @@ Several UX and visual issues were identified:
 
 ### 1. CatalogCard — Artwork-Blend Aesthetic
 
-Replace the `Card` component layout with a full-bleed square image. A CSS gradient (`from-black/80 via-black/20 to-transparent`) fades the bottom of the artwork into dark, and track info (title, artist, genre, badge) is overlaid directly on this gradient. No separate content/footer sections.
+Replace the `Card` component layout with a full-bleed square image. A CSS gradient (`from-black/80 via-black/20 to-transparent`) fades the bottom of the artwork into dark, and track info (title, artist, genre, badge) is overlaid directly on this gradient. No separate content/footer sections or play buttons (to avoid accidental downloads).
 
-**Rationale**: Artworks are visually distinct — letting them fill the entire card and blend downward creates an immersive, album-cover feel consistent with music apps. Removes unnecessary visual chrome.
+**Rationale**: Artworks are visually distinct — letting them fill the entire card and blend downward creates an immersive, album-cover feel consistent with music apps. Clicking the card navigates directly to the detail page for playback.
 
-### 2. TrackDetailPage — Blurred Hero
+### 2. TrackDetailPage — Centered Music Player
 
-The track's artwork (blurred, dimmed, scaled) is placed as an absolutely positioned background layer behind the page header, creating an immersive atmospheric context. The foreground contains a compact artwork thumbnail + clean metadata column. No heavy card frames.
+Redesign the detail page from a left-right split to a **centered music-player aesthetic**.
 
-**Rationale**: Common pattern in music apps (Apple Music, Spotify track pages). Contextualises the detail view without adding UI complexity.
+- A full-viewport immersive blurred background is fixed behind the content.
+- The artwork is centered with a color-matched glow that intensifies during playback.
+- An **inline 30-second preview player** with a circular play/pause button and a progress bar (with scrub support).
+- Track metadata is stacked cleanly below the artwork.
 
-### 3. Landing Page — Minimal & Honest
+**Rationale**: Provides a more focused and immersive experience, avoiding empty space on large screens and mimicking modern music application layouts.
 
-Remove: stats section (70M+ tracks — not our data to claim), fake social proof ("10,000+ users"), unimplemented "Artist Radio" feature card, CTA banner. Rewrite tone to match the project's actual scale — a small personal music discovery tool.
+### 3. Red-tinted Theme & Immersive Backgrounds
 
-Keep: one-sentence hero, primary CTA, two accurate feature cards (Search, Preview).
+Implement a custom **red-tinted color palette** for the entire site using Shadcn UI tokens (OKLCH).
 
-**Rationale**: Inflated copy erodes trust and looks corporate for a small project. Honest, direct copy is more appropriate.
+- Light mode: White background with deep red accents and blush-tinted borders/secondary elements.
+- Dark mode: Near-black background with a subtle red tint and vibrant red primary accents.
+- **Grainient Background**: A full-viewport animated WebGL background (`Grainient`) is used on the landing page, with colors dynamically matching the light/dark theme (rose/blush for light, maroon/crimson for dark).
 
-### 4. Search State → URL Query Param (`?q=`)
+**Rationale**: Creates a unique visual identity that feels more "premium" and energetic than a standard grayscale theme.
 
-`useCatalog` now reads the initial `searchTerm` from `useSearchParams().get("q")` and writes back via `router.replace("/catalog?q=...", { scroll: false })` on every `setSearchTerm` call.
+### 4. State Preservation & Navigation
 
-When the user navigates to a detail page and presses Back, the browser restores the previous URL (`/catalog?q=bohemian`), the hook reads the `q` param, and React Query's cache serves the result instantly — no full re-fetch required in most cases.
+- **Search State**: `useCatalog` reads/writes the `searchTerm` to the `?q=` URL parameter.
+- **Back Navigation**: The "Back to Catalog" link in `TrackDetailPage` uses `router.back()` instead of a hardcoded `href`.
 
-`app/catalog/page.tsx` wraps `CatalogPage` in `<Suspense>` with a `LoadingState` fallback, as required by Next.js App Router when any client component uses `useSearchParams`.
-
-**Rationale**: Encoding transient UI state in the URL is idiomatic web behaviour. It handles Back navigation, link sharing, and browser reload for free without any additional client-side state management.
+**Rationale**: `router.back()` ensures that the exact previous URL (including search params and potentially scroll state) is restored, providing a seamless transition from detail back to search results.
 
 ## Consequences
 
-- Catalog cards no longer have an accessible `<a>` badge link nested inside them — the badge `<a>` is still present with `stopPropagation` and the card navigation uses `router.push`. This was already the approach from ADR 0019.
-- The landing page no longer advertises features or statistics not backed by the actual application.
-- `useCatalog` requires a `<Suspense>` boundary — this is a one-time change to the route handler.
+- Catalog cards are simplified and no longer contain interactive play buttons that could confuse users or trigger downloads.
+- The landing page uses glassmorphism and animated backgrounds to create a high-impact first impression.
+- `useCatalog` requires a `<Suspense>` boundary in `app/catalog/page.tsx` due to `useSearchParams`.
