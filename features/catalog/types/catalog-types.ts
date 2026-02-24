@@ -13,6 +13,7 @@ export type CatalogItemType = {
   previewUrl?: string
   genre?: string
   duration?: number
+  trackViewUrl?: string
 }
 
 /**
@@ -28,6 +29,7 @@ export function mapItunesTrackToCatalogItem(track: ItunesTrackType): CatalogItem
     previewUrl: track.previewUrl,
     genre: track.primaryGenreName,
     duration: track.trackTimeMillis,
+    trackViewUrl: track.trackViewUrl,
   }
 }
 
