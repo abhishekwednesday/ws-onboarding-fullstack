@@ -77,6 +77,10 @@ export function CatalogPage() {
             ) : (
               <EmptyState onReset={handleClear} />
             )}
+
+            <div className="flex flex-col items-center gap-2 border-t pt-8">
+              <p className="text-muted-foreground/40 text-xs italic">Data provided courtesy of iTunes</p>
+            </div>
           </>
         )}
       </div>

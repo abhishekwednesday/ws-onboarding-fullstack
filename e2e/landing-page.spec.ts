@@ -6,25 +6,21 @@ test.describe("Landing Page", () => {
   })
 
   test("should have the correct title and meta description", async ({ page }) => {
-    await expect(page).toHaveTitle(/MusicStream - Your World of Music/)
+    await expect(page).toHaveTitle(/MusicStream/)
   })
 
   test("should render the hero section with branding", async ({ page }) => {
-    const heading = page.getByRole("heading", { name: /Your World of Music, Streamed\./i })
+    const heading = page.getByRole("heading", { name: /Find music you'll love\./i })
     await expect(heading).toBeVisible()
 
-    const subtext = page.getByText(/Access millions of tracks, albums, and artists/i)
+    const subtext = page.getByText(/A small personal project for discovering tracks/i)
     await expect(subtext).toBeVisible()
   })
 
   test("should have functional hero call-to-action buttons", async ({ page }) => {
-    const exploreButton = page.getByRole("link", { name: /Explore Catalog/i })
-    await expect(exploreButton).toBeVisible()
-    await expect(exploreButton).toHaveAttribute("href", "/catalog")
-
-    const howItWorksButton = page.getByRole("link", { name: /How it works/i })
-    await expect(howItWorksButton).toBeVisible()
-    await expect(howItWorksButton).toHaveAttribute("href", "/about")
+    const browseButton = page.getByRole("link", { name: /Browse music/i })
+    await expect(browseButton).toBeVisible()
+    await expect(browseButton).toHaveAttribute("href", "/catalog")
   })
 })
 
