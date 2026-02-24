@@ -1,6 +1,7 @@
 "use client"
 
 import { Play } from "lucide-react"
+import { useRouter } from "next/navigation"
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -12,14 +13,28 @@ interface CatalogCardPropsType {
 }
 
 export function CatalogCard({ item }: CatalogCardPropsType) {
-  const handlePlayClick = () => {
+  const router = useRouter()
+
+  const handleCardClick = () => {
+    router.push(`/catalog/${item.id}`)
+  }
+
+  const handlePlayClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
     if (item.previewUrl) {
       window.open(item.previewUrl, "_blank")
     }
   }
 
   return (
-    <Card className="group hover:border-primary/50 overflow-hidden py-0 transition-all hover:shadow-md">
+    <Card
+      className="group hover:border-primary/50 cursor-pointer overflow-hidden py-0 transition-all hover:shadow-md"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && handleCardClick()}
+      aria-label={`View details for ${item.title}`}
+    >
       <CardHeader className="p-0">
         <div className="relative aspect-square w-full overflow-hidden">
           {item.artworkUrl ? (
@@ -73,6 +88,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
               target="_blank"
               rel="noopener noreferrer"
               className="transition-opacity hover:opacity-80"
+              onClick={(e) => e.stopPropagation()}
             >
               <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-8 w-auto" />
             </a>
