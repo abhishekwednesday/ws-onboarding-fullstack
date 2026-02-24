@@ -26,6 +26,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && handleCardClick()}
       aria-label={`View details for ${item.title}`}
+      data-testid="catalog-card"
     >
       {/* Artwork */}
       {highResArtwork ? (
