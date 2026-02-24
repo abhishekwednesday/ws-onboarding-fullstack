@@ -19,7 +19,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
   }
 
   return (
-    <Card className="group hover:border-primary/50 overflow-hidden transition-all hover:shadow-md">
+    <Card className="group hover:border-primary/50 overflow-hidden py-0 transition-all hover:shadow-md">
       <CardHeader className="p-0">
         <div className="relative aspect-square w-full overflow-hidden">
           {item.artworkUrl ? (
@@ -51,18 +51,33 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
         <p className="text-muted-foreground line-clamp-1 text-sm">{item.artist}</p>
         {item.album && <p className="text-muted-foreground/60 line-clamp-1 text-xs italic">{item.album}</p>}
       </CardContent>
-      <CardFooter className="flex items-center justify-between p-4 pt-0">
-        <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wider uppercase">
-          {item.genre || "Music"}
-        </span>
-        {item.duration && (
-          <span className="text-muted-foreground text-[10px]">
-            {Math.floor(item.duration / 60000)}:
-            {Math.floor((item.duration % 60000) / 1000)
-              .toString()
-              .padStart(2, "0")}
+      <CardFooter className="flex flex-col space-y-3 p-4 pt-0">
+        <div className="flex w-full items-center justify-between">
+          <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wider uppercase">
+            {item.genre || "Music"}
           </span>
-        )}
+          {item.duration && (
+            <span className="text-muted-foreground text-[10px]">
+              {Math.floor(item.duration / 60000)}:
+              {Math.floor((item.duration % 60000) / 1000)
+                .toString()
+                .padStart(2, "0")}
+            </span>
+          )}
+        </div>
+        <div className="flex w-full flex-col items-center space-y-2 border-t pt-3">
+          <p className="text-muted-foreground/60 text-[9px] italic">provided courtesy of iTunes</p>
+          {item.trackViewUrl && (
+            <a
+              href={item.trackViewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-opacity hover:opacity-80"
+            >
+              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-8 w-auto" />
+            </a>
+          )}
+        </div>
       </CardFooter>
     </Card>
   )
