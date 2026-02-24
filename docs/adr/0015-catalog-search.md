@@ -8,17 +8,17 @@ The Music Catalog needs a way for users to search for specific content from the 
 
 We decided to:
 
-1. **Implement Debounced Search**: Use a 500ms debounce delay for search queries. This prevents high-frequency API calls while the user is typing but provides timely feedback.
-2. **Dedicated Search Hook**: Create a `useCatalog` hook to centralize search state management (input, debounced value, clear action) and integrate with the existing `useCatalogQuery`.
+1. **Implement Idiomatic Search Debouncing**: Use React 19's `useDeferredValue` to handle search queries. This allows the UI to remain responsive by deferring the data fetching process while the user is actively typing.
+2. **Dedicated Search Hook**: Create a `useCatalog` hook to centralize search state management and integrate with the existing `useCatalogQuery` via the deferred value.
 3. **Controlled Search UI**: Create a `SearchInput` component using shadcn `Input` with a clear button and search icon for enhanced UX.
 4. **Responsive Header Layout**: Update `CatalogPage` header to show the catalog title and search input side-by-side on larger screens.
 5. **Clearable Search**: Allow users to clear their search and return to the default "top music" view with a single click.
 
 ## Rationale
 
-- **Performance**: Debouncing is critical for external API integrations (iTunes) to prevent rate-limiting and improve perceived performance.
+- **Performance**: `useDeferredValue` is superior to `setTimeout` for search because it integrates with React's concurrent rendering, prioritizing user input and avoiding excessive re-renders.
 - **Separation of Concerns**: Moving search logic into a custom hook makes the `CatalogPage` component cleaner and the logic more testable.
-- **UX Excellence**: Providing immediate visual feedback (loading skeleton) during search updates enhances the "premium" feel of the application.
+- **UX Excellence**: Deferring the update provides a natural, smooth transition between search states without the "stutter" often found in manual debouncing.
 
 ## Consequences
 
