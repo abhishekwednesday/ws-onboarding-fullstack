@@ -14,6 +14,8 @@ describe("Navbar component", () => {
 
   it("renders navigation links", () => {
     render(<Navbar />)
-    expect(screen.getByRole("link", { name: /Catalog/i })).toBeInTheDocument()
+    const links = screen.getAllByRole("link", { name: /Catalog/i })
+    expect(links.length).toBeGreaterThan(0)
+    expect(links[0]).toBeInTheDocument()
   })
 })

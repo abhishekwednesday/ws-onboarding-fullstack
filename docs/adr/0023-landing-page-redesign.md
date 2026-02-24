@@ -25,7 +25,8 @@ We redesigned the hero in `app/page.tsx` to fill the entire viewport (`min-h-[10
 
 Both the `Navbar` and `Footer` were redesigned for minimalism.
 
-- **Navbar**: Shifted to a floating-link style with glassmorphism (`backdrop-blur-xl`). Created a dedicated mobile menu overlay to replace the hidden-link pattern.
+- **Navbar**: Shifted to a floating-link style with glassmorphism (`backdrop-blur-xl`).
+- **Mobile Navbar Refinement**: Implemented a high-end full-screen overlay with deep backdrop blur (`backdrop-blur-2xl`). Used bold, high-contrast typography and a structured layout with dedicated sections for navigation and appearance settings. Added animated active state indicators.
 - **Footer**: Simplified to a single row (on desktop) with refined typography and reduced visual noise.
 
 **Rationale**: Navigation should be functional but not distracting. Glassmorphism maintains the immersive feel by allowing the background colors to peek through.

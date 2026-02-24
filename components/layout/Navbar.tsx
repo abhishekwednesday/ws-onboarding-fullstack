@@ -12,6 +12,18 @@ export function Navbar() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
+  // Disable scroll when mobile menu is open
+  React.useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [isMobileMenuOpen])
+
   // Close mobile menu on path change
   React.useEffect(() => {
     setIsMobileMenuOpen(false)
@@ -67,47 +79,97 @@ export function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-colors md:hidden"
+            className="group text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-all hover:bg-white/10 md:hidden"
             aria-label="Toggle menu"
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5 rotate-0 transition-transform duration-300 group-hover:scale-110" />
+            ) : (
+              <Menu className="h-5 w-5 rotate-0 transition-transform duration-300 group-hover:scale-110" />
+            )}
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="bg-background/95 fixed inset-0 top-16 z-40 p-6 backdrop-blur-xl md:hidden">
-          <div className="flex flex-col space-y-6">
-            <Link
-              href="/"
-              className={cn(
-                "text-2xl font-semibold transition-colors",
-                pathname === "/" ? "text-primary" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Home
-            </Link>
-            <Link
-              href="/catalog"
-              className={cn(
-                "text-2xl font-semibold transition-colors",
-                pathname === "/catalog" || pathname.startsWith("/catalog/")
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Catalog
-            </Link>
-            <div className="pt-4">
-              <div className="text-muted-foreground flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
-                <span>Switch Theme</span>
+      <div
+        className={cn(
+          "bg-background/90 fixed inset-0 z-40 flex flex-col backdrop-blur-2xl transition-all duration-500 ease-in-out md:hidden",
+          isMobileMenuOpen
+            ? "pointer-events-auto translate-y-0 opacity-100"
+            : "pointer-events-none -translate-y-4 opacity-0"
+        )}
+        style={{ top: "4rem", height: "calc(100vh - 4rem)" }}
+      >
+        <div className="flex flex-1 flex-col justify-between p-8 pb-12">
+          {/* Navigation Links */}
+          <div className="flex flex-col space-y-4">
+            <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase opacity-50">
+              Navigation
+            </p>
+            <div className="flex flex-col space-y-2">
+              <Link
+                href="/"
+                className={cn(
+                  "group flex items-center justify-between py-4 text-3xl font-bold tracking-tight transition-all",
+                  pathname === "/" ? "text-primary" : "text-foreground hover:translate-x-2"
+                )}
+              >
+                <span>Home</span>
+                <div
+                  className={cn(
+                    "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
+                    pathname === "/"
+                      ? "scale-100 opacity-100"
+                      : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
+                  )}
+                />
+              </Link>
+              <Link
+                href="/catalog"
+                className={cn(
+                  "group flex items-center justify-between py-4 text-3xl font-bold tracking-tight transition-all",
+                  pathname === "/catalog" || pathname.startsWith("/catalog/")
+                    ? "text-primary"
+                    : "text-foreground hover:translate-x-2"
+                )}
+              >
+                <span>Catalog</span>
+                <div
+                  className={cn(
+                    "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
+                    pathname === "/catalog" || pathname.startsWith("/catalog/")
+                      ? "scale-100 opacity-100"
+                      : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
+                  )}
+                />
+              </Link>
+            </div>
+          </div>
+
+          {/* Social/Theme Section */}
+          <div className="space-y-8 border-t border-white/10 pt-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold">Appearance</p>
+                <p className="text-muted-foreground text-xs">Toggle between light and dark modes</p>
+              </div>
+              <div className="rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
                 <ModeToggle />
               </div>
             </div>
+
+            <div>
+              <Link
+                href="/catalog"
+                className="bg-primary text-primary-foreground flex items-center justify-center rounded-xl py-4 text-sm font-bold transition-transform active:scale-95"
+              >
+                Start Browsing
+              </Link>
+            </div>
           </div>
         </div>
-      )}
+      </div>
     </nav>
   )
 }
