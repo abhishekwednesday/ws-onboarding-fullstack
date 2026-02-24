@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
+import { fireEvent, render, screen } from "@testing-library/react"
 import * as React from "react"
 import { describe, expect, it, vi } from "vitest"
 
@@ -27,12 +26,12 @@ describe("SearchInput component", () => {
     expect(input.value).toBe("Queen")
   })
 
-  it("should call onChange when the user types", async () => {
+  it("should call onChange when the user types", () => {
     const onChange = vi.fn()
     render(<SearchInput value="" onChange={onChange} onClear={vi.fn()} />)
 
     const input = screen.getByRole("textbox")
-    await userEvent.type(input, "A")
+    fireEvent.change(input, { target: { value: "A" } })
     expect(onChange).toHaveBeenCalled()
   })
 
@@ -48,11 +47,11 @@ describe("SearchInput component", () => {
     expect(screen.getByLabelText(/clear search/i)).toBeDefined()
   })
 
-  it("should call onClear when the clear button is clicked", async () => {
+  it("should call onClear when the clear button is clicked", () => {
     const onClear = vi.fn()
     render(<SearchInput value="Queen" onChange={vi.fn()} onClear={onClear} />)
 
-    await userEvent.click(screen.getByLabelText(/clear search/i))
+    fireEvent.click(screen.getByLabelText(/clear search/i))
     expect(onClear).toHaveBeenCalledOnce()
   })
 })

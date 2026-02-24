@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
+import { fireEvent, render, screen } from "@testing-library/react"
 import * as React from "react"
 import { describe, expect, it, vi } from "vitest"
 
@@ -26,14 +25,14 @@ describe("ErrorState component", () => {
     expect(screen.queryByRole("button", { name: /try again/i })).toBeNull()
   })
 
-  it("should render and invoke the retry button when onRetry is provided", async () => {
+  it("should render and invoke the retry button when onRetry is provided", () => {
     const onRetry = vi.fn()
     render(<ErrorState onRetry={onRetry} />)
 
     const button = screen.getByRole("button", { name: /try again/i })
     expect(button).toBeDefined()
 
-    await userEvent.click(button)
+    fireEvent.click(button)
     expect(onRetry).toHaveBeenCalledOnce()
   })
 })
