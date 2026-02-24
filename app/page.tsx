@@ -1,4 +1,4 @@
-import { Music, Play, Radio, Search, Zap } from "lucide-react"
+import { Play, Radio, Search, Zap } from "lucide-react"
 import { Metadata } from "next"
 import Link from "next/link"
 

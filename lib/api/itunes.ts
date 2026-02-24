@@ -1,8 +1,8 @@
-import { type ItunesSearchResponse, ItunesSearchResponseSchema } from "./schemas"
+import { ItunesSearchResponseSchema, type ItunesSearchResponseType } from "./schemas"
 
 const ITUNES_BASE_URL = "https://itunes.apple.com"
 
-export async function searchItunes(term: string): Promise<ItunesSearchResponse> {
+export async function searchItunes(term: string): Promise<ItunesSearchResponseType> {
   if (!term) {
     return { resultCount: 0, results: [] }
   }

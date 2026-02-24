@@ -16,11 +16,11 @@ export const ItunesTrackSchema = z.object({
   primaryGenreName: z.string().optional(),
 })
 
-export type ItunesTrack = z.infer<typeof ItunesTrackSchema>
+export type ItunesTrackType = z.infer<typeof ItunesTrackSchema>
 
 export const ItunesSearchResponseSchema = z.object({
   resultCount: z.number(),
   results: z.array(ItunesTrackSchema),
 })
 
-export type ItunesSearchResponse = z.infer<typeof ItunesSearchResponseSchema>
+export type ItunesSearchResponseType = z.infer<typeof ItunesSearchResponseSchema>
