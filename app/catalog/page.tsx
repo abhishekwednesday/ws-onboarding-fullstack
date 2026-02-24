@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import * as React from "react"
 
-import { CatalogPage } from "@/features/catalog/CatalogPage"
+import { CatalogPage } from "@/features/catalog/components/CatalogPage"
 
 export const metadata: Metadata = {
   title: "Catalog - MusicStream",
