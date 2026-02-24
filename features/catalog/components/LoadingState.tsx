@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 /**
  * A skeleton component that mimics the CatalogCard layout.
  */
-function CatalogCardSkeleton() {
+export function CatalogCardSkeleton() {
   return (
     <Card className="overflow-hidden">
       <CardHeader className="p-0">

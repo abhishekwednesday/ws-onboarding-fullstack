@@ -17,7 +17,7 @@ describe("itunesSearchAction server action", () => {
 
     const result = await itunesSearchAction("Queen")
     expect(result).toEqual(mockResponse)
-    expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen")
+    expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", 0)
   })
 
   it("should throw a user-friendly error if the API call fails", async () => {

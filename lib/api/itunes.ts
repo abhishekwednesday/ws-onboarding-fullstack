@@ -2,7 +2,7 @@ import { ItunesSearchResponseSchema, type ItunesSearchResponseType } from "./sch
 
 const ITUNES_BASE_URL = "https://itunes.apple.com"
 
-export async function searchItunes(term: string): Promise<ItunesSearchResponseType> {
+export async function searchItunes(term: string, offset: number = 0): Promise<ItunesSearchResponseType> {
   if (!term) {
     return { resultCount: 0, results: [] }
   }
@@ -12,6 +12,9 @@ export async function searchItunes(term: string): Promise<ItunesSearchResponseTy
   url.searchParams.set("media", "music")
   url.searchParams.set("entity", "song")
   url.searchParams.set("limit", "50")
+  if (offset > 0) {
+    url.searchParams.set("offset", offset.toString())
+  }
 
   const response = await fetch(url.toString())
 
