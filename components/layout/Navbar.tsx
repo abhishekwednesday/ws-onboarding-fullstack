@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 export function Navbar() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+  const isCatalogActive = pathname === "/catalog" || pathname.startsWith("/catalog/")
 
   // Disable scroll when mobile menu is open
   React.useEffect(() => {
@@ -60,7 +61,7 @@ export function Navbar() {
               href="/catalog"
               className={cn(
                 "rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200",
-                pathname === "/catalog" || pathname.startsWith("/catalog/")
+                isCatalogActive
                   ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/10"
               )}
@@ -97,12 +98,11 @@ export function Navbar() {
       <div
         id="mobile-menu"
         className={cn(
-          "bg-background/90 fixed inset-0 z-40 flex flex-col backdrop-blur-2xl transition-all duration-500 ease-in-out md:hidden",
+          "bg-background/90 fixed inset-x-0 top-16 bottom-0 z-40 flex flex-col backdrop-blur-2xl transition-all duration-500 ease-in-out md:hidden",
           isMobileMenuOpen
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none -translate-y-4 opacity-0"
         )}
-        style={{ top: "4rem", height: "calc(100vh - 4rem)" }}
       >
         <div className="flex flex-1 flex-col justify-between p-8 pb-12">
           {/* Navigation Links */}
@@ -132,16 +132,14 @@ export function Navbar() {
                 href="/catalog"
                 className={cn(
                   "group flex items-center justify-between py-4 text-3xl font-bold tracking-tight transition-all",
-                  pathname === "/catalog" || pathname.startsWith("/catalog/")
-                    ? "text-primary"
-                    : "text-foreground hover:translate-x-2"
+                  isCatalogActive ? "text-primary" : "text-foreground hover:translate-x-2"
                 )}
               >
                 <span>Catalog</span>
                 <div
                   className={cn(
                     "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
-                    pathname === "/catalog" || pathname.startsWith("/catalog/")
+                    isCatalogActive
                       ? "scale-100 opacity-100"
                       : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
                   )}

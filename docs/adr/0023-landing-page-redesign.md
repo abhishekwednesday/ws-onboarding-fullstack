@@ -16,7 +16,7 @@ The initial landing page felt basic and didn't provide an "immersive" first impr
 We redesigned the hero in `app/page.tsx` to fill the entire viewport (`min-h-[100svh]`).
 
 - **Background**: The `HeroGrainient` is the primary visual anchor.
-- **Transition**: To avoid a "hard" or "weird" transition to the content below, we used a smoother, longer transparent gradient fade (`line-gradient to bottom`).
+- **Transition**: To avoid a "hard" or "weird" transition to the content below, we used a smoother, longer transparent gradient fade (`linear-gradient to bottom`).
 - **Pacing**: Increased spacing and used a larger, bolder headline for better visual hierarchy.
 
 **Rationale**: A full-viewport hero creates a much more premium feel and allows the animated background to set the tone for the entire app.

@@ -41,15 +41,16 @@ export default function LandingPage() {
 
             {/* CTA */}
             <div className="pt-2">
-              <Link href="/catalog" className="cursor-pointer">
-                <Button
-                  size="lg"
-                  className="cursor-pointer gap-2 px-8 transition-transform hover:scale-[1.02] active:scale-[0.98]"
-                >
+              <Button
+                asChild
+                size="lg"
+                className="gap-2 px-8 transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Link href="/catalog">
                   Browse the catalog
                   <span aria-hidden="true">→</span>
-                </Button>
-              </Link>
+                </Link>
+              </Button>
             </div>
           </div>
 
@@ -70,41 +71,36 @@ export default function LandingPage() {
 
             {/* Cards */}
             <div className="grid gap-5 sm:grid-cols-3">
-              <div className="bg-background/40 space-y-4 rounded-2xl border border-white/10 p-7 backdrop-blur-md">
-                <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-3">
-                  <Search className="text-foreground h-5 w-5" />
+              {[
+                {
+                  icon: Search,
+                  title: "Search anything",
+                  description: "Type a track, artist, or album and get results straight from the iTunes catalog.",
+                },
+                {
+                  icon: Play,
+                  title: "Preview & open",
+                  description: "Play a 30-second preview on the spot, or open the full track in Apple Music.",
+                },
+                {
+                  icon: BookHeart,
+                  title: "Save favourites",
+                  description: "Bookmark tracks you love and revisit them any time — no account needed.",
+                },
+              ].map(({ icon: Icon, title, description }) => (
+                <div
+                  key={title}
+                  className="bg-background/40 space-y-4 rounded-2xl border border-white/10 p-7 backdrop-blur-md"
+                >
+                  <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-3">
+                    <Icon className="text-foreground h-5 w-5" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-base font-semibold">{title}</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <h3 className="text-base font-semibold">Search anything</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Type a track, artist, or album and get results straight from the iTunes catalog.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-background/40 space-y-4 rounded-2xl border border-white/10 p-7 backdrop-blur-md">
-                <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-3">
-                  <Play className="text-foreground h-5 w-5" />
-                </div>
-                <div className="space-y-1.5">
-                  <h3 className="text-base font-semibold">Preview &amp; open</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Play a 30-second preview on the spot, or open the full track in Apple Music.
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-background/40 space-y-4 rounded-2xl border border-white/10 p-7 backdrop-blur-md">
-                <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-3">
-                  <BookHeart className="text-foreground h-5 w-5" />
-                </div>
-                <div className="space-y-1.5">
-                  <h3 className="text-base font-semibold">Save favourites</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    Bookmark tracks you love and revisit them any time — no account needed.
-                  </p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>

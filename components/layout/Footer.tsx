@@ -1,3 +1,4 @@
+import Link from "next/link"
 import * as React from "react"
 
 export function Footer() {
@@ -10,12 +11,12 @@ export function Footer() {
         </div>
 
         <div className="text-muted-foreground flex items-center space-x-8 text-xs font-medium">
-          <a href="#" className="hover:text-foreground transition-colors">
+          <Link href="/privacy" className="hover:text-foreground transition-colors">
             Privacy Policy
-          </a>
-          <a href="#" className="hover:text-foreground transition-colors">
+          </Link>
+          <Link href="/terms" className="hover:text-foreground transition-colors">
             Terms of Service
-          </a>
+          </Link>
         </div>
       </div>
     </footer>
