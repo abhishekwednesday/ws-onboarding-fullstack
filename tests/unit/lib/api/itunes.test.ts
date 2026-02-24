@@ -32,4 +32,14 @@ describe("searchItunes API client", () => {
     const result = await searchItunes("test")
     expect(result).toEqual(mockData)
   })
+
+  it("should include the offset parameter in the URL if provided", async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ resultCount: 0, results: [] }),
+    } as Response)
+
+    await searchItunes("test", 50)
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining("offset=50"))
+  })
 })

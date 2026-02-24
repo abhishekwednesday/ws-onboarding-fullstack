@@ -42,9 +42,10 @@ test.describe("Navigation & Layout", () => {
     await expect(catalogLink).toHaveAttribute("href", "/catalog")
   })
 
-  test("should have a search input in the Navbar", async ({ page }) => {
-    const searchInput = page.getByPlaceholder(/Search artists, tracks\.\.\./i)
-    await expect(searchInput).toBeVisible()
+  test("should have a theme toggle in the Navbar", async ({ page }) => {
+    const navbar = page.locator("nav")
+    const themeToggle = navbar.getByRole("button", { name: /toggle theme/i })
+    await expect(themeToggle).toBeVisible()
   })
 
   test("should verify Footer content", async ({ page }) => {

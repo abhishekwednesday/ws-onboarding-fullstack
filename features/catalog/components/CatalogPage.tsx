@@ -5,12 +5,30 @@ import * as React from "react"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
 import { ErrorState } from "./ErrorState"
-import { LoadingState } from "./LoadingState"
+import { CatalogCardSkeleton, LoadingState } from "./LoadingState"
 import { SearchInput } from "./SearchInput"
 import { useCatalog } from "../hooks/useCatalog"
+import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
 
 export function CatalogPage() {
-  const { data: items, isLoading, isError, error, refetch, searchTerm, setSearchTerm, handleClear } = useCatalog()
+  const {
+    data: items,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    searchTerm,
+    setSearchTerm,
+    handleClear,
+    loadMore,
+    hasMore,
+    isFetchingMore,
+  } = useCatalog()
+
+  const { sentinelRef } = useInfiniteScroll({
+    onIntersect: loadMore,
+    enabled: !isLoading && !isFetchingMore && hasMore,
+  })
 
   return (
     <div className="space-y-8 py-10">
@@ -31,8 +49,30 @@ export function CatalogPage() {
           <ErrorState message={(error as Error)?.message || "Please try again later."} onRetry={() => refetch()} />
         )}
 
-        {!isLoading && !isError && items && (
-          <>{items.length > 0 ? <CatalogList items={items} /> : <EmptyState onReset={handleClear} />}</>
+        {!isLoading && !isError && (
+          <>
+            {items.length > 0 ? (
+              <div className="space-y-6">
+                <CatalogList items={items} />
+
+                {isFetchingMore && (
+                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <CatalogCardSkeleton key={`skeleton-${i}`} />
+                    ))}
+                  </div>
+                )}
+
+                <div ref={sentinelRef} className="flex justify-center py-4">
+                  {!hasMore && (
+                    <p className="text-muted-foreground text-sm font-medium">You've reached the end of the catalog.</p>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <EmptyState onReset={handleClear} />
+            )}
+          </>
         )}
       </div>
     </div>
