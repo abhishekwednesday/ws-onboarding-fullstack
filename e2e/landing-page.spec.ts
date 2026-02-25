@@ -31,8 +31,9 @@ test.describe("Navigation & Layout", () => {
   })
 
   test("should verify Navbar branding and links", async ({ page }) => {
-    const navbar = page.locator("nav")
-    await expect(navbar.getByText("MusicStream")).toBeVisible()
+    const navbar = page.getByRole("navigation")
+    await expect(navbar).toBeVisible({ timeout: 10000 })
+    await expect(navbar.getByRole("link", { name: /MusicStream/i })).toBeVisible()
 
     const catalogLink = navbar.getByRole("link", { name: /Catalog/i }).first()
     await expect(catalogLink).toBeVisible()

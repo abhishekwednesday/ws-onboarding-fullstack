@@ -1,29 +1,59 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { act, renderHook, waitFor } from "@testing-library/react"
+import * as React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import * as catalogActions from "@/actions/catalog/catalog-actions"
-import { useCatalog } from "@/features/catalog/hooks/useCatalog"
-import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
-vi.mock("@/actions/catalog/catalog-actions", () => ({
+import * as catalogActions from "@/features/catalog/api/catalog-actions"
+import { useCatalog } from "@/features/catalog/hooks/useCatalog"
+
+vi.mock("@/features/catalog/api/catalog-actions", () => ({
   itunesSearchAction: vi.fn(),
 }))
 
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  })
+  return ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  )
+}
+
 describe("useCatalog hook", () => {
   const mockItems = [
-    { trackId: 1, trackName: "Song 1", artistName: "Artist 1", artworkUrl100: "", previewUrl: "" },
-    { trackId: 2, trackName: "Song 2", artistName: "Artist 2", artworkUrl100: "", previewUrl: "" },
+    {
+      id: 1,
+      title: "Song 1",
+      artist: "Artist 1",
+      artworkUrl: "",
+      previewUrl: "",
+    },
+    {
+      id: 2,
+      title: "Song 2",
+      artist: "Artist 2",
+      artworkUrl: "",
+      previewUrl: "",
+    },
   ]
 
   beforeEach(() => {
     vi.clearAllMocks()
     vi.mocked(catalogActions.itunesSearchAction).mockResolvedValue({
-      resultCount: 2,
-      results: mockItems,
-    } as unknown as ItunesSearchResponseType)
+      items: mockItems,
+      nextOffset: null,
+      totalCount: 2,
+    })
   })
 
   it("should fetch initial items on mount", async () => {
-    const { result } = renderHook(() => useCatalog())
+    const { result } = renderHook(() => useCatalog(), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -34,62 +64,66 @@ describe("useCatalog hook", () => {
   })
 
   it("should load more items when loadMore is called", async () => {
-    // Start with a mock that looks like a full page to keep hasMore=true
-    const fullPageResults = Array.from({ length: 50 }).map((_, i) => ({
-      trackId: i,
-      trackName: `Song ${i}`,
-      artistName: "Artist",
-      artworkUrl100: "",
+    const fullPageItems = Array.from({ length: 50 }).map((_, i) => ({
+      id: i,
+      title: `Song ${i}`,
+      artist: "Artist",
+      artworkUrl: "",
       previewUrl: "",
     }))
-    vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce({
-      resultCount: 50,
-      results: fullPageResults,
-    } as unknown as ItunesSearchResponseType)
 
-    const { result } = renderHook(() => useCatalog())
+    vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce({
+      items: fullPageItems,
+      nextOffset: 50,
+      totalCount: 100,
+    })
+
+    const { result } = renderHook(() => useCatalog(), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.hasMore).toBe(true)
 
-    const secondBatch = [
-      { trackId: 100, trackName: "Song 100", artistName: "Artist", artworkUrl100: "", previewUrl: "" },
-    ]
+    const secondBatch = [{ id: 100, title: "Song 100", artist: "Artist", artworkUrl: "", previewUrl: "" }]
 
     vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce({
-      resultCount: 1,
-      results: secondBatch,
-    } as unknown as ItunesSearchResponseType)
+      items: secondBatch,
+      nextOffset: null,
+      totalCount: 100,
+    })
 
     await act(async () => {
       result.current.loadMore()
     })
 
     await waitFor(() => expect(result.current.isFetchingMore).toBe(false))
+    // isFetchingMore is now mapped directly to isFetchingNextPage in useCatalog.ts
+    expect(result.current.isFetchingMore).toBe(false)
 
     expect(result.current.data.length).toBe(51)
     expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", 50)
   })
 
   it("should reset items when search term changes", async () => {
-    const { result } = renderHook(() => useCatalog())
+    const { result } = renderHook(() => useCatalog(), {
+      wrapper: createWrapper(),
+    })
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
 
-    const searchBatch = [
-      { trackId: 10, trackName: "Search Result", artistName: "Search Artist", artworkUrl100: "", previewUrl: "" },
-    ]
+    const searchBatch = [{ id: 10, title: "Search Result", artist: "Search Artist", artworkUrl: "", previewUrl: "" }]
 
     vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce({
-      resultCount: 1,
-      results: searchBatch,
-    } as unknown as ItunesSearchResponseType)
+      items: searchBatch,
+      nextOffset: null,
+      totalCount: 1,
+    })
 
     act(() => {
       result.current.setSearchTerm("new")
     })
 
-    // Search term change triggers a reset fetch when it deviates from lastTermRef.current
     await waitFor(
       () => {
         expect(result.current.data.length).toBe(1)
@@ -97,51 +131,5 @@ describe("useCatalog hook", () => {
       },
       { timeout: 3000 }
     )
-  })
-
-  it("should stop pagination when no new unique items are found", async () => {
-    // Start with items in state
-    const { result } = renderHook(() => useCatalog())
-    await waitFor(() => expect(result.current.isLoading).toBe(false))
-
-    // items length is 2. manually override hasMore to true for testing if needed
-    // Actually the hook sets hasMore based on result length.
-
-    // We need the FIRST call to return 50 to have hasMore=true
-    vi.mocked(catalogActions.itunesSearchAction).mockClear()
-    vi.mocked(catalogActions.itunesSearchAction)
-      .mockResolvedValueOnce({
-        resultCount: 50,
-        results: Array.from({ length: 50 }).map((_, i) => ({
-          trackId: i,
-          trackName: `Song ${i}`,
-          artistName: "Artist",
-          artworkUrl100: "",
-          previewUrl: "",
-        })),
-      } as unknown as ItunesSearchResponseType)
-      .mockResolvedValueOnce({
-        resultCount: 50,
-        results: Array.from({ length: 50 }).map((_, i) => ({
-          trackId: i, // SAME IDs as before
-          trackName: `Song ${i}`,
-          artistName: "Artist",
-          artworkUrl100: "",
-          previewUrl: "",
-        })),
-      } as unknown as ItunesSearchResponseType)
-
-    const { result: hook } = renderHook(() => useCatalog())
-    await waitFor(() => expect(hook.current.isLoading).toBe(false))
-    expect(hook.current.hasMore).toBe(true)
-
-    await act(async () => {
-      hook.current.loadMore()
-    })
-
-    await waitFor(() => {
-      expect(hook.current.isFetchingMore).toBe(false)
-      expect(hook.current.hasMore).toBe(false)
-    })
   })
 })

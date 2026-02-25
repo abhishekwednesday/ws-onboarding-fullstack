@@ -1,7 +1,7 @@
 "use server"
 
 import { type CatalogItemType, mapItunesTrackToCatalogItem } from "@/features/catalog/types/catalog-types"
-import { lookupItunes, lookupItunesTrack, searchItunes } from "@/lib/api/itunes"
+import { ITUNES_PAGE_SIZE, lookupItunes, lookupItunesTrack, searchItunes } from "@/lib/api/itunes"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
 /**
@@ -12,9 +12,19 @@ import { type ItunesSearchResponseType } from "@/lib/api/schemas"
  * @param offset The offset for pagination.
  * @returns A promise that resolves to the itunes search response.
  */
-export async function itunesSearchAction(term: string, offset: number = 0): Promise<ItunesSearchResponseType> {
+export async function itunesSearchAction(
+  term: string,
+  offset: number = 0
+): Promise<{ items: CatalogItemType[]; nextOffset: number | null; totalCount: number }> {
   try {
-    return await searchItunes(term, offset)
+    const response = await searchItunes(term, offset)
+    const items = response.results.map(mapItunesTrackToCatalogItem)
+
+    return {
+      items,
+      nextOffset: response.resultCount === ITUNES_PAGE_SIZE ? offset + ITUNES_PAGE_SIZE : null,
+      totalCount: response.resultCount,
+    }
   } catch (error) {
     console.error("ITunes Search Server Action Error:", error)
     throw new Error("Failed to fetch data from ITunes API.")

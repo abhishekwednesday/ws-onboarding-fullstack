@@ -1,6 +1,6 @@
 "use client"
 
-import { Search, X } from "lucide-react"
+import { LoaderCircle, Search, X } from "lucide-react"
 import * as React from "react"
 
 import { Button } from "@/components/ui/button"
@@ -13,6 +13,7 @@ export function SearchInput({
   onChange,
   onClear,
   placeholder = "Search for tracks, artists...",
+  isPending = false,
 }: SearchInputPropsType) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value)
@@ -21,7 +22,11 @@ export function SearchInput({
   return (
     <div className="relative w-full max-w-sm">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-        <Search className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+        {isPending ? (
+          <LoaderCircle className="text-primary h-4 w-4 animate-spin" aria-hidden="true" />
+        ) : (
+          <Search className="text-muted-foreground h-4 w-4" aria-hidden="true" />
+        )}
       </div>
       <Input
         type="text"

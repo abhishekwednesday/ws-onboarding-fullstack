@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { itunesLookupSingleAction } from "@/actions/catalog/catalog-actions"
+import { itunesLookupSingleAction } from "../api/catalog-actions"
 import { type CatalogItemType } from "../types/catalog-types"
 
 /**

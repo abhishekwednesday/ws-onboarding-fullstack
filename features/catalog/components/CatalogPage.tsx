@@ -31,6 +31,7 @@ export function CatalogPage() {
     loadMore,
     hasMore,
     isFetchingMore,
+    isSearchPending,
     shouldShowFavoritesOnly,
     toggleShowFavoritesOnly,
   } = useCatalog()
@@ -54,7 +55,7 @@ export function CatalogPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} />
+          <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} isPending={isSearchPending} />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

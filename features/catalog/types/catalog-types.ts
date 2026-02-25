@@ -41,6 +41,7 @@ export interface SearchInputPropsType {
   onChange: (value: string) => void
   onClear: () => void
   placeholder?: string
+  isPending?: boolean
 }
 
 /**
