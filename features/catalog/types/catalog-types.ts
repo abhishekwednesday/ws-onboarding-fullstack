@@ -16,13 +16,13 @@ export type CatalogItemType = {
   trackViewUrl?: string
 }
 
-export interface FavoritesState {
+export interface FavoritesStateType {
   favorites: Record<number, CatalogItemType>
   toggleFavorite: (track: CatalogItemType) => void
   isFavorite: (id: number) => boolean
 }
 
-export interface FavoriteButtonProps {
+export interface FavoriteButtonPropsType {
   track: CatalogItemType
   className?: string
   iconOnly?: boolean

@@ -31,9 +31,13 @@ export function CatalogPage() {
     loadMore,
     hasMore,
     isFetchingMore,
-    showFavoritesOnly,
-    setShowFavoritesOnly,
+    shouldShowFavoritesOnly,
+    setShouldShowFavoritesOnly,
   } = useCatalog()
+
+  const handleToggleFavorites = () => {
+    setShouldShowFavoritesOnly(!shouldShowFavoritesOnly)
+  }
 
   const { sentinelRef } = useInfiniteScroll({
     onIntersect: loadMore,
@@ -55,19 +59,19 @@ export function CatalogPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                  onClick={handleToggleFavorites}
                   className={cn(
                     "flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-all duration-300",
-                    showFavoritesOnly
+                    shouldShowFavoritesOnly
                       ? "border-rose-500 bg-rose-500 text-white shadow-lg shadow-rose-900/20"
                       : "bg-background/50 text-muted-foreground hover:bg-background hover:text-foreground border-gray-300 backdrop-blur-sm"
                   )}
-                  aria-label={showFavoritesOnly ? "Show all tracks" : "Show favorites only"}
+                  aria-label={shouldShowFavoritesOnly ? "Show all tracks" : "Show favorites only"}
                 >
-                  <Heart className={cn("h-5 w-5", showFavoritesOnly && "fill-current")} />
+                  <Heart className={cn("h-5 w-5", shouldShowFavoritesOnly && "fill-current")} />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>{showFavoritesOnly ? "Showing Favorites" : "Show Favorites Only"}</TooltipContent>
+              <TooltipContent>{shouldShowFavoritesOnly ? "Showing Favorites" : "Show Favorites Only"}</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>

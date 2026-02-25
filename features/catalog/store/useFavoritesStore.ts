@@ -1,9 +1,9 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-import { type CatalogItemType, type FavoritesState } from "../types/catalog-types"
+import { type CatalogItemType, type FavoritesStateType } from "../types/catalog-types"
 
-export const useFavoritesStore = create<FavoritesState>()(
+export const useFavoritesStore = create<FavoritesStateType>()(
   persist(
     (set, get) => ({
       favorites: {},
