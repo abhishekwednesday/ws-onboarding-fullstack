@@ -4,11 +4,13 @@ import { Heart } from "lucide-react"
 import * as React from "react"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { FLAG_NEW_CATALOG_LAYOUT, useFeatureFlag } from "@/lib/feature-flags/flags"
 import { cn } from "@/lib/utils"
+import { CatalogGridVariantB } from "./CatalogGridVariantB"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
 import { ErrorState } from "./ErrorState"
-import { CatalogCardSkeleton, LoadingState } from "./LoadingState"
+import { LoadingState } from "./LoadingState"
 import { SearchInput } from "./SearchInput"
 import { useCatalog } from "../hooks/useCatalog"
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
@@ -18,6 +20,7 @@ import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
  * Displays a searchable list of music tracks with infinite scrolling and a favorites toggle.
  */
 export function CatalogPage() {
+  const [isMounted, setIsMounted] = React.useState(false)
   const {
     data: items,
     isLoading,
@@ -36,8 +39,13 @@ export function CatalogPage() {
     debouncedSearchTerm,
   } = useCatalog()
 
+  const flagEnabled = useFeatureFlag(FLAG_NEW_CATALOG_LAYOUT)
+  const isNewLayout = isMounted && flagEnabled
+
   // Ensure we scroll to top when toggling views or searching
+  // Also handle mount state for hydration safety
   React.useEffect(() => {
+    setIsMounted(true)
     window.scrollTo(0, 0)
   }, [shouldShowFavoritesOnly, debouncedSearchTerm])
 
@@ -84,7 +92,7 @@ export function CatalogPage() {
       </div>
 
       <div className="border-t pt-10">
-        {isLoading && <LoadingState />}
+        {isLoading && <LoadingState isNewLayout={isNewLayout} />}
 
         {isError && (
           <ErrorState message={(error as Error)?.message || "Please try again later."} onRetry={() => refetch()} />
@@ -94,15 +102,9 @@ export function CatalogPage() {
           <>
             {items.length > 0 ? (
               <div className="space-y-6">
-                <CatalogList items={items} />
+                {isNewLayout ? <CatalogGridVariantB items={items} /> : <CatalogList items={items} />}
 
-                {isFetchingMore && (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <CatalogCardSkeleton key={`skeleton-${i}`} />
-                    ))}
-                  </div>
-                )}
+                {isFetchingMore && <LoadingState isNewLayout={isNewLayout} count={5} />}
 
                 <div ref={sentinelRef} className="flex justify-center py-4">
                   {!hasMore && (
