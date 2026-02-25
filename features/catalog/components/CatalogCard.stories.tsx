@@ -7,6 +7,9 @@ const meta: Meta<typeof CatalogCard> = {
   component: CatalogCard,
   parameters: {
     layout: "centered",
+    nextjs: {
+      appDirectory: true,
+    },
   },
   tags: ["autodocs"],
   decorators: [
