@@ -6,6 +6,10 @@ import * as React from "react"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogCardPropsType } from "../types/catalog-types"
 
+/**
+ * Individual card component for a music track in the catalog.
+ * Displays artwork, title, artist, and genre with a link to details.
+ */
 export function CatalogCard({ item }: CatalogCardPropsType) {
   const router = useRouter()
 

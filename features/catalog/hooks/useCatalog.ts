@@ -1,11 +1,16 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
-import * as React from "react"
 import { useCallback, useDeferredValue, useMemo, useState, useTransition } from "react"
 
 import { itunesSearchAction } from "../api/catalog-actions"
 import { useFavoritesStore } from "../store/useFavoritesStore"
 
+/**
+ * Core hook for managing the music catalog state, search, and pagination.
+ * Handles the integration between TanStack Query and the local UI state (searchTerm, favorites).
+ *
+ * @returns {object} Catalog state and interaction handlers.
+ */
 export function useCatalog() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -36,20 +41,17 @@ export function useCatalog() {
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
 
-      // iTunes API sometimes returns duplicates or loops.
-      // If the last page added NO new unique items, we stop.
+      // If the last page added NO new unique items, stop to avoid infinite loops
       const previousItems = allPages.slice(0, -1).flatMap((p) => p.items)
       const existingIds = new Set(previousItems.map((i) => i.id))
       const newUniqueCount = lastPage.items.filter((i) => !existingIds.has(i.id)).length
 
-      if (allPages.length > 1 && newUniqueCount === 0) {
-        return null
-      }
+      if (allPages.length > 1 && newUniqueCount === 0) return null
 
       return lastPage.nextOffset
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    enabled: !shouldShowFavoritesOnly, // Disable catalog fetching when showing favorites only
+    staleTime: 1000 * 60 * 5,
+    enabled: !shouldShowFavoritesOnly,
   })
 
   // Flattened and deduplicated items from all pages
@@ -57,13 +59,12 @@ export function useCatalog() {
     const allItems = data?.pages.flatMap((page) => page.items) ?? []
     const seen = new Set<number>()
     return allItems.filter((item) => {
-      if (seen.has(item.id)) return false
+      const duplicate = seen.has(item.id)
       seen.add(item.id)
-      return true
+      return !duplicate
     })
   }, [data])
 
-  // Write the search term back to the URL so it survives Back navigation
   const setSearchTerm = useCallback(
     (term: string) => {
       setSearchTermState(term)
@@ -109,5 +110,6 @@ export function useCatalog() {
     hasMore: shouldShowFavoritesOnly ? false : !!hasNextPage,
     shouldShowFavoritesOnly,
     toggleShowFavoritesOnly,
+    debouncedSearchTerm: deferredTerm,
   }
 }
