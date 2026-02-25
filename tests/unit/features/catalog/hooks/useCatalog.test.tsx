@@ -98,6 +98,8 @@ describe("useCatalog hook", () => {
     })
 
     await waitFor(() => expect(result.current.isFetchingMore).toBe(false))
+    // isFetchingMore is now mapped directly to isFetchingNextPage in useCatalog.ts
+    expect(result.current.isFetchingMore).toBe(false)
 
     expect(result.current.data.length).toBe(51)
     expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", 50)

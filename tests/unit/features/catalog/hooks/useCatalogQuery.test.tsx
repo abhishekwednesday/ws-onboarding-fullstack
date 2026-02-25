@@ -40,7 +40,7 @@ describe("useCatalogQuery hook", () => {
         },
       ],
       nextOffset: 50,
-      totalCount: 1,
+      totalCount: 100,
     }
     vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce(mockMappedResponse)
 

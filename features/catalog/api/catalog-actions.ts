@@ -22,7 +22,7 @@ export async function itunesSearchAction(
 
     return {
       items,
-      nextOffset: items.length === ITUNES_PAGE_SIZE ? offset + ITUNES_PAGE_SIZE : null,
+      nextOffset: response.resultCount === ITUNES_PAGE_SIZE ? offset + ITUNES_PAGE_SIZE : null,
       totalCount: response.resultCount,
     }
   } catch (error) {

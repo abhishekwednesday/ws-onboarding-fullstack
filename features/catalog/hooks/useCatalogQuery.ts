@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 
 import { itunesSearchAction } from "../api/catalog-actions"
-import { mapItunesTrackToCatalogItem } from "../types/catalog-types"
 
 export function useCatalogQuery(query: string = "top music") {
   return useQuery({

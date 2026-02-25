@@ -38,7 +38,7 @@ describe("itunesSearchAction server action", () => {
 
   it("should return correct nextOffset for a full page", async () => {
     const mockFullPage = {
-      resultCount: 100,
+      resultCount: 50,
       results: Array.from({ length: 50 }).map((_, i) => ({
         trackId: i,
         artistName: "Artist",
@@ -56,6 +56,28 @@ describe("itunesSearchAction server action", () => {
     const result = await itunesSearchAction("test", 0)
     expect(result.items.length).toBe(50)
     expect(result.nextOffset).toBe(50)
+  })
+
+  it("should handle non-zero offsets correctly", async () => {
+    const mockPage2 = {
+      resultCount: 50,
+      results: Array.from({ length: 50 }).map((_, i) => ({
+        trackId: i + 50,
+        artistName: "Artist",
+        trackName: `Song ${i + 50}`,
+        collectionName: "Album",
+        artworkUrl100: "",
+        previewUrl: "",
+        primaryGenreName: "Genre",
+        trackTimeMillis: 0,
+        trackViewUrl: "",
+      })),
+    }
+    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockPage2 as unknown as ItunesSearchResponseType)
+
+    const result = await itunesSearchAction("test", 50)
+    expect(result.items.length).toBe(50)
+    expect(result.nextOffset).toBe(100)
   })
 
   it("should throw a user-friendly error if the API call fails", async () => {
