@@ -25,7 +25,7 @@ To establish a single, unified source of truth for test configuration:
 3.  **Refactor Configs:**
     - Removed hardcoded `env` stubs from `vitest.config.ts` and loaded `.env.test` via `dotenv.config()`.
     - Removed hardcoded values from `playwright.config.ts` and similarly enforced `dotenv.config()`.
-4.  **CI Synchronization:** Removed hardcoded `env:` arrays from `.github/workflows/check.yml` and `playwright.yml`. Instead, we introduced a pre-computation shell step (`grep -v '^#' .env.test >> $GITHUB_ENV`) to dynamically parse the central `.env.test` file and inject its values into the GitHub Actions runner environment.
+4.  **CI Synchronization:** Removed hardcoded `env:` arrays from `.github/workflows/check.yml` and `.github/workflows/playwright.yml`. Instead, we introduced a pre-computation step utilizing a Node.js script and `dotenv` to parse `.env.test` handle complex pairs, and inject its values robustly into the GitHub Actions runner environment (`$GITHUB_ENV`).
 
 ## Consequences
 
