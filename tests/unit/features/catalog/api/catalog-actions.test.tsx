@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest"
-import { itunesSearchAction } from "@/actions/catalog/catalog-actions"
+import { itunesSearchAction } from "@/features/catalog/api/catalog-actions"
 import * as itunesApi from "@/lib/api/itunes"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
@@ -8,15 +8,29 @@ vi.mock("@/lib/api/itunes", () => ({
 }))
 
 describe("itunesSearchAction server action", () => {
-  it("should call searchItunes and return data on success", async () => {
+  it("should call searchItunes and return mapped data on success", async () => {
     const mockResponse = {
       resultCount: 1,
-      results: [{ trackId: 123, artistName: "Queen", trackName: "Bohemian Rhapsody" }],
+      results: [
+        {
+          trackId: 123,
+          artistName: "Queen",
+          trackName: "Bohemian Rhapsody",
+          collectionName: "A Night at the Opera",
+          artworkUrl100: "http://example.com/art.jpg",
+          previewUrl: "http://example.com/preview.mp3",
+          primaryGenreName: "Rock",
+          trackTimeMillis: 300000,
+          trackViewUrl: "http://example.com/view",
+        },
+      ],
     }
     vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockResponse as unknown as ItunesSearchResponseType)
 
     const result = await itunesSearchAction("Queen")
-    expect(result).toEqual(mockResponse)
+    expect(result.items.length).toBe(1)
+    expect(result.items[0]!.id).toBe(123)
+    expect(result.totalCount).toBe(1)
     expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", 0)
   })
 

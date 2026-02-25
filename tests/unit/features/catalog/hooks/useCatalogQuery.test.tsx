@@ -3,11 +3,10 @@ import { renderHook, waitFor } from "@testing-library/react"
 import * as React from "react"
 import { describe, expect, it, vi } from "vitest"
 
-import * as catalogActions from "@/actions/catalog/catalog-actions"
+import * as catalogActions from "@/features/catalog/api/catalog-actions"
 import { useCatalogQuery } from "@/features/catalog/hooks/useCatalogQuery"
-import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
-vi.mock("@/actions/catalog/catalog-actions", () => ({
+vi.mock("@/features/catalog/api/catalog-actions", () => ({
   itunesSearchAction: vi.fn(),
 }))
 
@@ -26,25 +25,24 @@ const createWrapper = () => {
 
 describe("useCatalogQuery hook", () => {
   it("should transform ITunes data to CatalogItemType on success", async () => {
-    const mockItunesResponse = {
-      resultCount: 1,
-      results: [
+    const mockMappedResponse = {
+      items: [
         {
-          trackId: 123,
-          trackName: "Song Name",
-          artistName: "Artist Name",
-          collectionName: "Album Name",
-          artworkUrl100: "http://example.com/art.jpg",
+          id: 123,
+          title: "Song Name",
+          artist: "Artist Name",
+          album: "Album Name",
+          artworkUrl: "http://example.com/art.jpg",
           previewUrl: "http://example.com/preview.mp3",
-          primaryGenreName: "Rock",
-          trackTimeMillis: 300000,
+          genre: "Rock",
+          duration: 300000,
           trackViewUrl: "http://example.com/view",
         },
       ],
+      nextOffset: 50,
+      totalCount: 1,
     }
-    vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce(
-      mockItunesResponse as unknown as ItunesSearchResponseType
-    )
+    vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce(mockMappedResponse)
 
     const { result } = renderHook(() => useCatalogQuery("query"), {
       wrapper: createWrapper(),
