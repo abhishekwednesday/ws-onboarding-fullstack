@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
@@ -41,7 +42,7 @@ export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
   return (
     <div className="flex flex-col divide-y" data-testid="catalog-variant-b">
       {items.map((item) => {
-        const highResArtwork = item.artworkUrl?.replace("100x100bb.jpg", "400x400bb.jpg")
+        const thumbnailUrl = item.artworkUrl?.replace("100x100bb.jpg", "96x96bb.jpg")
 
         return (
           <div
@@ -53,11 +54,12 @@ export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
             tabIndex={0}
             aria-label={`View details for ${item.title}`}
           >
-            {highResArtwork ? (
-              <img
-                src={highResArtwork}
+            {thumbnailUrl ? (
+              <Image
+                src={thumbnailUrl}
                 alt={item.title}
-                loading="lazy"
+                width={48}
+                height={48}
                 className="h-12 w-12 shrink-0 rounded-lg object-cover"
               />
             ) : (

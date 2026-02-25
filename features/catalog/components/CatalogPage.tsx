@@ -10,7 +10,7 @@ import { CatalogGridVariantB } from "./CatalogGridVariantB"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
 import { ErrorState } from "./ErrorState"
-import { CatalogCardSkeleton, LoadingState } from "./LoadingState"
+import { CatalogCardSkeleton, CatalogRowSkeleton, LoadingState } from "./LoadingState"
 import { SearchInput } from "./SearchInput"
 import { useCatalog } from "../hooks/useCatalog"
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
@@ -88,7 +88,7 @@ export function CatalogPage() {
       </div>
 
       <div className="border-t pt-10">
-        {isLoading && <LoadingState />}
+        {isLoading && <LoadingState isNewLayout={isNewLayout} />}
 
         {isError && (
           <ErrorState message={(error as Error)?.message || "Please try again later."} onRetry={() => refetch()} />
@@ -104,13 +104,7 @@ export function CatalogPage() {
                   (isNewLayout ? (
                     <div className="flex flex-col divide-y">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={`skeleton-row-${i}`} className="flex items-center gap-4 px-2 py-3">
-                          <div className="bg-muted h-12 w-12 shrink-0 animate-pulse rounded-lg" />
-                          <div className="flex-1 space-y-1.5">
-                            <div className="bg-muted h-3 w-2/3 animate-pulse rounded" />
-                            <div className="bg-muted h-2.5 w-1/3 animate-pulse rounded" />
-                          </div>
-                        </div>
+                        <CatalogRowSkeleton key={`skeleton-row-${i}`} />
                       ))}
                     </div>
                   ) : (
