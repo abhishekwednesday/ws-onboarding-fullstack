@@ -1,8 +1,6 @@
 # ADR 0029 — PostHog Event Tracking
 
-**Date:** 2026-02-25  
-**Status:** Accepted  
-**Branch:** `feat/ONB-3-posthog-event-tracking`
+**Date:** 2026-02-25
 
 ## Context
 
@@ -27,10 +25,6 @@ Components do not import from `posthog-js` directly. All event emission goes thr
 - Renaming or restructuring an event requires a change in exactly one file
 - Components stay decoupled from the analytics infrastructure
 - PostHog can be swapped for any other provider without touching UI code
-
-### AI slop removal
-
-The `// Simulate/Handle the actual logic` comment in `FavoriteButton.tsx` was removed — it described a draft state, not the live code.
 
 ## Consequences
 

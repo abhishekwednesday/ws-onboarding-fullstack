@@ -65,3 +65,10 @@ export function trackFavoriteRemoved(track: CatalogItemType): void {
     artist: track.artist,
   })
 }
+
+/**
+ * Tracks a pageview event on App Router navigations.
+ */
+export function trackPageView(currentUrl: string): void {
+  posthogClient.capture("$pageview", { $current_url: currentUrl })
+}

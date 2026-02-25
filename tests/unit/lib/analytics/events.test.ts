@@ -74,6 +74,12 @@ describe("analytics events", () => {
       trackThemeToggled(theme)
       expect(posthog.capture).toHaveBeenCalledWith("theme_toggled", { theme })
     })
+
+    it("emits 'unknown' for invalid theme values", () => {
+      // @ts-expect-error — intentionally testing runtime guard with an invalid value
+      trackThemeToggled("invalid-theme")
+      expect(posthog.capture).toHaveBeenCalledWith("theme_toggled", { theme: "unknown" })
+    })
   })
 
   describe("trackFavoriteAdded", () => {

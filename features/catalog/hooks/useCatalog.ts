@@ -57,7 +57,8 @@ export function useCatalog() {
 
   // Track search intent once the deferred term settles (after debounce)
   useEffect(() => {
-    if (deferredTerm) trackCatalogSearch(deferredTerm)
+    const term = deferredTerm?.trim()
+    if (term) trackCatalogSearch(term)
   }, [deferredTerm])
 
   // Flattened and deduplicated items from all pages

@@ -3,7 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 
-import { posthogClient } from "@/lib/analytics/posthog-client"
+import { trackPageView } from "@/lib/analytics/events"
 
 /**
  * Captures a PostHog `$pageview` event on every App Router navigation.
@@ -16,7 +16,7 @@ export function PostHogPageView() {
 
   useEffect(() => {
     const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")
-    posthogClient.capture("$pageview", { $current_url: url })
+    trackPageView(url)
   }, [pathname, searchParams])
 
   return null
