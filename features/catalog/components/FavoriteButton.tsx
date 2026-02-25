@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 import { useFavoritesStore } from "../store/useFavoritesStore"
-import { type CatalogItemType, type FavoriteButtonProps } from "../types/catalog-types"
+import { type CatalogItemType, type FavoriteButtonPropsType } from "../types/catalog-types"
 
-export function FavoriteButton({ track, className, iconOnly = false }: FavoriteButtonProps) {
+export function FavoriteButton({ track, className, iconOnly = false }: FavoriteButtonPropsType) {
   const isFav = useFavoritesStore((state) => state.isFavorite(track.id))
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const [isPending, startTransition] = useTransition()

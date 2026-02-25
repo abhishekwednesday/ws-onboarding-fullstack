@@ -11,6 +11,10 @@ import { cn } from "@/lib/utils"
 export function Navbar() {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+
+  const handleToggleMobileMenu = () => {
+    setIsMobileMenuOpen((prev) => !prev)
+  }
   const isCatalogActive = pathname === "/catalog" || pathname.startsWith("/catalog/")
 
   // Disable scroll when mobile menu is open
@@ -79,7 +83,7 @@ export function Navbar() {
 
           {/* Mobile Menu Toggle */}
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            onClick={handleToggleMobileMenu}
             className="group text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-all hover:bg-white/10 md:hidden"
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}

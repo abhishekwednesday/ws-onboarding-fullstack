@@ -34,7 +34,7 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
 
   const highResArtwork = item?.artworkUrl?.replace("100x100bb.jpg", "600x600bb.jpg")
 
-  const togglePreview = () => {
+  const handleTogglePreview = () => {
     const audio = audioRef.current
     if (!audio) return
     if (isPlaying) {
@@ -46,6 +46,31 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
         .then(() => setIsPlaying(true))
         .catch(() => setIsPlaying(false))
     }
+  }
+
+  const handleBack = () => {
+    router.back()
+  }
+
+  const handleAudioEnd = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0
+    }
+    setIsPlaying(false)
+    setProgress(0)
+    setCurrentTime(0)
+  }
+
+  const handleTimeUpdate = () => {
+    const a = audioRef.current
+    if (a) {
+      setCurrentTime(a.currentTime)
+      setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0)
+    }
+  }
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) setAudioDuration(audioRef.current.duration)
   }
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -81,7 +106,7 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
         {/* Back — uses router.back() so the catalog URL (with ?q=) is restored */}
         <div className="mb-8">
           <button
-            onClick={() => router.back()}
+            onClick={handleBack}
             className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -100,21 +125,9 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
               <audio
                 ref={audioRef}
                 src={item.previewUrl}
-                onEnded={() => {
-                  setIsPlaying(false)
-                  setProgress(0)
-                  setCurrentTime(0)
-                }}
-                onTimeUpdate={() => {
-                  const a = audioRef.current
-                  if (a) {
-                    setCurrentTime(a.currentTime)
-                    setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0)
-                  }
-                }}
-                onLoadedMetadata={() => {
-                  if (audioRef.current) setAudioDuration(audioRef.current.duration)
-                }}
+                onEnded={handleAudioEnd}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
                 preload="none"
               />
             )}
@@ -200,7 +213,7 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
                   </div>
                   <div className="relative flex justify-center">
                     <button
-                      onClick={togglePreview}
+                      onClick={handleTogglePreview}
                       aria-label={isPlaying ? "Pause preview" : "Play 30-second preview"}
                       className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-black shadow-xl transition-transform hover:scale-105 active:scale-95"
                     >

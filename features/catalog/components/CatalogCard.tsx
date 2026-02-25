@@ -14,6 +14,18 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
   }
 
   const highResArtwork = item.artworkUrl?.replace("100x100bb.jpg", "400x400bb.jpg")
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+      if (e.key === " " || e.key === "Spacebar") {
+        e.preventDefault()
+      }
+      handleCardClick()
+    }
+  }
+
+  const handleBadgeClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
 
   return (
     <div
@@ -21,7 +33,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === "Enter" && handleCardClick()}
+      onKeyDown={handleKeyDown}
       aria-label={`View details for ${item.title}`}
       data-testid="catalog-card"
     >
@@ -59,7 +71,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
               href={item.trackViewUrl}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
+              onClick={handleBadgeClick}
               aria-label="Listen on Apple Music"
               className="text-white/50 transition-colors hover:text-white/90"
             >

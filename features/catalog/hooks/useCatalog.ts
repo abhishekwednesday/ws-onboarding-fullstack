@@ -24,7 +24,7 @@ export function useCatalog() {
   const [isError, setIsError] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const [hasMore, setHasMore] = useState(true)
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false)
+  const [shouldShowFavoritesOnly, setShouldShowFavoritesOnly] = useState(false)
 
   const favoritesMap = useFavoritesStore((state) => state.favorites)
 
@@ -105,7 +105,7 @@ export function useCatalog() {
   }, [])
 
   useEffect(() => {
-    if (showFavoritesOnly) return
+    if (shouldShowFavoritesOnly) return
 
     const query = deferredTerm || "top music"
     if (lastTermRef.current === null || query !== lastTermRef.current) {
@@ -113,7 +113,7 @@ export function useCatalog() {
       isFetchingRef.current = false
       fetchItems(deferredTerm, 0, true)
     }
-  }, [deferredTerm, fetchItems, showFavoritesOnly])
+  }, [deferredTerm, fetchItems, shouldShowFavoritesOnly])
 
   // Sync with favorites when mode is active
   const favoriteItems = React.useMemo(() => Object.values(favoritesMap), [favoritesMap])
@@ -123,31 +123,35 @@ export function useCatalog() {
   }, [setSearchTerm])
 
   const refetch = useCallback(() => {
-    if (showFavoritesOnly) return
+    if (shouldShowFavoritesOnly) return
     isFetchingRef.current = false
     fetchItems(deferredTerm, 0, true)
-  }, [deferredTerm, fetchItems, showFavoritesOnly])
+  }, [deferredTerm, fetchItems, shouldShowFavoritesOnly])
 
   const loadMore = useCallback(() => {
-    if (showFavoritesOnly) return
+    if (shouldShowFavoritesOnly) return
     if (!isFetchingRef.current && hasMore) {
       fetchItems(deferredTerm, offsetRef.current, false)
     }
-  }, [deferredTerm, hasMore, fetchItems, showFavoritesOnly])
+  }, [deferredTerm, hasMore, fetchItems, shouldShowFavoritesOnly])
+
+  const toggleShowFavoritesOnly = useCallback(() => {
+    setShouldShowFavoritesOnly((prev) => !prev)
+  }, [])
 
   return {
     searchTerm,
     setSearchTerm,
     handleClear,
-    data: showFavoritesOnly ? favoriteItems : items,
-    isLoading: showFavoritesOnly ? false : isLoading,
+    data: shouldShowFavoritesOnly ? favoriteItems : items,
+    isLoading: shouldShowFavoritesOnly ? false : isLoading,
     isFetchingMore,
     isError,
     error,
     refetch,
     loadMore,
-    hasMore: showFavoritesOnly ? false : hasMore,
-    showFavoritesOnly,
-    setShowFavoritesOnly,
+    hasMore: shouldShowFavoritesOnly ? false : hasMore,
+    shouldShowFavoritesOnly,
+    toggleShowFavoritesOnly,
   }
 }
