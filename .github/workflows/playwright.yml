@@ -14,13 +14,10 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-noble
       options: --user root
-    env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
-      BETTER_AUTH_SECRET: a_very_long_secret_for_testing_purposes_at_least_32_chars
-      BETTER_AUTH_URL: http://localhost:3000
-      NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
+      - name: Load .env.test
+        run: grep -v '^#' .env.test >> $GITHUB_ENV
       - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
       - name: "use node ${{ env.node_version }}"
         uses: actions/setup-node@v3
