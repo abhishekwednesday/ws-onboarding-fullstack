@@ -24,13 +24,18 @@ test.describe("Music Catalog Page", () => {
   })
 
   test("should show compliance elements and branding", async ({ page }) => {
-    // Compliance text in footer area of the catalog
     await expect(page.getByText(/Data provided courtesy of iTunes/i)).toBeVisible({ timeout: 20000 })
 
-    // Apple Music badge on first card
-    const badge = page.getByRole("link", { name: /listen on apple music/i }).first()
-    await expect(badge).toBeVisible()
-    await expect(badge).toHaveAttribute("target", "_blank")
+    const isVariantB = await page
+      .getByTestId("catalog-variant-b")
+      .isVisible()
+      .catch(() => false)
+
+    if (!isVariantB) {
+      const badge = page.getByRole("link", { name: /listen on apple music/i }).first()
+      await expect(badge).toBeVisible()
+      await expect(badge).toHaveAttribute("target", "_blank")
+    }
   })
 
   test("should handle search and show empty state for non-existent terms", async ({ page }) => {

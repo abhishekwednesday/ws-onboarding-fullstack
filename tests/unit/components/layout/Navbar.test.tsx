@@ -13,6 +13,10 @@ vi.mock("@/components/theme/ModeToggle", () => ({
   ModeToggle: () => <div data-testid="mode-toggle">ModeToggle</div>,
 }))
 
+vi.mock("@/features/auth/components/UserMenu", () => ({
+  UserMenu: () => <div data-testid="user-menu">UserMenu</div>,
+}))
+
 describe("Navbar component", () => {
   it("renders the branding name", () => {
     render(<Navbar />)
