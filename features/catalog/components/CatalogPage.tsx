@@ -10,7 +10,7 @@ import { CatalogGridVariantB } from "./CatalogGridVariantB"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
 import { ErrorState } from "./ErrorState"
-import { CatalogCardSkeleton, CatalogRowSkeleton, LoadingState } from "./LoadingState"
+import { LoadingState } from "./LoadingState"
 import { SearchInput } from "./SearchInput"
 import { useCatalog } from "../hooks/useCatalog"
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
@@ -20,6 +20,7 @@ import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
  * Displays a searchable list of music tracks with infinite scrolling and a favorites toggle.
  */
 export function CatalogPage() {
+  const [isMounted, setIsMounted] = React.useState(false)
   const {
     data: items,
     isLoading,
@@ -38,10 +39,13 @@ export function CatalogPage() {
     debouncedSearchTerm,
   } = useCatalog()
 
-  const isNewLayout = useFeatureFlag(FLAG_NEW_CATALOG_LAYOUT)
+  const flagEnabled = useFeatureFlag(FLAG_NEW_CATALOG_LAYOUT)
+  const isNewLayout = isMounted && flagEnabled
 
   // Ensure we scroll to top when toggling views or searching
+  // Also handle mount state for hydration safety
   React.useEffect(() => {
+    setIsMounted(true)
     window.scrollTo(0, 0)
   }, [shouldShowFavoritesOnly, debouncedSearchTerm])
 
@@ -100,20 +104,7 @@ export function CatalogPage() {
               <div className="space-y-6">
                 {isNewLayout ? <CatalogGridVariantB items={items} /> : <CatalogList items={items} />}
 
-                {isFetchingMore &&
-                  (isNewLayout ? (
-                    <div className="flex flex-col divide-y">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <CatalogRowSkeleton key={`skeleton-row-${i}`} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <CatalogCardSkeleton key={`skeleton-${i}`} />
-                      ))}
-                    </div>
-                  ))}
+                {isFetchingMore && <LoadingState isNewLayout={isNewLayout} count={5} />}
 
                 <div ref={sentinelRef} className="flex justify-center py-4">
                   {!hasMore && (

@@ -1,3 +1,5 @@
+"use client"
+
 import { Clock } from "lucide-react"
 import * as React from "react"
 
@@ -7,7 +9,13 @@ import { type CatalogItemType } from "../types/catalog-types"
 import { formatDuration } from "../utils/track-formatters"
 
 export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
-  const isAiSummariesEnabled = useFeatureFlag(FLAG_AI_SUMMARIES)
+  const [isMounted, setIsMounted] = React.useState(false)
+  const flagEnabled = useFeatureFlag(FLAG_AI_SUMMARIES)
+  const isAiSummariesEnabled = isMounted && flagEnabled
+
+  React.useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   return (
     <div className="mb-6 space-y-1">
