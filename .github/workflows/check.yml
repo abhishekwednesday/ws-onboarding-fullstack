@@ -46,3 +46,4 @@ jobs:
         env:
           HOME: /root
           CI: true
+          SKIP_ENV_VALIDATION: true

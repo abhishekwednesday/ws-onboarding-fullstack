@@ -1,6 +1,3 @@
--- Better Auth Core Schema for PostgreSQL
--- Run this in your Supabase SQL Editor to create the required tables.
-
 -- User Table: Stores core identity information
 CREATE TABLE IF NOT EXISTS "user" (
     "id" TEXT PRIMARY KEY,
@@ -8,18 +5,18 @@ CREATE TABLE IF NOT EXISTS "user" (
     "email" TEXT NOT NULL UNIQUE,
     "emailVerified" BOOLEAN NOT NULL,
     "image" TEXT,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL
 );
 ALTER TABLE "user" ENABLE ROW LEVEL SECURITY;
 
 -- Session Table: Manages active user sessions
 CREATE TABLE IF NOT EXISTS "session" (
     "id" TEXT PRIMARY KEY,
-    "expiresAt" TIMESTAMP NOT NULL,
+    "expiresAt" TIMESTAMPTZ NOT NULL,
     "token" TEXT NOT NULL UNIQUE,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL,
     "ipAddress" TEXT,
     "userAgent" TEXT,
     "userId" TEXT NOT NULL REFERENCES "user"("id") ON DELETE CASCADE
@@ -35,12 +32,13 @@ CREATE TABLE IF NOT EXISTS "account" (
     "accessToken" TEXT,
     "refreshToken" TEXT,
     "idToken" TEXT,
-    "accessTokenExpiresAt" TIMESTAMP,
-    "refreshTokenExpiresAt" TIMESTAMP,
+    "accessTokenExpiresAt" TIMESTAMPTZ,
+    "refreshTokenExpiresAt" TIMESTAMPTZ,
     "scope" TEXT,
     "password" TEXT,
-    "createdAt" TIMESTAMP NOT NULL,
-    "updatedAt" TIMESTAMP NOT NULL
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL,
+    UNIQUE("accountId", "providerId")
 );
 ALTER TABLE "account" ENABLE ROW LEVEL SECURITY;
 
@@ -49,8 +47,11 @@ CREATE TABLE IF NOT EXISTS "verification" (
     "id" TEXT PRIMARY KEY,
     "identifier" TEXT NOT NULL,
     "value" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP NOT NULL,
-    "createdAt" TIMESTAMP,
-    "updatedAt" TIMESTAMP
+    "expiresAt" TIMESTAMPTZ NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL
 );
 ALTER TABLE "verification" ENABLE ROW LEVEL SECURITY;
+
+-- Indexes for performance
+CREATE INDEX IF NOT EXISTS "idx_verification_identifier" ON "verification"("identifier");

@@ -10,10 +10,15 @@ import { env } from "@/env.mjs"
 export const auth = betterAuth({
   database: new Pool({
     connectionString: env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false, // Required for Supabase in many environments
-    },
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? true
+        : {
+            rejectUnauthorized: false, // Required for development with Supabase direct connections
+          },
   }),
+  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
   emailAndPassword: {
     enabled: true,
   },

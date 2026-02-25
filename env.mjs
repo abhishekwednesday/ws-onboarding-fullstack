@@ -14,6 +14,7 @@ export const env = createEnv({
   client: {
     NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
     NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional().default("https://app.posthog.com"),
+    NEXT_PUBLIC_BETTER_AUTH_URL: z.string().url(),
   },
   runtimeEnv: {
     ANALYZE: process.env.ANALYZE,
@@ -22,5 +23,7 @@ export const env = createEnv({
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
     NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    NEXT_PUBLIC_BETTER_AUTH_URL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   },
+  skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 })

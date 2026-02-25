@@ -23,7 +23,7 @@ We are using the **PostgreSQL adapter** via the `pg` pool library. This allows u
 
 Implemented at `app/api/auth/[...all]/route.ts` to handle all authentication lifecycle events (Sign In, Sign Up, Sign Out, Session verification).
 
-### Security (Row Level Security)
+### Security (Row-Level Security)
 
 The core auth tables (`user`, `session`, `account`, `verification`) are created in the `public` schema.
 
