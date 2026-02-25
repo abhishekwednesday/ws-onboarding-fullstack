@@ -1,7 +1,8 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useDeferredValue, useMemo, useState, useTransition } from "react"
+import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from "react"
 
+import { trackCatalogSearch } from "@/lib/analytics/events"
 import { itunesSearchAction } from "../api/catalog-actions"
 import { useFavoritesStore } from "../store/useFavoritesStore"
 
@@ -53,6 +54,12 @@ export function useCatalog() {
     staleTime: 1000 * 60 * 5,
     enabled: !shouldShowFavoritesOnly,
   })
+
+  // Track search intent once the deferred term settles (after debounce)
+  useEffect(() => {
+    const term = deferredTerm?.trim()
+    if (term) trackCatalogSearch(term)
+  }, [deferredTerm])
 
   // Flattened and deduplicated items from all pages
   const items = useMemo(() => {

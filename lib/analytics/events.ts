@@ -11,7 +11,7 @@ const ALLOWED_THEMES: ReadonlySet<string> = new Set(["light", "dark", "system"])
 function sanitizeSearchTerm(term: string): string {
   return term
     .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email]")
-    .replace(/\+?[\d\s\-().]{7,}/g, "[phone]")
+    .replace(/(?<!\w)\+?[\d][\d\s\-().]{6,}/g, "[phone]")
     .trim()
 }
 
@@ -64,4 +64,11 @@ export function trackFavoriteRemoved(track: CatalogItemType): void {
     title: track.title,
     artist: track.artist,
   })
+}
+
+/**
+ * Tracks a pageview event on App Router navigations.
+ */
+export function trackPageView(currentUrl: string): void {
+  posthogClient.capture("$pageview", { $current_url: currentUrl })
 }
