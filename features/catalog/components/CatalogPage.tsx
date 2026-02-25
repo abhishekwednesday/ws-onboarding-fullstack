@@ -14,9 +14,8 @@ import { useCatalog } from "../hooks/useCatalog"
 import { useInfiniteScroll } from "../hooks/useInfiniteScroll"
 
 /**
- * Catalog page inner component.
- * Must be rendered inside a <Suspense> boundary because useCatalog
- * uses useSearchParams (required by App Router).
+ * Main catalog page component.
+ * Displays a searchable list of music tracks with infinite scrolling and a favorites toggle.
  */
 export function CatalogPage() {
   const {
@@ -34,7 +33,13 @@ export function CatalogPage() {
     isSearchPending,
     shouldShowFavoritesOnly,
     toggleShowFavoritesOnly,
+    debouncedSearchTerm,
   } = useCatalog()
+
+  // Ensure we scroll to top when toggling views or searching
+  React.useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [shouldShowFavoritesOnly, debouncedSearchTerm])
 
   const handleToggleFavorites = () => {
     toggleShowFavoritesOnly()
