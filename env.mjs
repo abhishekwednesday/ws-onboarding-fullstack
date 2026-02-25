@@ -8,10 +8,14 @@ export const env = createEnv({
       .optional()
       .transform((value) => value === "true"),
     DATABASE_URL: z.string().min(1).refine(
-      (url) =>
-        url.startsWith("postgres://") ||
-        url.startsWith("postgresql://") ||
-        z.string().url().safeParse(url).success,
+      (url) => {
+        if (url.startsWith("postgres://") || url.startsWith("postgresql://")) {
+          // Tight regex to ensure a hostname is present after the scheme
+          // Matches the hostname part (not empty) before any optional port or path
+          return /^(?:postgres|postgresql):\/\/([^/:]+)/.test(url)
+        }
+        return z.string().url().safeParse(url).success
+      },
       { message: "Must be a valid database URL" }
     ),
     BETTER_AUTH_SECRET: z.string().min(32),

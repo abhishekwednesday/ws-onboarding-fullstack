@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { CatalogCard } from "./CatalogCard"
-import { type CatalogItemType, MOCK_CATALOG_ITEMS } from "../types/catalog-types"
+import { MOCK_CATALOG_ITEMS } from "../types/catalog-types"
 
 const meta: Meta<typeof CatalogCard> = {
   title: "Features/Catalog/CatalogCard",
