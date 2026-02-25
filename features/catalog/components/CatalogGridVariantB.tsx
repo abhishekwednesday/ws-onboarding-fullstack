@@ -1,5 +1,9 @@
+"use client"
+
+import { useRouter } from "next/navigation"
 import * as React from "react"
 
+import { trackTrackSelected } from "@/lib/analytics/events"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
 
@@ -12,6 +16,8 @@ interface CatalogGridVariantBPropsType {
  * Used in the `new-catalog-layout` A/B experiment as the treatment condition.
  */
 export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
+  const router = useRouter()
+
   if (items.length === 0) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center space-y-4 text-center">
@@ -20,15 +26,40 @@ export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
     )
   }
 
+  const handleRowClick = (item: CatalogItemType) => {
+    trackTrackSelected(item)
+    router.push(`/catalog/${item.id}`)
+  }
+
+  const handleRowKeyDown = (e: React.KeyboardEvent, item: CatalogItemType) => {
+    if (e.key === "Enter" || e.key === " ") {
+      if (e.key === " ") e.preventDefault()
+      handleRowClick(item)
+    }
+  }
+
   return (
     <div className="flex flex-col divide-y" data-testid="catalog-variant-b">
       {items.map((item) => {
         const highResArtwork = item.artworkUrl?.replace("100x100bb.jpg", "400x400bb.jpg")
 
         return (
-          <div key={item.id} className="hover:bg-muted/50 flex items-center gap-4 px-2 py-3 transition-colors">
+          <div
+            key={item.id}
+            className="hover:bg-muted/50 flex cursor-pointer items-center gap-4 px-2 py-3 transition-colors"
+            onClick={() => handleRowClick(item)}
+            onKeyDown={(e) => handleRowKeyDown(e, item)}
+            role="button"
+            tabIndex={0}
+            aria-label={`View details for ${item.title}`}
+          >
             {highResArtwork ? (
-              <img src={highResArtwork} alt={item.title} className="h-12 w-12 shrink-0 rounded-lg object-cover" />
+              <img
+                src={highResArtwork}
+                alt={item.title}
+                loading="lazy"
+                className="h-12 w-12 shrink-0 rounded-lg object-cover"
+              />
             ) : (
               <div className="bg-muted h-12 w-12 shrink-0 rounded-lg" />
             )}

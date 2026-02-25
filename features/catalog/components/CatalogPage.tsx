@@ -100,13 +100,26 @@ export function CatalogPage() {
               <div className="space-y-6">
                 {isNewLayout ? <CatalogGridVariantB items={items} /> : <CatalogList items={items} />}
 
-                {isFetchingMore && (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <CatalogCardSkeleton key={`skeleton-${i}`} />
-                    ))}
-                  </div>
-                )}
+                {isFetchingMore &&
+                  (isNewLayout ? (
+                    <div className="flex flex-col divide-y">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={`skeleton-row-${i}`} className="flex items-center gap-4 px-2 py-3">
+                          <div className="bg-muted h-12 w-12 shrink-0 animate-pulse rounded-lg" />
+                          <div className="flex-1 space-y-1.5">
+                            <div className="bg-muted h-3 w-2/3 animate-pulse rounded" />
+                            <div className="bg-muted h-2.5 w-1/3 animate-pulse rounded" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <CatalogCardSkeleton key={`skeleton-${i}`} />
+                      ))}
+                    </div>
+                  ))}
 
                 <div ref={sentinelRef} className="flex justify-center py-4">
                   {!hasMore && (
