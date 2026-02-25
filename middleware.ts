@@ -6,22 +6,35 @@ const authRoutes = ["/login", "/register"]
 
 export async function middleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname
-  const isProtectedRoute = protectedRoutes.some((route) => pathName.startsWith(route))
-  const isAuthRoute = authRoutes.some((route) => pathName.startsWith(route))
+
+  const isBoundaryMatch = (route: string) => pathName === route || pathName.startsWith(route + "/")
+
+  const isProtectedRoute = protectedRoutes.some(isBoundaryMatch)
+  const isAuthRoute = authRoutes.some(isBoundaryMatch)
+
+  if (!isProtectedRoute && !isAuthRoute) {
+    return NextResponse.next()
+  }
 
   // In Next.js middleware (Edge Runtime), we cannot use the Node.js pg adapter directly.
   // We must hit our own Next.js API route to validate the session.
-  const response = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
-    headers: {
-      // Pass the cookie forward so the server can validate it
-      cookie: request.headers.get("cookie") || "",
-    },
-  })
-
-  const session = response.ok ? ((await response.json()) as Session) : null
+  let session: Session | null = null
+  try {
+    const response = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
+      headers: {
+        cookie: request.headers.get("cookie") || "",
+      },
+    })
+    session = response.ok ? ((await response.json()) as Session) : null
+  } catch (error) {
+    // Treat any network or parse error as an unauthenticated state
+    session = null
+  }
 
   if (isProtectedRoute && !session) {
-    return NextResponse.redirect(new URL("/login", request.url))
+    const loginUrl = new URL("/login", request.url)
+    loginUrl.searchParams.set("returnTo", request.nextUrl.pathname + request.nextUrl.search)
+    return NextResponse.redirect(loginUrl)
   }
 
   if (isAuthRoute && session) {

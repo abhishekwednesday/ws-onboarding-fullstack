@@ -19,6 +19,7 @@ export function Navbar() {
     setIsMobileMenuOpen((prev) => !prev)
   }
   const isCatalogActive = pathname === "/catalog" || pathname.startsWith("/catalog/")
+  const isPlaylistsActive = pathname === "/playlists" || pathname.startsWith("/playlists/")
 
   // Disable scroll when mobile menu is open
   React.useEffect(() => {
@@ -80,7 +81,7 @@ export function Navbar() {
                 href="/playlists"
                 className={cn(
                   "rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200",
-                  pathname.startsWith("/playlists")
+                  isPlaylistsActive
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/10"
                 )}
@@ -175,14 +176,14 @@ export function Navbar() {
                   href="/playlists"
                   className={cn(
                     "group flex items-center justify-between py-4 text-3xl font-bold tracking-tight transition-all",
-                    pathname.startsWith("/playlists") ? "text-primary" : "text-foreground hover:translate-x-2"
+                    isPlaylistsActive ? "text-primary" : "text-foreground hover:translate-x-2"
                   )}
                 >
                   <span>Playlists</span>
                   <div
                     className={cn(
                       "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
-                      pathname.startsWith("/playlists")
+                      isPlaylistsActive
                         ? "scale-100 opacity-100"
                         : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
                     )}

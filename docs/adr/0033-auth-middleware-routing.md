@@ -30,4 +30,4 @@ Created a mock `/playlists` feature route (under `app/(protected)/playlists`) an
 
 - Next.js middleware correctly restricts unauthorized layout rendering entirely.
 - Bypassed the Next.js Edge environment limitations by hitting a standard Node serverless route internally.
-- There is a minor latency overhead on protected route navigation (hitting our own Next.js API first), but the caching layers mitigate it and ensure secure separation of concerns.
+- There is a minor latency overhead caused by the middleware's initial session probe, but this explicitly short-circuits so public routes are not penalized. For protected and auth routes where the API ping occurs, caching layers mitigate the impact while ensuring secure separation of concerns.
