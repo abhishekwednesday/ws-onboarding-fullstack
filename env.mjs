@@ -7,7 +7,13 @@ export const env = createEnv({
       .enum(["true", "false"])
       .optional()
       .transform((value) => value === "true"),
-    DATABASE_URL: z.string().url(),
+    DATABASE_URL: z.string().min(1).refine(
+      (url) =>
+        url.startsWith("postgres://") ||
+        url.startsWith("postgresql://") ||
+        z.string().url().safeParse(url).success,
+      { message: "Must be a valid database URL" }
+    ),
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.string().url(),
   },
