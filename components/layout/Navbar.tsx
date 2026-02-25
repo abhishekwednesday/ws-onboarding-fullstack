@@ -7,10 +7,12 @@ import * as React from "react"
 
 import { ModeToggle } from "@/components/theme/ModeToggle"
 import { UserMenu } from "@/features/auth/components/UserMenu"
+import { useSession } from "@/lib/auth/auth-client"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
 
   const handleToggleMobileMenu = () => {
@@ -73,6 +75,19 @@ export function Navbar() {
             >
               Catalog
             </Link>
+            {session && (
+              <Link
+                href="/playlists"
+                className={cn(
+                  "rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200",
+                  pathname.startsWith("/playlists")
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                )}
+              >
+                Playlists
+              </Link>
+            )}
           </div>
         </div>
 
@@ -155,6 +170,25 @@ export function Navbar() {
                   )}
                 />
               </Link>
+              {session && (
+                <Link
+                  href="/playlists"
+                  className={cn(
+                    "group flex items-center justify-between py-4 text-3xl font-bold tracking-tight transition-all",
+                    pathname.startsWith("/playlists") ? "text-primary" : "text-foreground hover:translate-x-2"
+                  )}
+                >
+                  <span>Playlists</span>
+                  <div
+                    className={cn(
+                      "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
+                      pathname.startsWith("/playlists")
+                        ? "scale-100 opacity-100"
+                        : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
+                    )}
+                  />
+                </Link>
+              )}
             </div>
           </div>
 

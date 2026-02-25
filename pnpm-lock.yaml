@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@better-fetch/fetch':
+        specifier: ^1.1.21
+        version: 1.1.21
       '@next/bundle-analyzer':
         specifier: ^15.3.1
         version: 15.3.1
