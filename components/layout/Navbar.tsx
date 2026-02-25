@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import * as React from "react"
 
 import { ModeToggle } from "@/components/theme/ModeToggle"
+import { UserMenu } from "@/features/auth/components/UserMenu"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
@@ -77,8 +78,13 @@ export function Navbar() {
 
         {/* Right Actions */}
         <div className="flex flex-1 items-center justify-end gap-3">
-          <div className="hidden md:flex">
+          <div className="hidden items-center gap-3 md:flex">
+            <UserMenu />
             <ModeToggle />
+          </div>
+
+          <div className="flex items-center gap-3 md:hidden">
+            <UserMenu />
           </div>
 
           {/* Mobile Menu Toggle */}

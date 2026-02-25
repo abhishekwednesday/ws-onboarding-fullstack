@@ -1,4 +1,5 @@
 import { betterAuth } from "better-auth"
+import { nextCookies } from "better-auth/next-js"
 import { Pool } from "pg"
 
 import { env } from "@/env.mjs"
@@ -10,6 +11,8 @@ import { env } from "@/env.mjs"
 export const auth = betterAuth({
   database: new Pool({
     connectionString: env.DATABASE_URL,
+    connectionTimeoutMillis: 2000,
+    max: 5,
     ssl:
       process.env.NODE_ENV === "production"
         ? true
@@ -22,4 +25,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  plugins: [nextCookies()],
 })

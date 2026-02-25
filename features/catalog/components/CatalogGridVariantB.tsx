@@ -53,6 +53,7 @@ export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
             role="button"
             tabIndex={0}
             aria-label={`View details for ${item.title}`}
+            data-testid="catalog-card"
           >
             {thumbnailUrl ? (
               <Image
