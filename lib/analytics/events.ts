@@ -2,11 +2,25 @@ import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 
 import { posthogClient } from "./posthog-client"
 
+/** Valid theme values emitted by the theme toggle. */
+type ThemeValueType = "light" | "dark" | "system"
+
+const ALLOWED_THEMES: ReadonlySet<string> = new Set(["light", "dark", "system"])
+
+/** Redacts email addresses, phone numbers, and numeric IDs from a search term. */
+function sanitizeSearchTerm(term: string): string {
+  return term
+    .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email]")
+    .replace(/\+?[\d\s\-().]{7,}/g, "[phone]")
+    .trim()
+}
+
 /**
  * Tracks a catalog search event when the user submits a search term.
+ * The term is sanitized before capture to prevent PII leakage.
  */
 export function trackCatalogSearch(term: string): void {
-  posthogClient.capture("catalog_search", { search_term: term })
+  posthogClient.capture("catalog_search", { search_term: sanitizeSearchTerm(term) })
 }
 
 /**
@@ -23,9 +37,11 @@ export function trackTrackSelected(item: CatalogItemType): void {
 
 /**
  * Tracks a theme change event when the user toggles the color scheme.
+ * Only the canonical theme values (`light`, `dark`, `system`) are emitted.
  */
-export function trackThemeToggled(theme: string): void {
-  posthogClient.capture("theme_toggled", { theme })
+export function trackThemeToggled(theme: ThemeValueType): void {
+  const safeTheme = ALLOWED_THEMES.has(theme) ? theme : "unknown"
+  posthogClient.capture("theme_toggled", { theme: safeTheme })
 }
 
 /**
