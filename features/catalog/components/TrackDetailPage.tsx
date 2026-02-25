@@ -53,6 +53,9 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
   }
 
   const handleAudioEnd = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0
+    }
     setIsPlaying(false)
     setProgress(0)
     setCurrentTime(0)

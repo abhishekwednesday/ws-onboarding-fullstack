@@ -32,11 +32,11 @@ export function CatalogPage() {
     hasMore,
     isFetchingMore,
     shouldShowFavoritesOnly,
-    setShouldShowFavoritesOnly,
+    toggleShowFavoritesOnly,
   } = useCatalog()
 
   const handleToggleFavorites = () => {
-    setShouldShowFavoritesOnly(!shouldShowFavoritesOnly)
+    toggleShowFavoritesOnly()
   }
 
   const { sentinelRef } = useInfiniteScroll({

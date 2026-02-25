@@ -135,6 +135,10 @@ export function useCatalog() {
     }
   }, [deferredTerm, hasMore, fetchItems, shouldShowFavoritesOnly])
 
+  const toggleShowFavoritesOnly = useCallback(() => {
+    setShouldShowFavoritesOnly((prev) => !prev)
+  }, [])
+
   return {
     searchTerm,
     setSearchTerm,
@@ -148,6 +152,6 @@ export function useCatalog() {
     loadMore,
     hasMore: shouldShowFavoritesOnly ? false : hasMore,
     shouldShowFavoritesOnly,
-    setShouldShowFavoritesOnly,
+    toggleShowFavoritesOnly,
   }
 }
