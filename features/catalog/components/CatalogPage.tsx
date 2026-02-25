@@ -4,7 +4,9 @@ import { Heart } from "lucide-react"
 import * as React from "react"
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { FLAG_NEW_CATALOG_LAYOUT, useFeatureFlag } from "@/lib/feature-flags/flags"
 import { cn } from "@/lib/utils"
+import { CatalogGridVariantB } from "./CatalogGridVariantB"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
 import { ErrorState } from "./ErrorState"
@@ -35,6 +37,8 @@ export function CatalogPage() {
     toggleShowFavoritesOnly,
     debouncedSearchTerm,
   } = useCatalog()
+
+  const isNewLayout = useFeatureFlag(FLAG_NEW_CATALOG_LAYOUT)
 
   // Ensure we scroll to top when toggling views or searching
   React.useEffect(() => {
@@ -94,7 +98,7 @@ export function CatalogPage() {
           <>
             {items.length > 0 ? (
               <div className="space-y-6">
-                <CatalogList items={items} />
+                {isNewLayout ? <CatalogGridVariantB items={items} /> : <CatalogList items={items} />}
 
                 {isFetchingMore && (
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">

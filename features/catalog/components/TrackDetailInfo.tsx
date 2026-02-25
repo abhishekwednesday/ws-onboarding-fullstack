@@ -1,11 +1,14 @@
 import { Clock } from "lucide-react"
 import * as React from "react"
 
+import { FLAG_AI_SUMMARIES, useFeatureFlag } from "@/lib/feature-flags/flags"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
 import { formatDuration } from "../utils/track-formatters"
 
 export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
+  const isAiSummariesEnabled = useFeatureFlag(FLAG_AI_SUMMARIES)
+
   return (
     <div className="mb-6 space-y-1">
       <div className="flex items-start justify-between gap-2">
@@ -27,6 +30,12 @@ export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
         <div className="text-muted-foreground/60 flex items-center gap-1 pt-0.5 text-xs">
           <Clock className="h-3 w-3" />
           <span>{formatDuration(item.duration)}</span>
+        </div>
+      )}
+
+      {isAiSummariesEnabled && (
+        <div className="bg-muted/50 mt-3 rounded-lg border border-dashed px-3 py-2">
+          <p className="text-muted-foreground text-xs">🤖 AI summary — coming soon</p>
         </div>
       )}
     </div>
