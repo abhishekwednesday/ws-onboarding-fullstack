@@ -4,8 +4,8 @@ import { Heart } from "lucide-react"
 import { useOptimistic, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
+import { trackFavoriteAdded, trackFavoriteRemoved } from "@/lib/analytics/events"
 import { cn } from "@/lib/utils"
-
 import { useFavoritesStore } from "../store/useFavoritesStore"
 import { type CatalogItemType, type FavoriteButtonPropsType } from "../types/catalog-types"
 
@@ -23,8 +23,12 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
 
     startTransition(async () => {
       addOptimisticFav(nextState)
-      // Simulate/Handle the actual logic
       toggleFavorite(track)
+      if (nextState) {
+        trackFavoriteAdded(track)
+      } else {
+        trackFavoriteRemoved(track)
+      }
     })
   }
 

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
+import { trackTrackSelected } from "@/lib/analytics/events"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogCardPropsType } from "../types/catalog-types"
 
@@ -14,6 +15,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
   const router = useRouter()
 
   const handleCardClick = () => {
+    trackTrackSelected(item)
     router.push(`/catalog/${item.id}`)
   }
 

@@ -11,7 +11,7 @@ const ALLOWED_THEMES: ReadonlySet<string> = new Set(["light", "dark", "system"])
 function sanitizeSearchTerm(term: string): string {
   return term
     .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[email]")
-    .replace(/\+?[\d\s\-().]{7,}/g, "[phone]")
+    .replace(/(?<!\w)\+?[\d][\d\s\-().]{6,}/g, "[phone]")
     .trim()
 }
 
