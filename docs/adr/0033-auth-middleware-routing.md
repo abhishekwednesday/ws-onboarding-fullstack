@@ -15,8 +15,8 @@ A critical limitation arose: Better Auth's `pg` adapter relies on Node.js-specif
 To protect routes rapidly at the edge without crashing due to Node.js imports:
 
 1.  **Avoid Native Auth Evaluation in Middleware:** We cannot import `auth` (from `lib/auth.ts`) directly into `middleware.ts`.
-2.  **Utilize `better-fetch`:** We installed `@better-fetch/fetch` (Better Auth's recommended fetch wrapper).
-3.  **Local API Ping:** The middleware intercepts requests to protected routes (like `/playlists`) and makes a fast HTTP `GET` request to our own Serverless API endpoint (`/api/auth/get-session`), forwarding the user's incoming `cookie` header.
+2.  **Utilize Native `fetch`:** We utilize the standard Web `fetch` API available in Next.js.
+3.  **Local API Ping:** The middleware intercepts requests to protected routes (like `/playlists`) and makes a fast HTTP `GET` request to our own Serverless API endpoint (`/api/auth/get-session`), forwarding the user's incoming `cookie` header. By manually parsing the JSON response, we determine the session state natively without additional dependencies.
 
 ### Route Guarding
 

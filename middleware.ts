@@ -1,4 +1,3 @@
-import { betterFetch } from "@better-fetch/fetch"
 import type { Session } from "better-auth/types"
 import { type NextRequest, NextResponse } from "next/server"
 
@@ -12,13 +11,14 @@ export async function middleware(request: NextRequest) {
 
   // In Next.js middleware (Edge Runtime), we cannot use the Node.js pg adapter directly.
   // We must hit our own Next.js API route to validate the session.
-  const { data: session } = await betterFetch<Session>("/api/auth/get-session", {
-    baseURL: request.nextUrl.origin,
+  const response = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
     headers: {
       // Pass the cookie forward so the server can validate it
       cookie: request.headers.get("cookie") || "",
     },
   })
+
+  const session = response.ok ? ((await response.json()) as Session) : null
 
   if (isProtectedRoute && !session) {
     return NextResponse.redirect(new URL("/login", request.url))
