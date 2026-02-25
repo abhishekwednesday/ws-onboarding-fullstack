@@ -1,5 +1,8 @@
 import type { StorybookConfig } from "@storybook/nextjs"
+import webpack from "webpack"
 import path from "node:path"
+
+const ENV_MOCK = path.resolve(__dirname, "mocks/env.ts")
 
 const config: StorybookConfig = {
   stories: [
@@ -26,13 +29,16 @@ const config: StorybookConfig = {
     },
   },
   webpackFinal: async (config) => {
-    if (config.resolve) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        "@/env.mjs": path.resolve(__dirname, "mocks/env.ts"),
-        "@/env": path.resolve(__dirname, "mocks/env.ts"),
-      }
+    config.resolve ??= {}
+    config.resolve.alias = {
+      "@/env.mjs": ENV_MOCK,
+      "@/env": ENV_MOCK,
+      ...config.resolve.alias,
     }
+
+    config.plugins ??= []
+    config.plugins.push(new webpack.NormalModuleReplacementPlugin(/[\\/]env\.mjs$/, ENV_MOCK))
+
     return config
   },
 }
