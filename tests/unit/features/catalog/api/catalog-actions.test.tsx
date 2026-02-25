@@ -5,6 +5,7 @@ import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
 vi.mock("@/lib/api/itunes", () => ({
   searchItunes: vi.fn(),
+  ITUNES_PAGE_SIZE: 50,
 }))
 
 describe("itunesSearchAction server action", () => {
@@ -30,8 +31,31 @@ describe("itunesSearchAction server action", () => {
     const result = await itunesSearchAction("Queen")
     expect(result.items.length).toBe(1)
     expect(result.items[0]!.id).toBe(123)
+    expect(result.nextOffset).toBe(null)
     expect(result.totalCount).toBe(1)
     expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", 0)
+  })
+
+  it("should return correct nextOffset for a full page", async () => {
+    const mockFullPage = {
+      resultCount: 100,
+      results: Array.from({ length: 50 }).map((_, i) => ({
+        trackId: i,
+        artistName: "Artist",
+        trackName: `Song ${i}`,
+        collectionName: "Album",
+        artworkUrl100: "",
+        previewUrl: "",
+        primaryGenreName: "Genre",
+        trackTimeMillis: 0,
+        trackViewUrl: "",
+      })),
+    }
+    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockFullPage as unknown as ItunesSearchResponseType)
+
+    const result = await itunesSearchAction("test", 0)
+    expect(result.items.length).toBe(50)
+    expect(result.nextOffset).toBe(50)
   })
 
   it("should throw a user-friendly error if the API call fails", async () => {

@@ -1,6 +1,7 @@
 import { ItunesSearchResponseSchema, type ItunesSearchResponseType } from "./schemas"
 
 const ITUNES_BASE_URL = "https://itunes.apple.com"
+export const ITUNES_PAGE_SIZE = 50
 
 export async function searchItunes(term: string, offset: number = 0): Promise<ItunesSearchResponseType> {
   if (!term) {
@@ -11,7 +12,7 @@ export async function searchItunes(term: string, offset: number = 0): Promise<It
   url.searchParams.set("term", term)
   url.searchParams.set("media", "music")
   url.searchParams.set("entity", "song")
-  url.searchParams.set("limit", "50")
+  url.searchParams.set("limit", ITUNES_PAGE_SIZE.toString())
   if (offset > 0) {
     url.searchParams.set("offset", offset.toString())
   }

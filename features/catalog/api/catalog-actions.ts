@@ -1,10 +1,8 @@
 "use server"
 
 import { type CatalogItemType, mapItunesTrackToCatalogItem } from "@/features/catalog/types/catalog-types"
-import { lookupItunes, lookupItunesTrack, searchItunes } from "@/lib/api/itunes"
+import { ITUNES_PAGE_SIZE, lookupItunes, lookupItunesTrack, searchItunes } from "@/lib/api/itunes"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
-
-const PAGE_SIZE = 50
 
 /**
  * Server action to search the iTunes API.
@@ -24,7 +22,7 @@ export async function itunesSearchAction(
 
     return {
       items,
-      nextOffset: items.length === PAGE_SIZE ? offset + PAGE_SIZE : null,
+      nextOffset: items.length === ITUNES_PAGE_SIZE ? offset + ITUNES_PAGE_SIZE : null,
       totalCount: response.resultCount,
     }
   } catch (error) {
