@@ -1,4 +1,9 @@
 import type { StorybookConfig } from "@storybook/nextjs"
+import webpack from "webpack"
+import path from "node:path"
+
+const ENV_MOCK = path.resolve(__dirname, "mocks/env.ts")
+
 const config: StorybookConfig = {
   stories: [
     "../components/**/*.stories.mdx",
@@ -22,6 +27,19 @@ const config: StorybookConfig = {
       shouldExtractLiteralValuesFromEnum: true,
       propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
     },
+  },
+  webpackFinal: async (config) => {
+    config.resolve ??= {}
+    config.resolve.alias = {
+      "@/env.mjs": ENV_MOCK,
+      "@/env": ENV_MOCK,
+      ...config.resolve.alias,
+    }
+
+    config.plugins ??= []
+    config.plugins.push(new webpack.NormalModuleReplacementPlugin(/[\\/]env\.mjs$/, ENV_MOCK))
+
+    return config
   },
 }
 export default config
