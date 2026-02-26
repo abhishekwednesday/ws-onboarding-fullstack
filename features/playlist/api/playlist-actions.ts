@@ -96,7 +96,7 @@ export async function getPlaylistDetailAction(id: string): Promise<ActionState<P
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     // Stage 1: Fetch all necessary data from DB and release client
     const dbData = await withAuthenticatedClient(userId, async (client) => {
       const playlistResult = await client.query(`SELECT * FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
@@ -120,7 +120,7 @@ export async function getPlaylistDetailAction(id: string): Promise<ActionState<P
       }
     })
 
-    if (!dbData) return { success: true, data: null }
+    if (!dbData) return null
 
     const { playlist, trackIds, addedAtMap } = dbData
 
@@ -145,7 +145,7 @@ export async function getPlaylistDetailAction(id: string): Promise<ActionState<P
         .sort((a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime())
     }
 
-    const detail: PlaylistDetailType = {
+    return {
       id: playlist.id,
       userId: playlist.userId,
       name: playlist.name,
@@ -155,13 +155,8 @@ export async function getPlaylistDetailAction(id: string): Promise<ActionState<P
       createdAt: String(playlist.createdAt),
       updatedAt: String(playlist.updatedAt),
       tracks,
-    }
-
-    return { success: true, data: detail }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to fetch playlist" }
-  }
+    } as PlaylistDetailType
+  }, "Failed to fetch playlist")
 }
 
 /**
@@ -177,8 +172,8 @@ export async function createPlaylistAction(data: CreatePlaylistInput): Promise<A
   }
   const validatedData = parsed.data
 
-  try {
-    const playlist = await withAuthenticatedClient(userId, async (client) => {
+  return withActionHandler(async () => {
+    return withAuthenticatedClient(userId, async (client) => {
       const now = new Date().toISOString()
       const result = await client.query(
         `INSERT INTO "playlist" ("userId", "name", "description", "isLiked", "createdAt", "updatedAt")
@@ -199,12 +194,7 @@ export async function createPlaylistAction(data: CreatePlaylistInput): Promise<A
         updatedAt: String(row.updatedAt),
       } as PlaylistType
     })
-
-    return { success: true, data: playlist }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to create playlist" }
-  }
+  }, "Failed to create playlist")
 }
 
 /**
@@ -214,7 +204,7 @@ export async function addTrackToPlaylistAction(playlistId: string, track: Catalo
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
       // Verify playlist existence and ownership (via RLS)
       const ownerCheck = await client.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
@@ -233,12 +223,7 @@ export async function addTrackToPlaylistAction(playlistId: string, track: Catalo
         [playlistId, track.id, new Date().toISOString()]
       )
     })
-
-    return { success: true, data: undefined }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to add track to playlist" }
-  }
+  }, "Failed to add track to playlist")
 }
 
 /**
@@ -248,7 +233,7 @@ export async function removeTrackFromPlaylistAction(playlistId: string, trackId:
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
       // Verify playlist existence and ownership (via RLS)
       const ownerCheck = await client.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
@@ -265,12 +250,7 @@ export async function removeTrackFromPlaylistAction(playlistId: string, trackId:
         trackId,
       ])
     })
-
-    return { success: true, data: undefined }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to remove track from playlist" }
-  }
+  }, "Failed to remove track from playlist")
 }
 
 /**
@@ -281,8 +261,8 @@ export async function getPlaylistTrackMapAction(): Promise<ActionState<Record<st
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
-    const trackMap = await withAuthenticatedClient(userId, async (client) => {
+  return withActionHandler(async () => {
+    return withAuthenticatedClient(userId, async (client) => {
       // Join playlist to playlist_track to only get tracks for the user's playlists
       const result = await client.query(
         `SELECT p."id" as "playlistId", pt."trackId"
@@ -302,12 +282,7 @@ export async function getPlaylistTrackMapAction(): Promise<ActionState<Record<st
       }
       return map
     })
-
-    return { success: true, data: trackMap }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to fetch playlist track map" }
-  }
+  }, "Failed to fetch playlist track map")
 }
 
 /**
@@ -320,7 +295,7 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<A
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
       const now = new Date().toISOString()
 
@@ -357,12 +332,7 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<A
         await client.query(query, params)
       }
     })
-
-    return { success: true, data: undefined }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to sync liked songs" }
-  }
+  }, "Failed to sync liked songs")
 }
 
 /**
@@ -373,7 +343,7 @@ export async function getLikedSongsAction(): Promise<ActionState<CatalogItemType
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     const trackIds = await withAuthenticatedClient(userId, async (client) => {
       const result = await client.query(
         `SELECT pt."trackId"
@@ -385,12 +355,10 @@ export async function getLikedSongsAction(): Promise<ActionState<CatalogItemType
       return result.rows.map((row) => row.trackId)
     })
 
-    if (trackIds.length === 0) {
-      return { success: true, data: [] }
-    }
+    if (trackIds.length === 0) return []
 
     const itunesResponse = await itunesLookupAction(trackIds)
-    const tracks: CatalogItemType[] = itunesResponse.results.map((t) => ({
+    return itunesResponse.results.map((t) => ({
       id: t.trackId,
       title: t.trackName,
       artist: t.artistName,
@@ -400,13 +368,8 @@ export async function getLikedSongsAction(): Promise<ActionState<CatalogItemType
       genre: t.primaryGenreName,
       duration: t.trackTimeMillis,
       trackViewUrl: t.trackViewUrl,
-    }))
-
-    return { success: true, data: tracks }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to fetch liked songs" }
-  }
+    })) as CatalogItemType[]
+  }, "Failed to fetch liked songs")
 }
 
 /**
@@ -417,7 +380,7 @@ export async function likeTrackAction(track: CatalogItemType): Promise<ActionSta
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
       const now = new Date().toISOString()
 
@@ -439,12 +402,7 @@ export async function likeTrackAction(track: CatalogItemType): Promise<ActionSta
         [playlistId, track.id, now]
       )
     })
-
-    return { success: true, data: undefined }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to like track" }
-  }
+  }, "Failed to like track")
 }
 
 /**
@@ -454,7 +412,7 @@ export async function unlikeTrackAction(trackId: number): Promise<ActionState<vo
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
+  return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
       // Find the Liked Songs playlist
       const playlistResult = await client.query(
@@ -470,10 +428,5 @@ export async function unlikeTrackAction(trackId: number): Promise<ActionState<vo
         trackId,
       ])
     })
-
-    return { success: true, data: undefined }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to unlike track" }
-  }
+  }, "Failed to unlike track")
 }
