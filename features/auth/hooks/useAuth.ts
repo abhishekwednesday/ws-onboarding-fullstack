@@ -35,7 +35,7 @@ async function syncFavoritesOnAuth(
  */
 export function useAuth() {
   const [isPending, startTransition] = useTransition()
-  const { clearFavorites } = useFavoritesStore()
+  const clearFavorites = useFavoritesStore((state) => state.clearFavorites)
 
   const login = (data: LoginFormData, redirectTo = "/playlists", onError?: (msg: string) => void) => {
     startTransition(async () => {
