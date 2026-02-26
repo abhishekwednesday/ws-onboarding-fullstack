@@ -17,6 +17,11 @@ interface PlaylistState {
   markTrackAsAdded: (playlistId: string, trackId: number) => void
 
   /**
+   * Removes a track from a specific playlist (used for rollbacks).
+   */
+  removeTrackFromPlaylist: (playlistId: string, trackId: number) => void
+
+  /**
    * Checks if a track is in a specific playlist.
    */
   isTrackInPlaylist: (playlistId: string, trackId: number) => boolean
@@ -34,6 +39,19 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
     set((state) => {
       const playlistTracks = new Set(state.addedTracks[playlistId] || [])
       playlistTracks.add(trackId)
+      return {
+        addedTracks: {
+          ...state.addedTracks,
+          [playlistId]: playlistTracks,
+        },
+      }
+    })
+  },
+
+  removeTrackFromPlaylist: (playlistId, trackId) => {
+    set((state) => {
+      const playlistTracks = new Set(state.addedTracks[playlistId] || [])
+      playlistTracks.delete(trackId)
       return {
         addedTracks: {
           ...state.addedTracks,

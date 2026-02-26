@@ -1,5 +1,7 @@
+"use client"
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useTransition } from "react"
+import { toast } from "sonner"
 
 import { createPlaylistAction, getUserPlaylistsAction } from "@/features/playlist/api/playlist-actions"
 import { type CreatePlaylistInput } from "@/features/playlist/types/playlist-types"
@@ -10,7 +12,6 @@ import { type CreatePlaylistInput } from "@/features/playlist/types/playlist-typ
  */
 export function usePlaylists() {
   const queryClient = useQueryClient()
-  const [isPending, startTransition] = useTransition()
 
   // Fetch playlists using TanStack Query
   const {
@@ -41,24 +42,24 @@ export function usePlaylists() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["playlists"] })
+      toast.success("Playlist created successfully")
     },
     onError: (err: Error) => {
       console.error("Failed to create playlist:", err.message)
+      toast.error(err.message || "Failed to create playlist")
     },
   })
 
   /**
-   * Wrapper for creating a playlist that uses useTransition for smoother UI.
+   * Wrapper for creating a playlist that returns a promise for the caller.
    */
-  const createPlaylist = (data: CreatePlaylistInput) => {
-    startTransition(async () => {
-      await createPlaylistMutation.mutateAsync(data)
-    })
+  const createPlaylist = async (data: CreatePlaylistInput) => {
+    return createPlaylistMutation.mutateAsync(data)
   }
 
   return {
     playlists,
-    isLoading: isLoading || isPending,
+    isLoading,
     isError,
     error,
     createPlaylist,

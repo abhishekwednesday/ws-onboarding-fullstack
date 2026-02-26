@@ -19,9 +19,9 @@ We use `useQuery` and `useMutation` (from `@tanstack/react-query`) to manage the
 
 While TanStack Query handles the "source of truth", we use a dedicated Zustand store (`usePlaylistStore`) for ephemeral, optimistic UI state.
 
-- **Global Coordination**: Unlike the `useOptimistic` hook, which is scoped to a specific component tree or form, Zustand allows us to coordinate state across disparate parts of the application. For example, clicking "Add to Playlist" on a `CatalogCard` can immediately update trackers in the Sidebar or a separate `PlaylistDetail` view without complex context lifting or prop drilling.
-- **Immediate Feedback**: When a track is added to a playlist, we immediately mark it as "added" in the Zustand store. This allows catalog cards to show an instant visual indicator (e.g., a checkmark) without waiting for the DB and iTunes API hydration-roundtrip.
-- **Persistence & SSR**: The store is client-side only and ephemeral, which suits "added" indicators that should reset on session end or refresh, unlike the permanent database state.
+- **True Optimistic Updates**: The architecture incorporates a `onMutate`/`onError`/`onSettled` pattern. When a track is added, we snapshot the state, update the UI immediately via Zustand (`markTrackAsAdded`), and roll back using `removeTrackFromPlaylist` if the server request fails.
+- **Global Coordination**: Unlike the `useOptimistic` hook, which is scoped to a specific component tree or form, Zustand allows us to coordinate state across disparate parts of the application (e.g., updating a search result card from a sidebar action).
+- **Persistence & SSR**: The store is client-side only and ephemeral, which suits "added" indicators that should reset on session end or be refreshed by TanStack Query's cache.
 
 ### Authentication & Liked Songs Sync
 

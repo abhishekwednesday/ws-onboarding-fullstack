@@ -1,7 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { useTransition } from "react"
+import { toast } from "sonner"
 
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { addTrackToPlaylistAction, getPlaylistDetailAction } from "@/features/playlist/api/playlist-actions"
@@ -13,8 +13,7 @@ import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
  */
 export function usePlaylistDetail(playlistId?: string) {
   const queryClient = useQueryClient()
-  const [isPending, startTransition] = useTransition()
-  const { markTrackAsAdded } = usePlaylistStore()
+  const { markTrackAsAdded, removeTrackFromPlaylist } = usePlaylistStore()
 
   // Fetch playlist details
   const {
@@ -36,7 +35,7 @@ export function usePlaylistDetail(playlistId?: string) {
     enabled: !!playlistId,
   })
 
-  // Add track to playlist mutation
+  // Add track to playlist mutation with true optimistic updates
   const addTrackMutation = useMutation({
     mutationFn: async ({ track }: { track: CatalogItemType }) => {
       if (!playlistId) throw new Error("No playlist selected")
@@ -44,30 +43,51 @@ export function usePlaylistDetail(playlistId?: string) {
       if (!result.success) {
         throw new Error(result.error)
       }
+      return result.data
     },
-    onSuccess: (_, { track }) => {
-      queryClient.invalidateQueries({ queryKey: ["playlist", playlistId] })
-      queryClient.invalidateQueries({ queryKey: ["playlists"] })
+    onMutate: async ({ track }) => {
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey: ["playlist", playlistId] })
 
-      // Update local optimistic store to show immediate feedback in catalog
+      // Snapshot the current state
+      const previousValue = playlistId ? { playlistId, trackId: track.id } : null
+
+      // Optimistically update the Zustand store
       if (playlistId) {
         markTrackAsAdded(playlistId, track.id)
       }
+
+      return { previousValue }
     },
-    onError: (err: Error) => {
+    onSuccess: (_, { track }) => {
+      toast.success(`Added "${track.title}" to playlist`)
+    },
+    onError: (err: Error, { track }, context) => {
+      // Rollback the optimistic update in Zustand store
+      if (context?.previousValue) {
+        removeTrackFromPlaylist(context.previousValue.playlistId, context.previousValue.trackId)
+      }
+
       console.error("Failed to add track to playlist:", err.message)
+      toast.error(err.message || "Failed to add track")
+    },
+    onSettled: () => {
+      // Always refetch after error or success to keep server sync
+      queryClient.invalidateQueries({ queryKey: ["playlist", playlistId] })
+      queryClient.invalidateQueries({ queryKey: ["playlists"] })
     },
   })
 
-  const addTrack = (track: CatalogItemType) => {
-    startTransition(async () => {
-      await addTrackMutation.mutateAsync({ track })
-    })
+  /**
+   * Wrapper for adding a track that returns a promise for the caller.
+   */
+  const addTrack = async (track: CatalogItemType) => {
+    return addTrackMutation.mutateAsync({ track })
   }
 
   return {
     playlist,
-    isLoading: isLoading || isPending,
+    isLoading,
     isError,
     error,
     addTrack,
