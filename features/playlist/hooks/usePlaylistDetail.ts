@@ -65,18 +65,24 @@ export function usePlaylistDetail(playlistId?: string) {
       console.error("Failed to add track to playlist:", err.message)
       toast.error(err.message || "Failed to add track")
     },
-    onSettled: () => {
-      // Always refetch after error or success to keep server sync
-      queryClient.invalidateQueries({ queryKey: ["playlist", playlistId] })
+    onSettled: (_data, _error, _variables, context) => {
+      const settledPlaylistId = context?.previousValue?.playlistId ?? playlistId
+      queryClient.invalidateQueries({ queryKey: ["playlist", settledPlaylistId] })
       queryClient.invalidateQueries({ queryKey: ["playlists"] })
     },
   })
 
   /**
-   * Wrapper for adding a track that returns a promise for the caller.
+   * Adds a track to the current playlist. Errors are handled internally
+   * via the mutation's onError callback (toast + console); callers do not
+   * need to catch.
    */
-  const addTrack = async (track: CatalogItemType) => {
-    return addTrackMutation.mutateAsync({ track })
+  const addTrack = async (track: CatalogItemType): Promise<void> => {
+    try {
+      await addTrackMutation.mutateAsync({ track })
+    } catch {
+      // Already handled by the mutation's onError callback
+    }
   }
 
   return {

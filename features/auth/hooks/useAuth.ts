@@ -35,13 +35,14 @@ async function syncFavoritesOnAuth(
  */
 export function useAuth() {
   const [isPending, startTransition] = useTransition()
-  const { favorites, clearFavorites } = useFavoritesStore()
+  const { clearFavorites } = useFavoritesStore()
 
   const login = (data: LoginFormData, redirectTo = "/playlists", onError?: (msg: string) => void) => {
     startTransition(async () => {
       const res = await loginAction(data)
       if (res.success) {
-        await syncFavoritesOnAuth(Object.values(favorites), clearFavorites, "login")
+        const currentTracks = Object.values(useFavoritesStore.getState().favorites)
+        await syncFavoritesOnAuth(currentTracks, clearFavorites, "login")
         window.location.href = redirectTo
       } else {
         if (onError) onError(res.error)
@@ -53,7 +54,8 @@ export function useAuth() {
     startTransition(async () => {
       const res = await registerAction(data)
       if (res.success) {
-        await syncFavoritesOnAuth(Object.values(favorites), clearFavorites, "registration")
+        const currentTracks = Object.values(useFavoritesStore.getState().favorites)
+        await syncFavoritesOnAuth(currentTracks, clearFavorites, "registration")
         window.location.href = redirectTo
       } else {
         if (onError) onError(res.error)

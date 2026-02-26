@@ -8,7 +8,9 @@ import { create } from "zustand"
  * during the current session for immediate optimistic UI feedback (e.g., checkmarks).
  */
 interface PlaylistState {
-  // Map of playlistId -> Set of trackIds
+  // Map of playlistId -> Set of trackIds.
+  // WARNING: Set<number> is not JSON-serializable. Do NOT add Zustand persist
+  // middleware to this store without converting to a serializable structure first.
   addedTracks: Record<string, Set<number>>
 
   /**
