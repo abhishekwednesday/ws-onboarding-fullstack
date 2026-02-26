@@ -260,6 +260,78 @@ export async function addTrackToPlaylistAction(
 }
 
 /**
+ * Removes a single track from a playlist.
+ */
+export async function removeTrackFromPlaylistAction(
+  playlistId: string,
+  trackId: number
+): Promise<PlaylistActionState<void>> {
+  const userId = await getAuthenticatedUserId()
+  if (!userId) return { success: false, error: "Unauthorized" }
+
+  try {
+    await withAuthenticatedClient(userId, async (client) => {
+      // Verify playlist existence and ownership (via RLS)
+      const ownerCheck = await client.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
+        playlistId,
+        userId,
+      ])
+
+      if (ownerCheck.rows.length === 0) {
+        throw new Error("Playlist not found")
+      }
+
+      await client.query(`DELETE FROM "playlist_track" WHERE "playlistId" = $1 AND "trackId" = $2`, [
+        playlistId,
+        trackId,
+      ])
+    })
+
+    return { success: true, data: undefined }
+  } catch (err: unknown) {
+    const error = err as { message?: string }
+    return { success: false, error: error?.message ?? "Failed to remove track from playlist" }
+  }
+}
+
+/**
+ * Fetches a map of playlistId to an array of trackIds for the authenticated user.
+ * This is used to hydrate local stores for global UI indicators.
+ */
+export async function getPlaylistTrackMapAction(): Promise<PlaylistActionState<Record<string, number[]>>> {
+  const userId = await getAuthenticatedUserId()
+  if (!userId) return { success: false, error: "Unauthorized" }
+
+  try {
+    const trackMap = await withAuthenticatedClient(userId, async (client) => {
+      // Join playlist to playlist_track to only get tracks for the user's playlists
+      const result = await client.query(
+        `SELECT p."id" as "playlistId", pt."trackId"
+         FROM "playlist" p
+         JOIN "playlist_track" pt ON pt."playlistId" = p."id"
+         WHERE p."userId" = $1`,
+        [userId]
+      )
+
+      const map: Record<string, number[]> = {}
+      for (const row of result.rows) {
+        const pId = row.playlistId
+        if (!map[pId]) {
+          map[pId] = []
+        }
+        map[pId].push(row.trackId)
+      }
+      return map
+    })
+
+    return { success: true, data: trackMap }
+  } catch (err: unknown) {
+    const error = err as { message?: string }
+    return { success: false, error: error?.message ?? "Failed to fetch playlist track map" }
+  }
+}
+
+/**
  * Syncs locally-stored liked songs into the user's "Liked Songs" playlist.
  * Processes tracks in chunks to stay under the PostgreSQL parameter limit.
  */
@@ -311,5 +383,118 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<P
   } catch (err: unknown) {
     const error = err as { message?: string }
     return { success: false, error: error?.message ?? "Failed to sync liked songs" }
+  }
+}
+
+/**
+ * Fetches all tracks in the user's "Liked Songs" playlist.
+ * Used for hydrating the client-side favorites store upon login.
+ */
+export async function getLikedSongsAction(): Promise<PlaylistActionState<CatalogItemType[]>> {
+  const userId = await getAuthenticatedUserId()
+  if (!userId) return { success: false, error: "Unauthorized" }
+
+  try {
+    const trackIds = await withAuthenticatedClient(userId, async (client) => {
+      const result = await client.query(
+        `SELECT pt."trackId"
+         FROM "playlist" p
+         JOIN "playlist_track" pt ON pt."playlistId" = p."id"
+         WHERE p."userId" = $1 AND p."isLiked" = TRUE`,
+        [userId]
+      )
+      return result.rows.map((row) => row.trackId)
+    })
+
+    if (trackIds.length === 0) {
+      return { success: true, data: [] }
+    }
+
+    const itunesResponse = await itunesLookupAction(trackIds)
+    const tracks: CatalogItemType[] = itunesResponse.results.map((t) => ({
+      id: t.trackId,
+      title: t.trackName,
+      artist: t.artistName,
+      album: t.collectionName,
+      artworkUrl: t.artworkUrl100,
+      previewUrl: t.previewUrl,
+      genre: t.primaryGenreName,
+      duration: t.trackTimeMillis,
+      trackViewUrl: t.trackViewUrl,
+    }))
+
+    return { success: true, data: tracks }
+  } catch (err: unknown) {
+    const error = err as { message?: string }
+    return { success: false, error: error?.message ?? "Failed to fetch liked songs" }
+  }
+}
+
+/**
+ * Adds a single track to the user's "Liked Songs" playlist.
+ * Atomically finds or creates the playlist.
+ */
+export async function likeTrackAction(track: CatalogItemType): Promise<PlaylistActionState<void>> {
+  const userId = await getAuthenticatedUserId()
+  if (!userId) return { success: false, error: "Unauthorized" }
+
+  try {
+    await withAuthenticatedClient(userId, async (client) => {
+      const now = new Date().toISOString()
+
+      // Atomic find-or-create for Liked Songs playlist
+      const playlistResult = await client.query(
+        `INSERT INTO "playlist" ("userId", "name", "isLiked", "createdAt", "updatedAt")
+         VALUES ($1, 'Liked Songs', TRUE, $2, $3)
+         ON CONFLICT ("userId") WHERE ("isLiked" = TRUE)
+         DO UPDATE SET "updatedAt" = EXCLUDED."updatedAt"
+         RETURNING "id"`,
+        [userId, now, now]
+      )
+      const playlistId = playlistResult.rows[0].id
+
+      await client.query(
+        `INSERT INTO "playlist_track" ("playlistId", "trackId", "addedAt")
+         VALUES ($1, $2, $3)
+         ON CONFLICT ("playlistId", "trackId") DO NOTHING`,
+        [playlistId, track.id, now]
+      )
+    })
+
+    return { success: true, data: undefined }
+  } catch (err: unknown) {
+    const error = err as { message?: string }
+    return { success: false, error: error?.message ?? "Failed to like track" }
+  }
+}
+
+/**
+ * Removes a single track from the user's "Liked Songs" playlist.
+ */
+export async function unlikeTrackAction(trackId: number): Promise<PlaylistActionState<void>> {
+  const userId = await getAuthenticatedUserId()
+  if (!userId) return { success: false, error: "Unauthorized" }
+
+  try {
+    await withAuthenticatedClient(userId, async (client) => {
+      // Find the Liked Songs playlist
+      const playlistResult = await client.query(
+        `SELECT "id" FROM "playlist" WHERE "userId" = $1 AND "isLiked" = TRUE`,
+        [userId]
+      )
+
+      if (playlistResult.rows.length === 0) return
+
+      const playlistId = playlistResult.rows[0].id
+      await client.query(`DELETE FROM "playlist_track" WHERE "playlistId" = $1 AND "trackId" = $2`, [
+        playlistId,
+        trackId,
+      ])
+    })
+
+    return { success: true, data: undefined }
+  } catch (err: unknown) {
+    const error = err as { message?: string }
+    return { success: false, error: error?.message ?? "Failed to unlike track" }
   }
 }

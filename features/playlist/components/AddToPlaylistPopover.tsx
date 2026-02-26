@@ -14,26 +14,37 @@ interface PlaylistItemProps {
   playlist: { id: string; name: string }
   track: CatalogItemType
   isTrackInPlaylist: (playlistId: string, trackId: number) => boolean
-  onClose?: () => void
 }
 
-function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistItemProps) {
-  const { addTrack: addTrackToThis, isAdding: isAddingToThis } = usePlaylistDetail(playlist.id, { skipQuery: true })
+function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps) {
+  const {
+    addTrack: addTrackToThis,
+    removeTrack: removeTrackFromThis,
+    isAdding: isAddingToThis,
+    isRemoving: isRemovingFromThis,
+  } = usePlaylistDetail(playlist.id, { skipQuery: true })
   const alreadyAdded = isTrackInPlaylist(playlist.id, track.id)
+
+  const isWorking = isAddingToThis || isRemovingFromThis
 
   return (
     <button
       onClick={async (e) => {
         e.stopPropagation()
-        if (alreadyAdded || isAddingToThis) return
-        await addTrackToThis(track)
-        onClose?.()
+        if (isWorking) return
+        if (alreadyAdded) {
+          await removeTrackFromThis(track.id)
+        } else {
+          await addTrackToThis(track)
+        }
       }}
-      disabled={isAddingToThis || alreadyAdded}
+      disabled={isWorking}
+      aria-pressed={alreadyAdded}
+      aria-label={`${alreadyAdded ? "Remove from" : "Add to"} playlist: ${playlist.name}`}
       className={cn(
         "group flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
         alreadyAdded
-          ? "bg-primary/10 text-primary cursor-default"
+          ? "bg-primary/10 text-primary cursor-pointer"
           : "text-foreground/80 hover:text-foreground hover:bg-white/10"
       )}
     >
@@ -48,7 +59,7 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistI
         </div>
         <span className="truncate font-medium">{playlist.name}</span>
       </div>
-      {isAddingToThis ? (
+      {isWorking ? (
         <Loader2 className="text-primary h-4 w-4 animate-spin" />
       ) : alreadyAdded ? (
         <Check className="text-primary h-4 w-4" />
@@ -85,13 +96,7 @@ export function AddToPlaylistPopover({ track, onClose }: { track: CatalogItemTyp
             </div>
           ) : playlists.length > 0 ? (
             playlists.map((playlist) => (
-              <PlaylistItem
-                key={playlist.id}
-                playlist={playlist}
-                track={track}
-                isTrackInPlaylist={isTrackInPlaylist}
-                onClose={onClose}
-              />
+              <PlaylistItem key={playlist.id} playlist={playlist} track={track} isTrackInPlaylist={isTrackInPlaylist} />
             ))
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">

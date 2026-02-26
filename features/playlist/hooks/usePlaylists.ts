@@ -3,7 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { createPlaylistAction, getUserPlaylistsAction } from "@/features/playlist/api/playlist-actions"
+import {
+  createPlaylistAction,
+  getPlaylistTrackMapAction,
+  getUserPlaylistsAction,
+} from "@/features/playlist/api/playlist-actions"
+import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
 import { type CreatePlaylistInput } from "@/features/playlist/types/playlist-types"
 
 /**
@@ -13,7 +18,6 @@ import { type CreatePlaylistInput } from "@/features/playlist/types/playlist-typ
 export function usePlaylists() {
   const queryClient = useQueryClient()
 
-  // Fetch playlists using TanStack Query
   const {
     data: playlists = [],
     isLoading,
@@ -25,8 +29,17 @@ export function usePlaylists() {
     queryFn: async () => {
       const result = await getUserPlaylistsAction()
       if (!result.success) {
+        usePlaylistStore.getState().reset()
         throw new Error(result.error)
       }
+
+      const mapResult = await getPlaylistTrackMapAction()
+      if (mapResult.success && mapResult.data) {
+        usePlaylistStore.getState().hydrateTrackMap(mapResult.data)
+      } else {
+        usePlaylistStore.getState().reset()
+      }
+
       return result.data
     },
   })

@@ -20,7 +20,7 @@ vi.mock("@/features/playlist/components/AddToPlaylistButton", () => ({
   AddToPlaylistButton: () => <div data-testid="mock-add-to-playlist" />,
 }))
 
-vi.mock("./FavoriteButton", () => ({
+vi.mock("@/features/catalog/components/FavoriteButton", () => ({
   FavoriteButton: () => <div data-testid="mock-favorite-button" />,
 }))
 

@@ -29,6 +29,11 @@ interface PlaylistState {
   isTrackInPlaylist: (playlistId: string, trackId: number) => boolean
 
   /**
+   * Replaces all track membership state in a single write from a server-provided map.
+   */
+  hydrateTrackMap: (trackMap: Record<string, number[]>) => void
+
+  /**
    * Resets the added tracks state.
    */
   reset: () => void
@@ -70,6 +75,14 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
   isTrackInPlaylist: (playlistId, trackId) => {
     const state = get()
     return state.addedTracks[playlistId]?.has(trackId) || false
+  },
+
+  hydrateTrackMap: (trackMap) => {
+    const hydrated: Record<string, Set<number>> = {}
+    for (const [playlistId, trackIds] of Object.entries(trackMap)) {
+      hydrated[playlistId] = new Set(trackIds)
+    }
+    set({ addedTracks: hydrated })
   },
 
   reset: () => set({ addedTracks: {} }),

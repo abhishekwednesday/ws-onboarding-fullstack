@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowLeft, Clock, Music, Play, Plus } from "lucide-react"
+import { ArrowLeft, Clock, Music, Play, Plus, Trash2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -17,7 +17,7 @@ import { usePlaylistDetail } from "../hooks/usePlaylistDetail"
  */
 export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
   const router = useRouter()
-  const { playlist, isLoading, isError, error, refetch } = usePlaylistDetail(playlistId)
+  const { playlist, isLoading, isError, error, refetch, removeTrack, isRemoving } = usePlaylistDetail(playlistId)
 
   if (isLoading) return <PlaylistDetailSkeleton />
 
@@ -94,7 +94,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
 
       {/* Tracks List */}
       <div className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-        <div className="text-muted-foreground grid grid-cols-[48px_1fr_100px] gap-4 border-b border-white/5 px-6 py-3 text-xs font-bold tracking-wider uppercase">
+        <div className="text-muted-foreground grid grid-cols-[48px_1fr_120px] gap-4 border-b border-white/5 px-6 py-3 text-xs font-bold tracking-wider uppercase">
           <span className="text-center">#</span>
           <span>Title / Artist</span>
           <span className="flex items-center justify-end text-right">
@@ -119,12 +119,13 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                 return (
                   <div
                     key={track.id}
-                    className="group grid cursor-pointer grid-cols-[48px_1fr_100px] gap-4 px-6 py-3 transition-colors hover:bg-white/10"
+                    className="group grid cursor-pointer grid-cols-[48px_1fr_120px] gap-4 px-6 py-3 transition-colors hover:bg-white/10"
                     onClick={handleTrackClick}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
+                        if (e.target !== e.currentTarget) return
                         if (e.key === " ") e.preventDefault()
                         handleTrackClick()
                       }
@@ -157,8 +158,26 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                       </div>
                     </div>
 
-                    <div className="text-muted-foreground group-hover:text-foreground flex items-center justify-end text-sm transition-colors">
+                    <div className="text-muted-foreground group-hover:text-foreground flex items-center justify-end gap-2 text-sm transition-colors">
                       {formatDuration(track.duration || 0)}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-500 focus-visible:opacity-100"
+                        disabled={isRemoving}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          removeTrack(track.id)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation()
+                          }
+                        }}
+                        aria-label="Remove track"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 )

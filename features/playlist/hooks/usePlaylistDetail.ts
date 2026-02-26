@@ -4,7 +4,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
-import { addTrackToPlaylistAction, getPlaylistDetailAction } from "@/features/playlist/api/playlist-actions"
+import {
+  addTrackToPlaylistAction,
+  getPlaylistDetailAction,
+  removeTrackFromPlaylistAction,
+} from "@/features/playlist/api/playlist-actions"
 import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
 
 /**
@@ -76,6 +80,45 @@ export function usePlaylistDetail(playlistId?: string, options?: UsePlaylistDeta
   })
 
   /**
+   * Remove track mutation with optimistic rollbacks
+   */
+  const removeTrackMutation = useMutation({
+    mutationFn: async ({ trackId }: { trackId: number }) => {
+      if (!playlistId) throw new Error("No playlist selected")
+      const result = await removeTrackFromPlaylistAction(playlistId, trackId)
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+      return result.data
+    },
+    onMutate: async ({ trackId }) => {
+      await queryClient.cancelQueries({ queryKey: ["playlist", playlistId] })
+      const wasInPlaylist = playlistId ? isTrackInPlaylist(playlistId, trackId) : false
+      const previousValue = playlistId ? { playlistId, trackId, wasInPlaylist } : null
+
+      if (playlistId) {
+        removeTrackFromPlaylist(playlistId, trackId)
+      }
+      return { previousValue }
+    },
+    onSuccess: () => {
+      toast.success("Removed track from playlist")
+    },
+    onError: (err: Error, { trackId }, context) => {
+      if (context?.previousValue && context.previousValue.wasInPlaylist) {
+        markTrackAsAdded(context.previousValue.playlistId, trackId)
+      }
+      console.error("Failed to remove track:", err.message)
+      toast.error(err.message || "Failed to remove track")
+    },
+    onSettled: (_data, _error, _variables, context) => {
+      const settledPlaylistId = context?.previousValue?.playlistId ?? playlistId
+      queryClient.invalidateQueries({ queryKey: ["playlist", settledPlaylistId] })
+      queryClient.invalidateQueries({ queryKey: ["playlists"] })
+    },
+  })
+
+  /**
    * Adds a track to the current playlist. Errors are handled internally
    * via the mutation's onError callback (toast + console); callers do not
    * need to catch.
@@ -88,13 +131,26 @@ export function usePlaylistDetail(playlistId?: string, options?: UsePlaylistDeta
     }
   }
 
+  /**
+   * Removes a track from the current playlist.
+   */
+  const removeTrack = async (trackId: number): Promise<void> => {
+    try {
+      await removeTrackMutation.mutateAsync({ trackId })
+    } catch {
+      // Handled internally
+    }
+  }
+
   return {
     playlist,
     isLoading,
     isError,
     error,
     addTrack,
+    removeTrack,
     isAdding: addTrackMutation.isPending,
+    isRemoving: removeTrackMutation.isPending,
     refetch,
   }
 }
