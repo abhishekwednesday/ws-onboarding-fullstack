@@ -6,6 +6,7 @@ import { PostHogPageView } from "@/components/providers/PostHogPageView"
 import { PostHogProvider } from "@/components/providers/PostHogProvider"
 import { QueryProvider } from "@/components/providers/QueryProvider"
 import { ThemeProvider } from "@/components/theme/ThemeProvider"
+import { Toaster } from "@/components/ui/sonner"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Suspense>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
               <BasePage>{children}</BasePage>
+              <Toaster />
             </ThemeProvider>
           </PostHogProvider>
         </QueryProvider>
