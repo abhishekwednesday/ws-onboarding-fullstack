@@ -17,6 +17,7 @@ export const useFavoritesStore = create<FavoritesStateType>()(
         set({ favorites: newFavorites })
       },
       isFavorite: (id) => !!get().favorites[id],
+      clearFavorites: () => set({ favorites: {} }),
     }),
     {
       name: "music-stream-favorites",
