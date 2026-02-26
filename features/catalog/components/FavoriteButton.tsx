@@ -22,6 +22,7 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
 
   const handleToggle = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation()
+    if (isPending) return
     const nextState = !optimisticFav
 
     startTransition(async () => {
@@ -37,9 +38,7 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
 
       if (session?.user) {
         try {
-          const result = nextState
-            ? await likeTrackAction(track)
-            : await unlikeTrackAction(track.id)
+          const result = nextState ? await likeTrackAction(track) : await unlikeTrackAction(track.id)
           if (!result.success) {
             toggleFavorite(track)
           }
@@ -64,6 +63,7 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
     return (
       <button
         onClick={handleToggle}
+        disabled={isPending}
         className={cn(
           "group flex items-center justify-center rounded-full p-2 transition-colors hover:bg-rose-500/10",
           className
@@ -80,6 +80,7 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
       variant="ghost"
       size="icon"
       onClick={handleToggle}
+      disabled={isPending}
       className={cn(
         "rounded-full transition-all duration-200 hover:bg-rose-500/10",
         optimisticFav && "hover:bg-rose-500/20",

@@ -38,9 +38,10 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistI
         } else {
           await addTrackToThis(track)
         }
-        // Don't close immediately to let them see the success state
       }}
       disabled={isWorking}
+      aria-pressed={alreadyAdded}
+      aria-label={`${alreadyAdded ? "Remove from" : "Add to"} playlist: ${playlist.name}`}
       className={cn(
         "group flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
         alreadyAdded

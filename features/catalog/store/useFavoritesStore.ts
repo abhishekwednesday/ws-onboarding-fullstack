@@ -18,8 +18,7 @@ export const useFavoritesStore = create<FavoritesStateType>()(
       },
       isFavorite: (id) => !!get().favorites[id],
       clearFavorites: () => set({ favorites: {} }),
-      replaceFavorites: (tracks) =>
-        set({ favorites: Object.fromEntries(tracks.map((t) => [t.id, t])) }),
+      replaceFavorites: (tracks) => set({ favorites: Object.fromEntries(tracks.map((t) => [t.id, t])) }),
     }),
     {
       name: "music-stream-favorites",

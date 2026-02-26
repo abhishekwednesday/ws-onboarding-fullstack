@@ -17,9 +17,7 @@ import { type CreatePlaylistInput } from "@/features/playlist/types/playlist-typ
  */
 export function usePlaylists() {
   const queryClient = useQueryClient()
-  const { addedTracks, markTrackAsAdded, reset } = usePlaylistStore()
 
-  // Fetch playlists using TanStack Query
   const {
     data: playlists = [],
     isLoading,
@@ -31,17 +29,15 @@ export function usePlaylists() {
     queryFn: async () => {
       const result = await getUserPlaylistsAction()
       if (!result.success) {
+        usePlaylistStore.getState().reset()
         throw new Error(result.error)
       }
 
       const mapResult = await getPlaylistTrackMapAction()
-      reset()
       if (mapResult.success && mapResult.data) {
-        Object.entries(mapResult.data).forEach(([playlistId, trackIds]) => {
-          trackIds.forEach((trackId) => {
-            markTrackAsAdded(playlistId, trackId)
-          })
-        })
+        usePlaylistStore.getState().hydrateTrackMap(mapResult.data)
+      } else {
+        usePlaylistStore.getState().reset()
       }
 
       return result.data

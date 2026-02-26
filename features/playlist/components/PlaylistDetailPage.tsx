@@ -94,7 +94,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
 
       {/* Tracks List */}
       <div className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-        <div className="text-muted-foreground grid grid-cols-[48px_1fr_100px] gap-4 border-b border-white/5 px-6 py-3 text-xs font-bold tracking-wider uppercase">
+        <div className="text-muted-foreground grid grid-cols-[48px_1fr_120px] gap-4 border-b border-white/5 px-6 py-3 text-xs font-bold tracking-wider uppercase">
           <span className="text-center">#</span>
           <span>Title / Artist</span>
           <span className="flex items-center justify-end text-right">
@@ -163,7 +163,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-rose-500/10 hover:text-rose-500"
+                        className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-500 focus-visible:opacity-100"
                         disabled={isRemoving}
                         onClick={(e) => {
                           e.stopPropagation()

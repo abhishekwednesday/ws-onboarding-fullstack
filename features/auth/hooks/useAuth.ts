@@ -43,6 +43,9 @@ export function useAuth() {
         const serverLikes = await getLikedSongsAction()
         if (serverLikes.success && serverLikes.data) {
           replaceFavorites(serverLikes.data)
+        } else {
+          console.error("Failed to fetch liked songs after login:", serverLikes)
+          toast.error("Your favorites may be out of sync. Try refreshing the page.")
         }
 
         window.location.href = redirectTo
