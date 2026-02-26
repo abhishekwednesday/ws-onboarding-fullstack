@@ -16,6 +16,10 @@ defaults:
     # change this if your nextjs app does not live at the root of the repo
     working-directory: ./
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   analyze:
     env:
