@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
+import { AddToPlaylistButton } from "@/features/playlist/components/AddToPlaylistButton"
 import { trackTrackSelected } from "@/lib/analytics/events"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogCardPropsType } from "../types/catalog-types"
@@ -43,9 +44,14 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
       aria-label={`View details for ${item.title}`}
       data-testid="catalog-card"
     >
-      {/* Favorite Button */}
-      <div className="absolute top-3 right-3 z-10">
+      {/* Action Buttons */}
+      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
         <FavoriteButton track={item} className="bg-background/20 hover:bg-background/40 backdrop-blur-md" />
+        <AddToPlaylistButton
+          track={item}
+          iconOnly
+          className="bg-background/20 hover:bg-background/40 backdrop-blur-md"
+        />
       </div>
 
       {/* Artwork */}

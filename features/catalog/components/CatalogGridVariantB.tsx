@@ -4,19 +4,16 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
+import { AddToPlaylistButton } from "@/features/playlist/components/AddToPlaylistButton"
 import { trackTrackSelected } from "@/lib/analytics/events"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
-
-interface CatalogGridVariantBPropsType {
-  items: CatalogItemType[]
-}
 
 /**
  * Variant B of the catalog layout: a horizontal row list optimised for scannability.
  * Used in the `new-catalog-layout` A/B experiment as the treatment condition.
  */
-export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
+export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
   const router = useRouter()
 
   if (items.length === 0) {
@@ -78,7 +75,10 @@ export function CatalogGridVariantB({ items }: CatalogGridVariantBPropsType) {
               </span>
             )}
 
-            <FavoriteButton track={item} iconOnly />
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <AddToPlaylistButton track={item} iconOnly className="h-9 w-9" />
+              <FavoriteButton track={item} iconOnly />
+            </div>
           </div>
         )
       })}

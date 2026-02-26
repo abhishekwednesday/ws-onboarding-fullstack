@@ -1,9 +1,18 @@
 import { render, screen } from "@testing-library/react"
 import * as React from "react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { CatalogList } from "@/features/catalog/components/CatalogList"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+
+vi.mock("@/features/catalog/components/CatalogCard", () => ({
+  CatalogCard: ({ item }: { item: CatalogItemType }) => (
+    <div data-testid="mock-catalog-card">
+      <div>{item.title}</div>
+      <div>{item.artist}</div>
+    </div>
+  ),
+}))
 
 const mockItems: CatalogItemType[] = [
   {
