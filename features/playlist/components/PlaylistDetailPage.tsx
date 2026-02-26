@@ -8,8 +8,8 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatDuration } from "@/features/catalog/utils/track-formatters"
 import { trackTrackSelected } from "@/lib/analytics/events"
+import { formatDuration } from "@/lib/utils/track-formatters"
 import { usePlaylistDetail } from "../hooks/usePlaylistDetail"
 
 /**

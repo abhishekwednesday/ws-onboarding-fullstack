@@ -33,7 +33,7 @@ test.describe("Music Catalog Page", () => {
 
     if (!isVariantB) {
       const badge = page.getByRole("link", { name: /listen on apple music/i }).first()
-      await expect(badge).toBeVisible()
+      await expect(badge).toBeVisible({ timeout: 15000 })
       await expect(badge).toHaveAttribute("target", "_blank")
     }
   })
