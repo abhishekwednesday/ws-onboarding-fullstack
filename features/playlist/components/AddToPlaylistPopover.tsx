@@ -96,12 +96,7 @@ export function AddToPlaylistPopover({ track, onClose }: { track: CatalogItemTyp
             </div>
           ) : playlists.length > 0 ? (
             playlists.map((playlist) => (
-              <PlaylistItem
-                key={playlist.id}
-                playlist={playlist}
-                track={track}
-                isTrackInPlaylist={isTrackInPlaylist}
-              />
+              <PlaylistItem key={playlist.id} playlist={playlist} track={track} isTrackInPlaylist={isTrackInPlaylist} />
             ))
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">
