@@ -39,8 +39,3 @@ export type PlaylistTrackType = CatalogItemType & {
 export type PlaylistDetailType = PlaylistType & {
   tracks: PlaylistTrackType[]
 }
-
-/**
- * Generic server action result shape, mirroring the auth feature pattern.
- */
-export type PlaylistActionState<T> = { success: true; data: T } | { success: false; error: string }
