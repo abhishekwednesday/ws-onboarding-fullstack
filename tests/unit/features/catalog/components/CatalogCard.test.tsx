@@ -1,9 +1,28 @@
 import { render, screen } from "@testing-library/react"
 import * as React from "react"
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 
 import { CatalogCard } from "@/features/catalog/components/CatalogCard"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+
+// Mock dependencies that trigger server-side imports or complex state
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}))
+
+vi.mock("@/lib/analytics/events", () => ({
+  trackTrackSelected: vi.fn(),
+}))
+
+vi.mock("@/features/playlist/components/AddToPlaylistButton", () => ({
+  AddToPlaylistButton: () => <div data-testid="mock-add-to-playlist" />,
+}))
+
+vi.mock("./FavoriteButton", () => ({
+  FavoriteButton: () => <div data-testid="mock-favorite-button" />,
+}))
 
 const mockItem: CatalogItemType = {
   id: 1,

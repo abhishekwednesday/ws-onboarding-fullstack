@@ -11,11 +11,14 @@ import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
  * Hook for managing a single playlist's details and track list.
  * Handles fetching, adding tracks, and optimistic UI state.
  */
-export function usePlaylistDetail(playlistId?: string) {
+interface UsePlaylistDetailOptions {
+  skipQuery?: boolean
+}
+
+export function usePlaylistDetail(playlistId?: string, options?: UsePlaylistDetailOptions) {
   const queryClient = useQueryClient()
   const { markTrackAsAdded, removeTrackFromPlaylist, isTrackInPlaylist } = usePlaylistStore()
 
-  // Fetch playlist details
   const {
     data: playlist = null,
     isLoading,
@@ -32,7 +35,7 @@ export function usePlaylistDetail(playlistId?: string) {
       }
       return result.data
     },
-    enabled: !!playlistId,
+    enabled: !!playlistId && !options?.skipQuery,
   })
 
   // Add track to playlist mutation with true optimistic updates
