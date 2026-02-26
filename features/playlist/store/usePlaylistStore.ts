@@ -52,6 +52,10 @@ export const usePlaylistStore = create<PlaylistState>((set, get) => ({
     set((state) => {
       const playlistTracks = new Set(state.addedTracks[playlistId] || [])
       playlistTracks.delete(trackId)
+      if (playlistTracks.size === 0) {
+        const { [playlistId]: _, ...rest } = state.addedTracks
+        return { addedTracks: rest }
+      }
       return {
         addedTracks: {
           ...state.addedTracks,

@@ -13,7 +13,7 @@ import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
  */
 export function usePlaylistDetail(playlistId?: string) {
   const queryClient = useQueryClient()
-  const { markTrackAsAdded, removeTrackFromPlaylist } = usePlaylistStore()
+  const { markTrackAsAdded, removeTrackFromPlaylist, isTrackInPlaylist } = usePlaylistStore()
 
   // Fetch playlist details
   const {
@@ -46,25 +46,19 @@ export function usePlaylistDetail(playlistId?: string) {
       return result.data
     },
     onMutate: async ({ track }) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
       await queryClient.cancelQueries({ queryKey: ["playlist", playlistId] })
-
-      // Snapshot the current state
-      const previousValue = playlistId ? { playlistId, trackId: track.id } : null
-
-      // Optimistically update the Zustand store
+      const wasAlreadyAdded = playlistId ? isTrackInPlaylist(playlistId, track.id) : false
+      const previousValue = playlistId ? { playlistId, trackId: track.id, wasAlreadyAdded } : null
       if (playlistId) {
         markTrackAsAdded(playlistId, track.id)
       }
-
       return { previousValue }
     },
     onSuccess: (_, { track }) => {
       toast.success(`Added "${track.title}" to playlist`)
     },
     onError: (err: Error, { track }, context) => {
-      // Rollback the optimistic update in Zustand store
-      if (context?.previousValue) {
+      if (context?.previousValue && !context.previousValue.wasAlreadyAdded) {
         removeTrackFromPlaylist(context.previousValue.playlistId, context.previousValue.trackId)
       }
 

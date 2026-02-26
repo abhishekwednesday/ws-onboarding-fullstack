@@ -3,9 +3,30 @@
 import { useTransition } from "react"
 import { toast } from "sonner"
 import { useFavoritesStore } from "@/features/catalog/store/useFavoritesStore"
+import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { syncLikedSongsAction } from "@/features/playlist/api/playlist-actions"
 import { loginAction, logoutAction, registerAction } from "../api/auth-actions"
 import { type LoginFormData, type RegisterFormData } from "../types/auth-types"
+
+async function syncFavoritesOnAuth(
+  tracks: CatalogItemType[],
+  clearFavorites: () => void,
+  context: string
+): Promise<void> {
+  if (tracks.length === 0) return
+  try {
+    const syncRes = await syncLikedSongsAction(tracks)
+    if (syncRes.success) {
+      clearFavorites()
+    } else {
+      console.error(`Failed to sync liked songs during ${context}:`, syncRes.error)
+      toast.error("Could not sync your favorites to the server.")
+    }
+  } catch (err) {
+    console.error(`Sync error during ${context}:`, err)
+    toast.error("An error occurred while syncing your favorites.")
+  }
+}
 
 /**
  * React Hook for handling authentication state via Server Actions.
@@ -20,23 +41,7 @@ export function useAuth() {
     startTransition(async () => {
       const res = await loginAction(data)
       if (res.success) {
-        // Sync local liked songs to DB on successful login
-        const tracks = Object.values(favorites)
-        if (tracks.length > 0) {
-          try {
-            const syncRes = await syncLikedSongsAction(tracks)
-            if (syncRes.success) {
-              clearFavorites()
-            } else {
-              console.error("Failed to sync liked songs:", syncRes.error)
-              toast.error("Could not sync your favorites to the server.")
-            }
-          } catch (err) {
-            console.error("Sync error during login:", err)
-            toast.error("An error occurred while syncing your favorites.")
-          }
-        }
-        // Force a hard navigation so the better-auth client state (useSession) re-initializes with the new cookie
+        await syncFavoritesOnAuth(Object.values(favorites), clearFavorites, "login")
         window.location.href = redirectTo
       } else {
         if (onError) onError(res.error)
@@ -48,22 +53,7 @@ export function useAuth() {
     startTransition(async () => {
       const res = await registerAction(data)
       if (res.success) {
-        // Sync local liked songs to DB on successful registration
-        const tracks = Object.values(favorites)
-        if (tracks.length > 0) {
-          try {
-            const syncRes = await syncLikedSongsAction(tracks)
-            if (syncRes.success) {
-              clearFavorites()
-            } else {
-              console.error("Failed to sync liked songs:", syncRes.error)
-              toast.error("Could not sync your favorites to the server.")
-            }
-          } catch (err) {
-            console.error("Sync error during registration:", err)
-            toast.error("An error occurred while syncing your favorites.")
-          }
-        }
+        await syncFavoritesOnAuth(Object.values(favorites), clearFavorites, "registration")
         window.location.href = redirectTo
       } else {
         if (onError) onError(res.error)
