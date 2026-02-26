@@ -4,7 +4,7 @@ import { Heart } from "lucide-react"
 import { useOptimistic, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
-import { likeTrackAction, unlikeTrackAction } from "@/features/playlist/api/playlist-actions"
+import { likeTrackAction, unlikeTrackAction } from "@/features/playlist/api/playlist-sync"
 import { trackFavoriteAdded, trackFavoriteRemoved } from "@/lib/analytics/events"
 import { useSession } from "@/lib/auth/auth-client"
 import { cn } from "@/lib/utils"

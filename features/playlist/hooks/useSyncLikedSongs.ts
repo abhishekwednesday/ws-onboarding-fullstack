@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useFavoritesStore } from "@/features/catalog/store/useFavoritesStore"
 import { useSession } from "@/lib/auth/auth-client"
-import { getLikedSongsAction } from "../api/playlist-actions"
+import { getLikedSongsAction } from "../api/playlist-sync"
 
 /**
  * Hydrates the client-side `useFavoritesStore` from the server's

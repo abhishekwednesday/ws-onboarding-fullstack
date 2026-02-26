@@ -4,12 +4,16 @@ import * as React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
-import * as playlistActions from "@/features/playlist/api/playlist-actions"
+import * as playlistMutations from "@/features/playlist/api/playlist-mutations"
+import * as playlistQueries from "@/features/playlist/api/playlist-queries"
 import { usePlaylistDetail } from "@/features/playlist/hooks/usePlaylistDetail"
 import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
 
-vi.mock("@/features/playlist/api/playlist-actions", () => ({
+vi.mock("@/features/playlist/api/playlist-queries", () => ({
   getPlaylistDetailAction: vi.fn(),
+}))
+
+vi.mock("@/features/playlist/api/playlist-mutations", () => ({
   addTrackToPlaylistAction: vi.fn(),
   removeTrackFromPlaylistAction: vi.fn(),
 }))
@@ -66,7 +70,7 @@ describe("usePlaylistDetail hook", () => {
   })
 
   it("should fetch playlist details", async () => {
-    vi.mocked(playlistActions.getPlaylistDetailAction).mockResolvedValue({
+    vi.mocked(playlistQueries.getPlaylistDetailAction).mockResolvedValue({
       success: true,
       data: mockPlaylistDetail,
     })
@@ -82,7 +86,7 @@ describe("usePlaylistDetail hook", () => {
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
     expect(result.current.playlist).toBeNull()
-    expect(playlistActions.getPlaylistDetailAction).not.toHaveBeenCalled()
+    expect(playlistQueries.getPlaylistDetailAction).not.toHaveBeenCalled()
   })
 
   it("should skip query when skipQuery option is true", async () => {
@@ -91,15 +95,15 @@ describe("usePlaylistDetail hook", () => {
     })
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
-    expect(playlistActions.getPlaylistDetailAction).not.toHaveBeenCalled()
+    expect(playlistQueries.getPlaylistDetailAction).not.toHaveBeenCalled()
   })
 
   it("should add a track and update the store optimistically", async () => {
-    vi.mocked(playlistActions.getPlaylistDetailAction).mockResolvedValue({
+    vi.mocked(playlistQueries.getPlaylistDetailAction).mockResolvedValue({
       success: true,
       data: mockPlaylistDetail,
     })
-    vi.mocked(playlistActions.addTrackToPlaylistAction).mockResolvedValue({
+    vi.mocked(playlistMutations.addTrackToPlaylistAction).mockResolvedValue({
       success: true,
       data: undefined,
     })
@@ -112,16 +116,16 @@ describe("usePlaylistDetail hook", () => {
       await result.current.addTrack(mockTrack)
     })
 
-    expect(playlistActions.addTrackToPlaylistAction).toHaveBeenCalledWith("p1", mockTrack)
+    expect(playlistMutations.addTrackToPlaylistAction).toHaveBeenCalledWith("p1", mockTrack)
     expect(usePlaylistStore.getState().isTrackInPlaylist("p1", 100)).toBe(true)
   })
 
   it("should rollback optimistic add on server failure", async () => {
-    vi.mocked(playlistActions.getPlaylistDetailAction).mockResolvedValue({
+    vi.mocked(playlistQueries.getPlaylistDetailAction).mockResolvedValue({
       success: true,
       data: mockPlaylistDetail,
     })
-    vi.mocked(playlistActions.addTrackToPlaylistAction).mockResolvedValue({
+    vi.mocked(playlistMutations.addTrackToPlaylistAction).mockResolvedValue({
       success: false,
       error: "Server error",
     })
@@ -143,11 +147,11 @@ describe("usePlaylistDetail hook", () => {
       usePlaylistStore.getState().markTrackAsAdded("p1", 100)
     })
 
-    vi.mocked(playlistActions.getPlaylistDetailAction).mockResolvedValue({
+    vi.mocked(playlistQueries.getPlaylistDetailAction).mockResolvedValue({
       success: true,
       data: mockPlaylistDetail,
     })
-    vi.mocked(playlistActions.removeTrackFromPlaylistAction).mockResolvedValue({
+    vi.mocked(playlistMutations.removeTrackFromPlaylistAction).mockResolvedValue({
       success: true,
       data: undefined,
     })
@@ -160,7 +164,7 @@ describe("usePlaylistDetail hook", () => {
       await result.current.removeTrack(100)
     })
 
-    expect(playlistActions.removeTrackFromPlaylistAction).toHaveBeenCalledWith("p1", 100)
+    expect(playlistMutations.removeTrackFromPlaylistAction).toHaveBeenCalledWith("p1", 100)
     expect(usePlaylistStore.getState().isTrackInPlaylist("p1", 100)).toBe(false)
   })
 
@@ -169,11 +173,11 @@ describe("usePlaylistDetail hook", () => {
       usePlaylistStore.getState().markTrackAsAdded("p1", 100)
     })
 
-    vi.mocked(playlistActions.getPlaylistDetailAction).mockResolvedValue({
+    vi.mocked(playlistQueries.getPlaylistDetailAction).mockResolvedValue({
       success: true,
       data: mockPlaylistDetail,
     })
-    vi.mocked(playlistActions.removeTrackFromPlaylistAction).mockResolvedValue({
+    vi.mocked(playlistMutations.removeTrackFromPlaylistAction).mockResolvedValue({
       success: false,
       error: "Server error",
     })

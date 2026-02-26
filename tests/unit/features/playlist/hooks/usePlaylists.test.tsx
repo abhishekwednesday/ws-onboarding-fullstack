@@ -3,13 +3,17 @@ import { act, renderHook, waitFor } from "@testing-library/react"
 import * as React from "react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
-import * as playlistActions from "@/features/playlist/api/playlist-actions"
+import * as playlistMutations from "@/features/playlist/api/playlist-mutations"
+import * as playlistQueries from "@/features/playlist/api/playlist-queries"
 import { usePlaylists } from "@/features/playlist/hooks/usePlaylists"
 import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
 
-vi.mock("@/features/playlist/api/playlist-actions", () => ({
+vi.mock("@/features/playlist/api/playlist-queries", () => ({
   getUserPlaylistsAction: vi.fn(),
   getPlaylistTrackMapAction: vi.fn(),
+}))
+
+vi.mock("@/features/playlist/api/playlist-mutations", () => ({
   createPlaylistAction: vi.fn(),
 }))
 
@@ -56,8 +60,8 @@ describe("usePlaylists hook", () => {
   })
 
   it("should fetch playlists and hydrate the track map", async () => {
-    vi.mocked(playlistActions.getUserPlaylistsAction).mockResolvedValue({ success: true, data: mockPlaylists })
-    vi.mocked(playlistActions.getPlaylistTrackMapAction).mockResolvedValue({
+    vi.mocked(playlistQueries.getUserPlaylistsAction).mockResolvedValue({ success: true, data: mockPlaylists })
+    vi.mocked(playlistQueries.getPlaylistTrackMapAction).mockResolvedValue({
       success: true,
       data: { p1: [100, 200], p2: [300] },
     })
@@ -77,7 +81,10 @@ describe("usePlaylists hook", () => {
       usePlaylistStore.getState().markTrackAsAdded("stale", 1)
     })
 
-    vi.mocked(playlistActions.getUserPlaylistsAction).mockResolvedValue({ success: false, error: "Unauthorized" })
+    vi.mocked(playlistQueries.getUserPlaylistsAction).mockResolvedValue({
+      success: false,
+      error: "Server error",
+    })
 
     const { result } = renderHook(() => usePlaylists(), { wrapper: createWrapper() })
 
@@ -91,8 +98,8 @@ describe("usePlaylists hook", () => {
       usePlaylistStore.getState().markTrackAsAdded("stale", 1)
     })
 
-    vi.mocked(playlistActions.getUserPlaylistsAction).mockResolvedValue({ success: true, data: mockPlaylists })
-    vi.mocked(playlistActions.getPlaylistTrackMapAction).mockResolvedValue({ success: false, error: "DB error" })
+    vi.mocked(playlistQueries.getUserPlaylistsAction).mockResolvedValue({ success: true, data: mockPlaylists })
+    vi.mocked(playlistQueries.getPlaylistTrackMapAction).mockResolvedValue({ success: false, error: "DB error" })
 
     const { result } = renderHook(() => usePlaylists(), { wrapper: createWrapper() })
 
@@ -103,8 +110,8 @@ describe("usePlaylists hook", () => {
   })
 
   it("should create a playlist via createPlaylist", async () => {
-    vi.mocked(playlistActions.getUserPlaylistsAction).mockResolvedValue({ success: true, data: [] })
-    vi.mocked(playlistActions.getPlaylistTrackMapAction).mockResolvedValue({ success: true, data: {} })
+    vi.mocked(playlistQueries.getUserPlaylistsAction).mockResolvedValue({ success: true, data: [] })
+    vi.mocked(playlistQueries.getPlaylistTrackMapAction).mockResolvedValue({ success: true, data: {} })
 
     const newPlaylist = {
       id: "p3",
@@ -116,7 +123,10 @@ describe("usePlaylists hook", () => {
       createdAt: "2024-01-01",
       updatedAt: "2024-01-01",
     }
-    vi.mocked(playlistActions.createPlaylistAction).mockResolvedValue({ success: true, data: newPlaylist })
+    vi.mocked(playlistMutations.createPlaylistAction).mockResolvedValue({
+      success: true,
+      data: newPlaylist,
+    })
 
     const { result } = renderHook(() => usePlaylists(), { wrapper: createWrapper() })
 

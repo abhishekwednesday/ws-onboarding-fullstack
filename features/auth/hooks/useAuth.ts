@@ -4,7 +4,7 @@ import { useTransition } from "react"
 import { toast } from "sonner"
 import { useFavoritesStore } from "@/features/catalog/store/useFavoritesStore"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
-import { getLikedSongsAction, syncLikedSongsAction } from "@/features/playlist/api/playlist-actions"
+import { getLikedSongsAction, syncLikedSongsAction } from "@/features/playlist/api/playlist-sync"
 import { loginAction, logoutAction, registerAction } from "../api/auth-actions"
 import { type LoginFormData, type RegisterFormData } from "../types/auth-types"
 
