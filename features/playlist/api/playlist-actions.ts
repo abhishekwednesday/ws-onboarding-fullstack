@@ -29,29 +29,31 @@ async function getAuthenticatedUserId(): Promise<string | null> {
 }
 
 /**
- * Opens a pg Pool for the duration of an action.
- * Instantiated inline to avoid importing Node.js modules at module scope,
- * which would conflict with the Next.js Edge Runtime used in middleware.ts.
+ * Opens a pg Pool for the duration of an action and sets the app.current_user_id
+ * to enable Postgres RLS policies to function with Better Auth sessions.
  */
-async function createPool() {
+async function createPool(userId: string) {
   const { Pool } = await import("pg")
   const { env } = await import("@/env.mjs")
-  return new Pool({
+  const pool = new Pool({
     connectionString: env.DATABASE_URL,
     max: 2,
     ssl: process.env.NODE_ENV === "production" ? true : { rejectUnauthorized: false },
   })
+
+  // Set the current user ID for RLS policies
+  await pool.query(`SET app.current_user_id = '${userId}'`)
+  return pool
 }
 
 /**
- * Fetches all playlists for the currently authenticated user,
- * including a trackCount derived from a subquery.
+ * Fetches all playlists for the currently authenticated user.
  */
 export async function getUserPlaylistsAction(): Promise<PlaylistActionState<PlaylistType[]>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  const pool = await createPool()
+  const pool = await createPool(userId)
   try {
     const result = await pool.query(
       `SELECT p.*,
@@ -83,17 +85,13 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
 }
 
 /**
- * Fetches a single playlist with its full track list.
- * Track IDs are fetched from the database, then hydrated with
- * metadata from the iTunes API via itunesLookupAction.
- * The resulting track array is sorted by addedAt ASC to preserve
- * the original insertion order regardless of iTunes API response order.
+ * Fetches a single playlist with its hydrated metadata tracks.
  */
 export async function getPlaylistDetailAction(id: string): Promise<PlaylistActionState<PlaylistDetailType | null>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  const pool = await createPool()
+  const pool = await createPool(userId)
   try {
     const playlistResult = await pool.query(`SELECT * FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [id, userId])
 
@@ -110,7 +108,6 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
     const trackIds = trackRows.rows.map((t) => t.trackId)
     const addedAtMap = Object.fromEntries(trackRows.rows.map((t) => [t.trackId, String(t.addedAt)]))
 
-    // Hydrate track metadata from the iTunes API
     let tracks: PlaylistTrackType[] = []
     if (trackIds.length > 0) {
       const itunesResponse = await itunesLookupAction(trackIds)
@@ -127,7 +124,7 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
           trackViewUrl: t.trackViewUrl,
           addedAt: addedAtMap[t.trackId] ?? new Date().toISOString(),
         }))
-        // Re-sort by addedAt ASC since iTunes API does not preserve insertion order
+        // Ensure chronological order is preserved after API hydration
         .sort((a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime())
     }
 
@@ -153,8 +150,7 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
 }
 
 /**
- * Creates a new playlist for the authenticated user.
- * Validates input at runtime using the CreatePlaylistSchema before any DB access.
+ * Creates a new playlist with runtime validation.
  */
 export async function createPlaylistAction(data: CreatePlaylistInput): Promise<PlaylistActionState<PlaylistType>> {
   const userId = await getAuthenticatedUserId()
@@ -166,7 +162,7 @@ export async function createPlaylistAction(data: CreatePlaylistInput): Promise<P
   }
   const validatedData = parsed.data
 
-  const pool = await createPool()
+  const pool = await createPool(userId)
   try {
     const id = randomUUID()
     const now = new Date().toISOString()
@@ -199,9 +195,7 @@ export async function createPlaylistAction(data: CreatePlaylistInput): Promise<P
 }
 
 /**
- * Adds a single track to a playlist (stores trackId only).
- * Requires that the playlist belongs to the authenticated user.
- * Idempotent — silently ignores duplicate additions via ON CONFLICT DO NOTHING.
+ * Adds a single track to a playlist.
  */
 export async function addTrackToPlaylistAction(
   playlistId: string,
@@ -210,7 +204,7 @@ export async function addTrackToPlaylistAction(
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  const pool = await createPool()
+  const pool = await createPool(userId)
   try {
     const ownerCheck = await pool.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
       playlistId,
@@ -238,10 +232,7 @@ export async function addTrackToPlaylistAction(
 }
 
 /**
- * Syncs locally-stored liked songs into the user's "Liked Songs" playlist.
- * Creates the "Liked Songs" playlist if it doesn't exist yet.
- * Merges new track IDs — idempotent, safe to call on every login.
- * Uses a single batched INSERT to avoid N+1 queries.
+ * Syncs liked songs with chunked multi-row inserts and atomic playlist upsert.
  */
 export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<PlaylistActionState<void>> {
   if (tracks.length === 0) return { success: true, data: undefined }
@@ -249,45 +240,41 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<P
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  const pool = await createPool()
+  const pool = await createPool(userId)
   try {
     const now = new Date().toISOString()
 
-    // Find or create the "Liked Songs" playlist
-    let playlistId: string
-    const existing = await pool.query(`SELECT "id" FROM "playlist" WHERE "userId" = $1 AND "isLiked" = TRUE LIMIT 1`, [
-      userId,
-    ])
+    // Atomic find-or-create for Liked Songs playlist
+    const playlistResult = await pool.query(
+      `INSERT INTO "playlist" ("id", "userId", "name", "isLiked", "createdAt", "updatedAt")
+       VALUES ($1, $2, 'Liked Songs', TRUE, $3, $4)
+       ON CONFLICT ("userId") WHERE ("isLiked" = TRUE) 
+       DO UPDATE SET "updatedAt" = EXCLUDED."updatedAt"
+       RETURNING "id"`,
+      [randomUUID(), userId, now, now]
+    )
+    const playlistId = playlistResult.rows[0].id
 
-    if (existing.rows.length > 0) {
-      playlistId = existing.rows[0].id
-    } else {
-      playlistId = randomUUID()
-      await pool.query(
-        `INSERT INTO "playlist" ("id", "userId", "name", "isLiked", "createdAt", "updatedAt")
-         VALUES ($1, $2, 'Liked Songs', TRUE, $3, $4)`,
-        [playlistId, userId, now, now]
-      )
+    // Chunk tracks to stay within PostgreSQL parameter limits (65535 total, 4 per row)
+    const MAX_TRACKS_PER_BATCH = 15000
+    for (let i = 0; i < tracks.length; i += MAX_TRACKS_PER_BATCH) {
+      const chunk = tracks.slice(i, i + MAX_TRACKS_PER_BATCH)
+      const queryParts: string[] = []
+      const params: (string | number)[] = []
+
+      chunk.forEach((track, index) => {
+        const offset = index * 4
+        queryParts.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`)
+        params.push(randomUUID(), playlistId, track.id, now)
+      })
+
+      const query = `
+        INSERT INTO "playlist_track" ("id", "playlistId", "trackId", "addedAt")
+        VALUES ${queryParts.join(", ")}
+        ON CONFLICT ("playlistId", "trackId") DO NOTHING
+      `
+      await pool.query(query, params)
     }
-
-    // Batch insert tracks using a multi-row VALUES clause to prevent N+1 queries
-    // SQL: INSERT INTO ... VALUES ($1, $2, $3, $4), ($5, $6, $7, $8), ...
-    const queryParts: string[] = []
-    const params: (string | number)[] = []
-
-    tracks.forEach((track, index) => {
-      const offset = index * 4
-      queryParts.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`)
-      params.push(randomUUID(), playlistId, track.id, now)
-    })
-
-    const query = `
-      INSERT INTO "playlist_track" ("id", "playlistId", "trackId", "addedAt")
-      VALUES ${queryParts.join(", ")}
-      ON CONFLICT ("playlistId", "trackId") DO NOTHING
-    `
-
-    await pool.query(query, params)
 
     return { success: true, data: undefined }
   } catch (err: unknown) {
