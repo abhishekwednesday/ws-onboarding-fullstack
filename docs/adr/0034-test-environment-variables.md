@@ -25,10 +25,10 @@ To establish a single, unified source of truth for test configuration:
 3.  **Refactor Configs:**
     - Removed hardcoded `env` stubs from `vitest.config.ts` and loaded `.env.test` via `dotenv.config()`.
     - Removed hardcoded values from `playwright.config.ts` and similarly enforced `dotenv.config()`.
-4.  **CI Synchronization:** Removed hardcoded `env:` arrays from `.github/workflows/check.yml` and `.github/workflows/playwright.yml`. Instead, we introduced a pre-computation step utilizing a Node.js script and `dotenv` to parse `.env.test` handle complex pairs, and inject its values robustly into the GitHub Actions runner environment (`$GITHUB_ENV`).
+4.  **CI Synchronization:** Removed hardcoded `env:` arrays from `.github/workflows/check.yml` and `.github/workflows/playwright.yml`. Instead, we introduced a pre-computation step utilizing a Node.js script and `dotenv` to parse `.env.test`, handle complex key/value pairs, and inject its values robustly into the GitHub Actions runner environment (`$GITHUB_ENV`).
 
 ## Consequences
 
 - **Single Source of Truth:** Any newly introduced mock variable, or changes to existing stubs, now only require a single edit in `.env.test`.
 - **Consistency:** Complete symmetry is guaranteed between the local Vitest/Playwright runs and the remote GitHub Actions CI pipelines.
-- **Maintainability:** Tooling configurations (`vitest.config.ts`, `playwright.yml`) remain clean, agnostic, and strictly focused on test execution architecture rather than hardcoded string management.
+- **Maintainability:** Tooling configurations (`vitest.config.ts`, `.github/workflows/playwright.yml`) remain clean, agnostic, and strictly focused on test execution architecture rather than hardcoded string management.

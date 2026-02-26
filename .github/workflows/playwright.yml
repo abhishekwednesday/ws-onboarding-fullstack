@@ -33,10 +33,12 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
+            const crypto = require('crypto');
             const dotenv = require('dotenv');
             const envConfig = dotenv.parse(fs.readFileSync('.env.test'));
             for (const k in envConfig) {
-              fs.appendFileSync(process.env.GITHUB_ENV, \`\${k}<<EOF\n\${envConfig[k]}\nEOF\n\`);
+              const delimiter = \`GH_ENV_\${k}_\${crypto.randomBytes(4).toString('hex')}\`;
+              fs.appendFileSync(process.env.GITHUB_ENV, \`\${k}<<\${delimiter}\n\${envConfig[k]}\n\${delimiter}\n\`);
             }
           "
 
