@@ -6,6 +6,7 @@ import type { PoolClient } from "pg"
 import { itunesLookupAction } from "@/features/catalog/api/catalog-actions"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { auth } from "@/lib/auth/auth"
+import { dbPool } from "@/lib/db/pool"
 import {
   type CreatePlaylistInput,
   CreatePlaylistSchema,
@@ -28,26 +29,12 @@ async function getAuthenticatedUserId(): Promise<string | null> {
 }
 
 /**
- * Opens a pg Pool for the duration of an action.
- */
-async function getPool() {
-  const { Pool } = await import("pg")
-  const { env } = await import("@/env.mjs")
-  return new Pool({
-    connectionString: env.DATABASE_URL,
-    max: 2,
-    ssl: process.env.NODE_ENV === "production" ? true : { rejectUnauthorized: false },
-  })
-}
-
-/**
  * Runs a database operation within a dedicated client connection
  * that has the session's current_user_id set for RLS policies.
  * Uses an explicit session-local transaction to ensure RLS context persistence.
  */
 async function withAuthenticatedClient<T>(userId: string, operation: (client: PoolClient) => Promise<T>): Promise<T> {
-  const pool = await getPool()
-  const client = await pool.connect()
+  const client = await dbPool.connect()
   try {
     await client.query("BEGIN")
     // Set RLS session context using parameterized set_config for safety
@@ -62,7 +49,6 @@ async function withAuthenticatedClient<T>(userId: string, operation: (client: Po
     throw err
   } finally {
     client.release()
-    await pool.end()
   }
 }
 
