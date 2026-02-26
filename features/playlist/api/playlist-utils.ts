@@ -19,6 +19,17 @@ export async function getAuthenticatedUserId(): Promise<string | null> {
 }
 
 /**
+ * Verifies that the given playlist is owned by the given user.
+ * Throws if the playlist does not exist or does not belong to the user.
+ */
+export async function verifyPlaylistOwner(client: PoolClient, playlistId: string, userId: string): Promise<void> {
+  const result = await client.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [playlistId, userId])
+  if (result.rows.length === 0) {
+    throw new Error("Playlist not found")
+  }
+}
+
+/**
  * Runs a database operation within a dedicated client connection
  * that has the session's current_user_id set for RLS policies.
  * Uses an explicit session-local transaction to ensure RLS context persistence.

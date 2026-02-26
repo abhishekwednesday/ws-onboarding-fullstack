@@ -2,7 +2,7 @@
 
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
-import { getAuthenticatedUserId, withAuthenticatedClient } from "./playlist-utils"
+import { getAuthenticatedUserId, verifyPlaylistOwner, withAuthenticatedClient } from "./playlist-utils"
 import { type CreatePlaylistInput, CreatePlaylistSchema, type PlaylistType } from "../types/playlist-types"
 
 /**
@@ -52,16 +52,7 @@ export async function addTrackToPlaylistAction(playlistId: string, track: Catalo
 
   return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
-      // Verify playlist existence and ownership (via RLS)
-      const ownerCheck = await client.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
-        playlistId,
-        userId,
-      ])
-
-      if (ownerCheck.rows.length === 0) {
-        throw new Error("Playlist not found")
-      }
-
+      await verifyPlaylistOwner(client, playlistId, userId)
       await client.query(
         `INSERT INTO "playlist_track" ("playlistId", "trackId", "addedAt")
          VALUES ($1, $2, $3)
@@ -81,16 +72,7 @@ export async function removeTrackFromPlaylistAction(playlistId: string, trackId:
 
   return withActionHandler(async () => {
     await withAuthenticatedClient(userId, async (client) => {
-      // Verify playlist existence and ownership (via RLS)
-      const ownerCheck = await client.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
-        playlistId,
-        userId,
-      ])
-
-      if (ownerCheck.rows.length === 0) {
-        throw new Error("Playlist not found")
-      }
-
+      await verifyPlaylistOwner(client, playlistId, userId)
       await client.query(`DELETE FROM "playlist_track" WHERE "playlistId" = $1 AND "trackId" = $2`, [
         playlistId,
         trackId,

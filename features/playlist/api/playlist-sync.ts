@@ -2,8 +2,11 @@
 
 import { itunesLookupAction } from "@/features/catalog/api/catalog-actions"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 import { getAuthenticatedUserId, withAuthenticatedClient } from "./playlist-utils"
+
+const ITUNES_LOOKUP_BATCH_SIZE = 100
 
 /**
  * Syncs locally-stored liked songs into the user's "Liked Songs" playlist.
@@ -77,18 +80,31 @@ export async function getLikedSongsAction(): Promise<ActionState<CatalogItemType
 
     if (trackIds.length === 0) return []
 
-    const itunesResponse = await itunesLookupAction(trackIds)
-    return itunesResponse.results.map((t) => ({
-      id: t.trackId,
-      title: t.trackName,
-      artist: t.artistName,
-      album: t.collectionName,
-      artworkUrl: t.artworkUrl100,
-      previewUrl: t.previewUrl,
-      genre: t.primaryGenreName,
-      duration: t.trackTimeMillis,
-      trackViewUrl: t.trackViewUrl,
-    })) as CatalogItemType[]
+    const allResults: ItunesSearchResponseType["results"] = []
+    for (let i = 0; i < trackIds.length; i += ITUNES_LOOKUP_BATCH_SIZE) {
+      const batch = trackIds.slice(i, i + ITUNES_LOOKUP_BATCH_SIZE)
+      const response = await itunesLookupAction(batch)
+      allResults.push(...response.results)
+    }
+
+    const seen = new Set<number>()
+    return allResults.reduce<CatalogItemType[]>((acc, t) => {
+      if (!seen.has(t.trackId)) {
+        seen.add(t.trackId)
+        acc.push({
+          id: t.trackId,
+          title: t.trackName,
+          artist: t.artistName,
+          album: t.collectionName,
+          artworkUrl: t.artworkUrl100,
+          previewUrl: t.previewUrl,
+          genre: t.primaryGenreName,
+          duration: t.trackTimeMillis,
+          trackViewUrl: t.trackViewUrl,
+        } as CatalogItemType)
+      }
+      return acc
+    }, [])
   }, "Failed to fetch liked songs")
 }
 

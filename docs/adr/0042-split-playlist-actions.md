@@ -19,7 +19,7 @@ We have split `playlist-actions.ts` into several smaller, purpose-driven modules
 3.  **`playlist-sync.ts`**: Dedicated strictly to the complex logic of synchronizing bidirectional liked songs states (`syncLikedSongsAction`, `getLikedSongsAction`, `likeTrackAction`, `unlikeTrackAction`).
 4.  **`playlist-utils.ts`**: Houses shared private helpers, specifically `getAuthenticatedUserId`.
 
-The `withAuthenticatedClient` database injection helper was also moved to `lib/db/pool.ts` as it represents generic infrastructure rather than a playlist-specific domain action.
+The `withAuthenticatedClient` database injection helper remains in `features/playlist/api/playlist-utils.ts` alongside `getAuthenticatedUserId`. While it is conceptually generic infrastructure, it is currently only consumed by playlist modules, so co-locating it here avoids a premature abstraction. If other features begin requiring RLS-scoped client connections, it should be promoted to `lib/db/`.
 
 All `usePlaylists` and `usePlaylistDetail` React Query hooks, and their corresponding vitest mock tests, have been updated to import from these specific `.api/*` files instead of the single monolith.
 
