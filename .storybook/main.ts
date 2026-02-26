@@ -35,6 +35,16 @@ const config: StorybookConfig = {
       "@/env": ENV_MOCK,
       ...config.resolve.alias,
     }
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      net: false,
+      tls: false,
+      dns: false,
+      fs: false,
+      child_process: false,
+      pg: false,
+      "pg-native": false,
+    }
 
     config.plugins ??= []
     config.plugins.push(new webpack.NormalModuleReplacementPlugin(/[\\/]env\.mjs$/, ENV_MOCK))

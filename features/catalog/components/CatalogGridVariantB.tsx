@@ -75,7 +75,15 @@ export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
               </span>
             )}
 
-            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
+                  e.stopPropagation()
+                }
+              }}
+            >
               <AddToPlaylistButton track={item} iconOnly className="h-9 w-9" />
               <FavoriteButton track={item} iconOnly />
             </div>

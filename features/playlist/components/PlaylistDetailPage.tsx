@@ -7,6 +7,7 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { formatDuration } from "@/features/catalog/utils/track-formatters"
 import { trackTrackSelected } from "@/lib/analytics/events"
 import { usePlaylistDetail } from "../hooks/usePlaylistDetail"
 
@@ -59,7 +60,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
           </span>
           <h1 className="text-4xl font-black tracking-tight sm:text-6xl md:text-7xl">{playlist.name}</h1>
           {playlist.description && (
-            <p className="text-muted-foreground max-max-w-2xl text-lg">{playlist.description}</p>
+            <p className="text-muted-foreground max-w-2xl text-lg">{playlist.description}</p>
           )}
           <div className="mt-2 flex items-center gap-4 text-sm font-medium">
             <span className="text-foreground">{playlist.tracks.length} tracks</span>
@@ -82,6 +83,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
           variant="outline"
           size="icon"
           className="h-14 w-14 rounded-full border-white/10 bg-white/5 hover:bg-white/10"
+          aria-label="Add track"
         >
           <Plus className="h-6 w-6" />
         </Button>
@@ -188,9 +190,3 @@ function PlaylistDetailSkeleton() {
   )
 }
 
-function formatDuration(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000)
-  const minutes = Math.floor(totalSeconds / 60)
-  const seconds = totalSeconds % 60
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`
-}

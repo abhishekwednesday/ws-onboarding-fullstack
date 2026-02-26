@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CreatePlaylistDialog } from "@/features/playlist/components/CreatePlaylistDialog"
 import { PlaylistGrid } from "@/features/playlist/components/PlaylistGrid"
@@ -29,9 +30,9 @@ export default function PlaylistsPage() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <h3 className="text-xl font-semibold text-rose-500">Failed to load playlists</h3>
             <p className="text-muted-foreground mt-2">{error?.message || "Please try again later."}</p>
-            <button onClick={() => refetch()} className="text-primary mt-6 text-sm font-semibold hover:underline">
+            <Button variant="link" onClick={() => refetch()} className="text-primary mt-6">
               Try again
-            </button>
+            </Button>
           </div>
         ) : (
           <PlaylistGrid playlists={playlists} />

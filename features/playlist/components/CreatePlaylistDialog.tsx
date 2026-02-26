@@ -27,6 +27,14 @@ export function CreatePlaylistDialog() {
   const [description, setDescription] = useState("")
   const { createPlaylist, isCreating } = usePlaylists()
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    if (!nextOpen) {
+      setName("")
+      setDescription("")
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return
@@ -36,9 +44,6 @@ export function CreatePlaylistDialog() {
         name: name.trim(),
         description: description.trim() || undefined,
       })
-      // Reset form and close dialog
-      setName("")
-      setDescription("")
       setOpen(false)
     } catch (error) {
       // Error is already handled by toast in usePlaylists
@@ -47,7 +52,7 @@ export function CreatePlaylistDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="rounded-full shadow-lg transition-all hover:scale-105 active:scale-95">
           <PlusCircle className="mr-2 h-5 w-5" />
@@ -84,7 +89,7 @@ export function CreatePlaylistDialog() {
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={isCreating}>
+            <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isCreating}>
               Cancel
             </Button>
             <Button type="submit" disabled={isCreating || !name.trim()}>
