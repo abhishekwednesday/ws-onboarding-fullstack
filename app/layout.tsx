@@ -2,6 +2,7 @@ import "styles/tailwind.css"
 import { Suspense } from "react"
 
 import { BasePage } from "@/components/layout/BasePage"
+import { GlobalSyncProvider } from "@/components/providers/GlobalSyncProvider"
 import { PostHogPageView } from "@/components/providers/PostHogPageView"
 import { PostHogProvider } from "@/components/providers/PostHogProvider"
 import { QueryProvider } from "@/components/providers/QueryProvider"
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <PostHogPageView />
             </Suspense>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              <GlobalSyncProvider />
               <BasePage>{children}</BasePage>
               <Toaster />
             </ThemeProvider>

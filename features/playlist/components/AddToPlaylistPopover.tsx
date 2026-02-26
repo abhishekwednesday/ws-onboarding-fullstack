@@ -18,18 +18,29 @@ interface PlaylistItemProps {
 }
 
 function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistItemProps) {
-  const { addTrack: addTrackToThis, isAdding: isAddingToThis } = usePlaylistDetail(playlist.id, { skipQuery: true })
+  const {
+    addTrack: addTrackToThis,
+    removeTrack: removeTrackFromThis,
+    isAdding: isAddingToThis,
+    isRemoving: isRemovingFromThis,
+  } = usePlaylistDetail(playlist.id, { skipQuery: true })
   const alreadyAdded = isTrackInPlaylist(playlist.id, track.id)
+
+  const isWorking = isAddingToThis || isRemovingFromThis
 
   return (
     <button
       onClick={async (e) => {
         e.stopPropagation()
-        if (alreadyAdded || isAddingToThis) return
-        await addTrackToThis(track)
-        onClose?.()
+        if (isWorking) return
+        if (alreadyAdded) {
+          await removeTrackFromThis(track.id)
+        } else {
+          await addTrackToThis(track)
+        }
+        // Don't close immediately to let them see the success state
       }}
-      disabled={isAddingToThis || alreadyAdded}
+      disabled={isWorking}
       className={cn(
         "group flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
         alreadyAdded
@@ -48,7 +59,7 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistI
         </div>
         <span className="truncate font-medium">{playlist.name}</span>
       </div>
-      {isAddingToThis ? (
+      {isWorking ? (
         <Loader2 className="text-primary h-4 w-4 animate-spin" />
       ) : alreadyAdded ? (
         <Check className="text-primary h-4 w-4" />

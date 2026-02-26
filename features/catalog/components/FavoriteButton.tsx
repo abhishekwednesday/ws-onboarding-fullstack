@@ -4,18 +4,21 @@ import { Heart } from "lucide-react"
 import { useOptimistic, useTransition } from "react"
 
 import { Button } from "@/components/ui/button"
+import { likeTrackAction, unlikeTrackAction } from "@/features/playlist/api/playlist-actions"
 import { trackFavoriteAdded, trackFavoriteRemoved } from "@/lib/analytics/events"
+import { useSession } from "@/lib/auth/auth-client"
 import { cn } from "@/lib/utils"
 import { useFavoritesStore } from "../store/useFavoritesStore"
-import { type CatalogItemType, type FavoriteButtonPropsType } from "../types/catalog-types"
+import { type FavoriteButtonPropsType } from "../types/catalog-types"
 
 export function FavoriteButton({ track, className, iconOnly = false }: FavoriteButtonPropsType) {
+  const { data: session } = useSession()
   const isFav = useFavoritesStore((state) => state.isFavorite(track.id))
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
   const [isPending, startTransition] = useTransition()
 
   // useOptimistic to provide instant feedback if there's any lag or to follow user request
-  const [optimisticFav, addOptimisticFav] = useOptimistic(isFav, (state, newState: boolean) => newState)
+  const [optimisticFav, addOptimisticFav] = useOptimistic(isFav, (_state, newState: boolean) => newState)
 
   const handleToggle = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation()
@@ -24,10 +27,26 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
     startTransition(async () => {
       addOptimisticFav(nextState)
       toggleFavorite(track)
+
+      // Analytics
       if (nextState) {
         trackFavoriteAdded(track)
       } else {
         trackFavoriteRemoved(track)
+      }
+
+      // Server sync for authenticated users
+      if (session?.user) {
+        try {
+          if (nextState) {
+            await likeTrackAction(track)
+          } else {
+            await unlikeTrackAction(track.id)
+          }
+        } catch {
+          // Revert optimistic update on server failure
+          toggleFavorite(track)
+        }
       }
     })
   }
