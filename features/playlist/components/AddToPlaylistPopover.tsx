@@ -14,10 +14,9 @@ interface PlaylistItemProps {
   playlist: { id: string; name: string }
   track: CatalogItemType
   isTrackInPlaylist: (playlistId: string, trackId: number) => boolean
-  onClose?: () => void
 }
 
-function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistItemProps) {
+function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps) {
   const {
     addTrack: addTrackToThis,
     removeTrack: removeTrackFromThis,
@@ -102,7 +101,6 @@ export function AddToPlaylistPopover({ track, onClose }: { track: CatalogItemTyp
                 playlist={playlist}
                 track={track}
                 isTrackInPlaylist={isTrackInPlaylist}
-                onClose={onClose}
               />
             ))
           ) : (

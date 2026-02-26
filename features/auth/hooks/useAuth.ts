@@ -61,6 +61,7 @@ export function useAuth() {
       if (res.success) {
         const currentTracks = Object.values(useFavoritesStore.getState().favorites)
         await syncFavoritesOnAuth(currentTracks, "registration")
+        clearFavorites()
 
         window.location.href = redirectTo
       } else {
