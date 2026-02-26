@@ -11,5 +11,5 @@ We extracted the `try...catch` error normalization block into a reusable utility
 ## Consequences
 
 - **Positive**: Server actions no longer contain 10+ lines of identical error parsing boilerplate and are instead focused on resolving core functionality.
-- **Positive**: Unknown errors map much cleanly to `defaultErrorMessage` parameters rather than generating chaotic undefined results to the client UI.
+- **Positive**: Unknown errors map much more cleanly to `defaultErrorMessage` parameters rather than generating chaotic undefined results to the client UI.
 - **Negative**: Adds a closure layer (`() => Promise<T>`) over the actions, invoking a negligible micro-overhead in JS execution.

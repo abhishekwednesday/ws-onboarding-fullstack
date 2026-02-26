@@ -7,7 +7,7 @@ import { itunesLookupAction } from "@/features/catalog/api/catalog-actions"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { auth } from "@/lib/auth/auth"
 import { dbPool } from "@/lib/db/pool"
-import { type ActionState } from "@/lib/utils/action-handler"
+import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 import {
   type CreatePlaylistInput,
   CreatePlaylistSchema,
@@ -63,8 +63,8 @@ export async function getUserPlaylistsAction(): Promise<ActionState<PlaylistType
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  try {
-    const playlists = await withAuthenticatedClient(userId, async (client) => {
+  return withActionHandler(async () => {
+    return withAuthenticatedClient(userId, async (client) => {
       const result = await client.query(
         `SELECT p.*,
                 (SELECT COUNT(*) FROM "playlist_track" pt WHERE pt."playlistId" = p."id")::int AS "trackcount"
@@ -85,12 +85,7 @@ export async function getUserPlaylistsAction(): Promise<ActionState<PlaylistType
         updatedAt: String(row.updatedAt),
       })) as PlaylistType[]
     })
-
-    return { success: true, data: playlists }
-  } catch (err: unknown) {
-    const error = err as { message?: string }
-    return { success: false, error: error?.message ?? "Failed to fetch playlists" }
-  }
+  }, "Failed to fetch playlists")
 }
 
 /**
