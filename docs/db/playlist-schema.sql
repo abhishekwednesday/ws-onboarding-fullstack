@@ -15,18 +15,11 @@ CREATE TABLE IF NOT EXISTS "playlist" (
 -- Enable RLS and add owner-based policies
 ALTER TABLE "playlist" ENABLE ROW LEVEL SECURITY;
 
--- Idempotent policy creation
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'playlist' AND policyname = 'Users can manage own playlists'
-    ) THEN
-        CREATE POLICY "Users can manage own playlists" ON "playlist"
-            FOR ALL
-            USING (userId = current_setting('app.current_user_id', true));
-    END IF;
-END $$;
+-- Idempotent policy creation for playlist
+DROP POLICY IF EXISTS "Users can manage own playlists" ON "playlist";
+CREATE POLICY "Users can manage own playlists" ON "playlist"
+    FOR ALL
+    USING ("userId" = current_setting('app.current_user_id', true));
 
 -- Auto-update "updatedAt" on every row modification
 CREATE OR REPLACE FUNCTION playlist_update_updated_at_column()
@@ -59,23 +52,16 @@ CREATE TABLE IF NOT EXISTS "playlist_track" (
 ALTER TABLE "playlist_track" ENABLE ROW LEVEL SECURITY;
 
 -- Policy for tracks relies on the parent playlist's ownership
-DO $$ 
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1 FROM pg_policies 
-        WHERE tablename = 'playlist_track' AND policyname = 'Users can manage tracks in own playlists'
-    ) THEN
-        CREATE POLICY "Users can manage tracks in own playlists" ON "playlist_track"
-            FOR ALL
-            USING (
-                EXISTS (
-                    SELECT 1 FROM "playlist" p 
-                    WHERE p.id = playlistId 
-                    AND p.userId = current_setting('app.current_user_id', true)
-                )
-            );
-    END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can manage tracks in own playlists" ON "playlist_track";
+CREATE POLICY "Users can manage tracks in own playlists" ON "playlist_track"
+    FOR ALL
+    USING (
+        EXISTS (
+            SELECT 1 FROM "playlist" p 
+            WHERE p."id" = "playlistId" 
+            AND p."userId" = current_setting('app.current_user_id', true)
+        )
+    );
 
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS "idx_playlist_userId" ON "playlist"("userId");

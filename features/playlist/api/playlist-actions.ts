@@ -43,14 +43,23 @@ async function getPool() {
 /**
  * Runs a database operation within a dedicated client connection
  * that has the session's current_user_id set for RLS policies.
+ * Uses an explicit session-local transaction to ensure RLS context persistence.
  */
 async function withAuthenticatedClient<T>(userId: string, operation: (client: PoolClient) => Promise<T>): Promise<T> {
   const pool = await getPool()
   const client = await pool.connect()
   try {
-    // Set RLS session context using parameterized set_config to prevent injection
+    await client.query("BEGIN")
+    // Set RLS session context using parameterized set_config for safety
     await client.query("SELECT set_config('app.current_user_id', $1, true)", [userId])
-    return await operation(client)
+
+    const result = await operation(client)
+
+    await client.query("COMMIT")
+    return result
+  } catch (err) {
+    await client.query("ROLLBACK")
+    throw err
   } finally {
     client.release()
     await pool.end()
@@ -84,7 +93,7 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
         trackCount: row.trackcount,
         createdAt: String(row.createdAt),
         updatedAt: String(row.updatedAt),
-      }))
+      })) as PlaylistType[]
     })
 
     return { success: true, data: playlists }
@@ -96,13 +105,15 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
 
 /**
  * Fetches a single playlist with hydrated track metadata.
+ * Database client is released before making the iTunes API network call.
  */
 export async function getPlaylistDetailAction(id: string): Promise<PlaylistActionState<PlaylistDetailType | null>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
   try {
-    const detail = await withAuthenticatedClient(userId, async (client) => {
+    // Stage 1: Fetch all necessary data from DB and release client
+    const dbData = await withAuthenticatedClient(userId, async (client) => {
       const playlistResult = await client.query(`SELECT * FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
         id,
         userId,
@@ -115,43 +126,51 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
         [id]
       )
 
-      const row = playlistResult.rows[0]
-      const trackIds = trackRows.rows.map((t: { trackId: number }) => t.trackId)
-      const addedAtMap = Object.fromEntries(
-        trackRows.rows.map((t: { trackId: number; addedAt: string }) => [t.trackId, String(t.addedAt)])
-      )
-
-      let tracks: PlaylistTrackType[] = []
-      if (trackIds.length > 0) {
-        const itunesResponse = await itunesLookupAction(trackIds)
-        tracks = itunesResponse.results
-          .map((t) => ({
-            id: t.trackId,
-            title: t.trackName,
-            artist: t.artistName,
-            album: t.collectionName,
-            artworkUrl: t.artworkUrl100,
-            previewUrl: t.previewUrl,
-            genre: t.primaryGenreName,
-            duration: t.trackTimeMillis,
-            trackViewUrl: t.trackViewUrl,
-            addedAt: addedAtMap[t.trackId] ?? new Date().toISOString(),
-          }))
-          .sort((a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime())
-      }
-
       return {
-        id: row.id,
-        userId: row.userId,
-        name: row.name,
-        description: row.description ?? null,
-        isLiked: row.isLiked,
-        trackCount: tracks.length,
-        createdAt: String(row.createdAt),
-        updatedAt: String(row.updatedAt),
-        tracks,
-      } as PlaylistDetailType
+        playlist: playlistResult.rows[0],
+        trackIds: trackRows.rows.map((t: { trackId: number }) => t.trackId),
+        addedAtMap: Object.fromEntries(
+          trackRows.rows.map((t: { trackId: number; addedAt: string }) => [t.trackId, String(t.addedAt)])
+        ),
+      }
     })
+
+    if (!dbData) return { success: true, data: null }
+
+    const { playlist, trackIds, addedAtMap } = dbData
+
+    // Stage 2: Hydrate track metadata from the iTunes API (outside DB client)
+    let tracks: PlaylistTrackType[] = []
+    if (trackIds.length > 0) {
+      const itunesResponse = await itunesLookupAction(trackIds)
+      tracks = itunesResponse.results
+        .map((t) => ({
+          id: t.trackId,
+          title: t.trackName,
+          artist: t.artistName,
+          album: t.collectionName,
+          artworkUrl: t.artworkUrl100,
+          previewUrl: t.previewUrl,
+          genre: t.primaryGenreName,
+          duration: t.trackTimeMillis,
+          trackViewUrl: t.trackViewUrl,
+          addedAt: addedAtMap[t.trackId] ?? new Date().toISOString(),
+        }))
+        // Ensure chronological order is preserved after API hydration
+        .sort((a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime())
+    }
+
+    const detail: PlaylistDetailType = {
+      id: playlist.id,
+      userId: playlist.userId,
+      name: playlist.name,
+      description: playlist.description ?? null,
+      isLiked: playlist.isLiked,
+      trackCount: tracks.length,
+      createdAt: String(playlist.createdAt),
+      updatedAt: String(playlist.updatedAt),
+      tracks,
+    }
 
     return { success: true, data: detail }
   } catch (err: unknown) {

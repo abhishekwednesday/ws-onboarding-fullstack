@@ -18,23 +18,25 @@ Both `playlist` and `playlist_track` tables use the native `UUID` type for prima
 
 ### Secure, Transaction-Safe RLS Session Context
 
-Since Better Auth manages sessions in the Next.js layer (independent of Supabase Auth), native RLS `auth.uid()` is unavailable. To bridge this:
+Since Better Auth manages sessions in the Next.js layer (independent of Supabase Auth), native RLS `auth.uid()` is unavailable. To bridge this securely:
 
-1.  **Dedicated Client Connections**: Every server action uses `pool.connect()` to acquire a dedicated connection.
-2.  **Parameterized Session Setting**: We use `set_config('app.current_user_id', $1, true)` within the connection to securely set the RLS context for that specific transaction/connection. This prevents SQL injection and ensures the context is tied only to the current request.
-3.  **Owner-Based Policies**: RLS policies on `playlist` and `playlist_track` enforce `userId = current_setting('app.current_user_id')`.
+1.  **Dedicated Client Connections**: Every server action acquires a dedicated connection from the pool.
+2.  **Explicit Transactions**: Operations are wrapped in `BEGIN/COMMIT/ROLLBACK` blocks.
+3.  **Parameterized Session Setting**: We use `set_config('app.current_user_id', $1, true)` within the transaction to securely set the RLS context. This prevents SQL injection and ensures the context is isolated to the specific transaction.
+4.  **Owner-Based Policies**: RLS policies on `playlist` and `playlist_track` enforce ownership checks using quoted camelCase identifiers (e.g., `"userId" = current_setting('app.current_user_id', true)`).
 
-### Performance & Atomicity
+### Performance & Scalability
 
-- **Atomic Liked Songs**: Uses `INSERT ... ON CONFLICT (...) WHERE (isLiked = TRUE) DO UPDATE` to atomically ensure a single "Liked Songs" playlist exists per user, even under concurrent login requests.
-- **Chunked Batch Inserts**: Large playlists (e.g., during initial sync) are inserted using multi-row `VALUES` clauses, processed in chunks stay within PostgreSQL's 65,535 parameter limit.
+- **Optimized Client Release**: In complex flows like `getPlaylistDetailAction`, the database client is released immediately after fetching DB data, _before_ making external network calls (iTunes API). This prevents database connection starvation during I/O.
+- **Atomic Liked Songs**: Uses `INSERT ... ON CONFLICT (...) WHERE (isLiked = TRUE) DO UPDATE` to atomically ensure a single "Liked Songs" playlist exists per user.
+- **Chunked Batch Inserts**: Large playlists are inserted using multi-row `VALUES` clauses processed in chunks to stay within PostgreSQL's 65,535 parameter limit.
 
 ### Idempotent Deployment
 
-The `docs/db/playlist-schema.sql` script is designed to be re-runnable, using `CREATE TABLE IF NOT EXISTS`, `DO` blocks for policy existence checks, and `DROP TRIGGER IF EXISTS` for trigger maintenance.
+The `docs/db/playlist-schema.sql` script is fully idempotent using `CREATE TABLE IF NOT EXISTS`, `DROP POLICY IF EXISTS`, and `DROP TRIGGER IF EXISTS`.
 
 ## Consequences
 
 - The `pgcrypto` extension must be available in the target database.
-- Every database interaction incurred a connection acquisition overhead, mitigated by a small connection pool (`max: 2`).
-- Playlist track ordering is maintained by an explicit `sort` on `addedAt` in the application layer after iTunes API hydration.
+- Connection acquisition overhead is minimized by a small pool and immediate release before external I/O.
+- RLS provides a robust secondary layer of protection beneath the application's session validation.
