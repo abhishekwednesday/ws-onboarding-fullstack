@@ -42,16 +42,5 @@ CREATE TABLE IF NOT EXISTS "account" (
 );
 ALTER TABLE "account" ENABLE ROW LEVEL SECURITY;
 
--- Verification Table: Stores email/OTP verification tokens
-CREATE TABLE IF NOT EXISTS "verification" (
-    "id" TEXT PRIMARY KEY,
-    "identifier" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "expiresAt" TIMESTAMPTZ NOT NULL,
-    "createdAt" TIMESTAMPTZ NOT NULL,
-    "updatedAt" TIMESTAMPTZ NOT NULL
-);
-ALTER TABLE "verification" ENABLE ROW LEVEL SECURITY;
-
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS "idx_verification_identifier" ON "verification"("identifier");
