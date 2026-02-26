@@ -4,11 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
-import {
-  addTrackToPlaylistAction,
-  getPlaylistDetailAction,
-  removeTrackFromPlaylistAction,
-} from "@/features/playlist/api/playlist-actions"
+import { addTrackToPlaylistAction, removeTrackFromPlaylistAction } from "@/features/playlist/api/playlist-mutations"
+import { getPlaylistDetailAction } from "@/features/playlist/api/playlist-queries"
 import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
 
 /**
