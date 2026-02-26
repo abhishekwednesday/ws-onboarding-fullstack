@@ -7,10 +7,10 @@ import { itunesLookupAction } from "@/features/catalog/api/catalog-actions"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { auth } from "@/lib/auth/auth"
 import { dbPool } from "@/lib/db/pool"
+import { type ActionState } from "@/lib/utils/action-handler"
 import {
   type CreatePlaylistInput,
   CreatePlaylistSchema,
-  type PlaylistActionState,
   type PlaylistDetailType,
   type PlaylistTrackType,
   type PlaylistType,
@@ -59,7 +59,7 @@ async function withAuthenticatedClient<T>(userId: string, operation: (client: Po
 /**
  * Fetches all playlists for the currently authenticated user.
  */
-export async function getUserPlaylistsAction(): Promise<PlaylistActionState<PlaylistType[]>> {
+export async function getUserPlaylistsAction(): Promise<ActionState<PlaylistType[]>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -97,7 +97,7 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
  * Fetches a single playlist with hydrated track metadata.
  * Database client is released before making the iTunes API network call.
  */
-export async function getPlaylistDetailAction(id: string): Promise<PlaylistActionState<PlaylistDetailType | null>> {
+export async function getPlaylistDetailAction(id: string): Promise<ActionState<PlaylistDetailType | null>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -172,7 +172,7 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
 /**
  * Creates a new playlist for the authenticated user.
  */
-export async function createPlaylistAction(data: CreatePlaylistInput): Promise<PlaylistActionState<PlaylistType>> {
+export async function createPlaylistAction(data: CreatePlaylistInput): Promise<ActionState<PlaylistType>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -215,10 +215,7 @@ export async function createPlaylistAction(data: CreatePlaylistInput): Promise<P
 /**
  * Adds a single track to a playlist.
  */
-export async function addTrackToPlaylistAction(
-  playlistId: string,
-  track: CatalogItemType
-): Promise<PlaylistActionState<void>> {
+export async function addTrackToPlaylistAction(playlistId: string, track: CatalogItemType): Promise<ActionState<void>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -252,10 +249,7 @@ export async function addTrackToPlaylistAction(
 /**
  * Removes a single track from a playlist.
  */
-export async function removeTrackFromPlaylistAction(
-  playlistId: string,
-  trackId: number
-): Promise<PlaylistActionState<void>> {
+export async function removeTrackFromPlaylistAction(playlistId: string, trackId: number): Promise<ActionState<void>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -288,7 +282,7 @@ export async function removeTrackFromPlaylistAction(
  * Fetches a map of playlistId to an array of trackIds for the authenticated user.
  * This is used to hydrate local stores for global UI indicators.
  */
-export async function getPlaylistTrackMapAction(): Promise<PlaylistActionState<Record<string, number[]>>> {
+export async function getPlaylistTrackMapAction(): Promise<ActionState<Record<string, number[]>>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -325,7 +319,7 @@ export async function getPlaylistTrackMapAction(): Promise<PlaylistActionState<R
  * Syncs locally-stored liked songs into the user's "Liked Songs" playlist.
  * Processes tracks in chunks to stay under the PostgreSQL parameter limit.
  */
-export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<PlaylistActionState<void>> {
+export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<ActionState<void>> {
   if (tracks.length === 0) return { success: true, data: undefined }
 
   const userId = await getAuthenticatedUserId()
@@ -380,7 +374,7 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<P
  * Fetches all tracks in the user's "Liked Songs" playlist.
  * Used for hydrating the client-side favorites store upon login.
  */
-export async function getLikedSongsAction(): Promise<PlaylistActionState<CatalogItemType[]>> {
+export async function getLikedSongsAction(): Promise<ActionState<CatalogItemType[]>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -424,7 +418,7 @@ export async function getLikedSongsAction(): Promise<PlaylistActionState<Catalog
  * Adds a single track to the user's "Liked Songs" playlist.
  * Atomically finds or creates the playlist.
  */
-export async function likeTrackAction(track: CatalogItemType): Promise<PlaylistActionState<void>> {
+export async function likeTrackAction(track: CatalogItemType): Promise<ActionState<void>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
@@ -461,7 +455,7 @@ export async function likeTrackAction(track: CatalogItemType): Promise<PlaylistA
 /**
  * Removes a single track from the user's "Liked Songs" playlist.
  */
-export async function unlikeTrackAction(trackId: number): Promise<PlaylistActionState<void>> {
+export async function unlikeTrackAction(trackId: number): Promise<ActionState<void>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
