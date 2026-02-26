@@ -4,9 +4,9 @@ import { Clock } from "lucide-react"
 import * as React from "react"
 
 import { FLAG_AI_SUMMARIES, useFeatureFlag } from "@/lib/feature-flags/flags"
+import { formatDuration } from "@/lib/utils/track-formatters"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
-import { formatDuration } from "../utils/track-formatters"
 
 export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
   const [isMounted, setIsMounted] = React.useState(false)

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react"
 import { CatalogCard } from "./CatalogCard"
-import { MOCK_CATALOG_ITEMS } from "../types/catalog-types"
+import { MOCK_CATALOG_ITEMS } from "../utils/mock-data"
 
 const mockItem = MOCK_CATALOG_ITEMS[0]!
 
