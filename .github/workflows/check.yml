@@ -16,11 +16,6 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-noble
       options: --user root
-    env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
-      BETTER_AUTH_SECRET: a_very_long_secret_for_testing_purposes_at_least_32_chars
-      BETTER_AUTH_URL: http://localhost:3000
-      NEXT_PUBLIC_BETTER_AUTH_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
@@ -35,6 +30,19 @@ jobs:
           run_install: |
             - recursive: true
             - args: [--frozen-lockfile]
+
+      - name: Load .env.test robustly
+        run: |
+          node -e "
+            const fs = require('fs');
+            const crypto = require('crypto');
+            const dotenv = require('dotenv');
+            const envConfig = dotenv.parse(fs.readFileSync('.env.test'));
+            for (const k in envConfig) {
+              const delimiter = \`GH_ENV_\${k}_\${crypto.randomBytes(4).toString('hex')}\`;
+              fs.appendFileSync(process.env.GITHUB_ENV, \`\${k}<<\${delimiter}\n\${envConfig[k]}\n\${delimiter}\n\`);
+            }
+          "
 
       - name: Lint check
         run: pnpm run lint
