@@ -18,7 +18,7 @@ interface PlaylistItemProps {
 }
 
 function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistItemProps) {
-  const { addTrack: addTrackToThis, isAdding: isAddingToThis } = usePlaylistDetail(playlist.id)
+  const { addTrack: addTrackToThis, isAdding: isAddingToThis } = usePlaylistDetail(playlist.id, { skipQuery: true })
   const alreadyAdded = isTrackInPlaylist(playlist.id, track.id)
 
   return (
@@ -29,7 +29,7 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistI
         await addTrackToThis(track)
         onClose?.()
       }}
-      disabled={isAddingToThis}
+      disabled={isAddingToThis || alreadyAdded}
       className={cn(
         "group flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
         alreadyAdded

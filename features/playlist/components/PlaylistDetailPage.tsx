@@ -108,7 +108,11 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
             {playlist.tracks.length > 0 ? (
               playlist.tracks.map((track, index) => {
                 const handleTrackClick = () => {
-                  trackTrackSelected(track)
+                  try {
+                    trackTrackSelected(track)
+                  } catch {
+                    /* best-effort analytics */
+                  }
                   router.push(`/catalog/${track.id}`)
                 }
 
