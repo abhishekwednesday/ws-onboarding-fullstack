@@ -45,7 +45,11 @@ async function withAuthenticatedClient<T>(userId: string, operation: (client: Po
     await client.query("COMMIT")
     return result
   } catch (err) {
-    await client.query("ROLLBACK")
+    try {
+      await client.query("ROLLBACK")
+    } catch (rollbackErr) {
+      console.error("Rollback failed after query error:", rollbackErr)
+    }
     throw err
   } finally {
     client.release()

@@ -4,7 +4,7 @@
 
 The application connects to a PostgreSQL database using `pg.Pool`. Initially, a new `Pool` instance was being instantiated for `betterAuth` in `lib/auth/auth.ts` and incredibly, a new `Pool` on _every single request_ inside `features/playlist/api/playlist-actions.ts`.
 
-Instantiating a new db pool on every server action causes connection exhaustion very quickly. Standard backend best practices dictate using a singleton pool instance for database access.
+Instantiating a new db pool on every server action causes connection exhaustion rapidly. Standard backend best practices dictate using a singleton pool instance for database access.
 
 ## Decision
 
