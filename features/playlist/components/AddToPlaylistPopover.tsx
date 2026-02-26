@@ -44,7 +44,7 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistI
       className={cn(
         "group flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
         alreadyAdded
-          ? "bg-primary/10 text-primary cursor-default"
+          ? "bg-primary/10 text-primary cursor-pointer"
           : "text-foreground/80 hover:text-foreground hover:bg-white/10"
       )}
     >

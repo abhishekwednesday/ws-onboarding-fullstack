@@ -34,12 +34,9 @@ export function usePlaylists() {
         throw new Error(result.error)
       }
 
-      // After fetching playlists, hydrate the local store with track mappings
-      // so global indicators (like checkmarks on CatalogCards) reflect DB state.
       const mapResult = await getPlaylistTrackMapAction()
+      reset()
       if (mapResult.success && mapResult.data) {
-        // Reset local store to avoid stale state from previous sessions
-        reset()
         Object.entries(mapResult.data).forEach(([playlistId, trackIds]) => {
           trackIds.forEach((trackId) => {
             markTrackAsAdded(playlistId, trackId)

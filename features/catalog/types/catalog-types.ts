@@ -21,6 +21,7 @@ export interface FavoritesStateType {
   toggleFavorite: (track: CatalogItemType) => void
   isFavorite: (id: number) => boolean
   clearFavorites: () => void
+  replaceFavorites: (tracks: CatalogItemType[]) => void
 }
 
 export interface FavoriteButtonPropsType {

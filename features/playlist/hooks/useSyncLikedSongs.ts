@@ -14,25 +14,21 @@ import { getLikedSongsAction } from "../api/playlist-actions"
  */
 export function useSyncLikedSongs() {
   const { data: session } = useSession()
-  const hasSynced = useRef(false)
+  const syncedUserIdRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!session?.user || hasSynced.current) return
-    hasSynced.current = true
+    const userId = session?.user?.id
+    if (!userId || syncedUserIdRef.current === userId) return
 
     async function hydrate() {
       try {
         const result = await getLikedSongsAction()
         if (result.success && result.data) {
-          const store = useFavoritesStore.getState()
-          // Replace local favorites with server state
-          store.clearFavorites()
-          result.data.forEach((track) => {
-            store.toggleFavorite(track)
-          })
+          useFavoritesStore.getState().replaceFavorites(result.data)
+          syncedUserIdRef.current = userId!
         }
       } catch {
-        // Best-effort — don't crash the app if hydration fails
+        // Best-effort — don't crash the app if hydration fails; retry allowed on next render
       }
     }
 

@@ -35,16 +35,15 @@ export function FavoriteButton({ track, className, iconOnly = false }: FavoriteB
         trackFavoriteRemoved(track)
       }
 
-      // Server sync for authenticated users
       if (session?.user) {
         try {
-          if (nextState) {
-            await likeTrackAction(track)
-          } else {
-            await unlikeTrackAction(track.id)
+          const result = nextState
+            ? await likeTrackAction(track)
+            : await unlikeTrackAction(track.id)
+          if (!result.success) {
+            toggleFavorite(track)
           }
         } catch {
-          // Revert optimistic update on server failure
           toggleFavorite(track)
         }
       }

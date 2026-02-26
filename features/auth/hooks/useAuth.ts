@@ -30,7 +30,7 @@ async function syncFavoritesOnAuth(tracks: CatalogItemType[], context: string): 
 export function useAuth() {
   const [isPending, startTransition] = useTransition()
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites)
-  const _toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+  const replaceFavorites = useFavoritesStore((state) => state.replaceFavorites)
 
   const login = (data: LoginFormData, redirectTo = "/playlists", onError?: (msg: string) => void) => {
     startTransition(async () => {
@@ -40,13 +40,9 @@ export function useAuth() {
         const currentTracks = Object.values(useFavoritesStore.getState().favorites)
         await syncFavoritesOnAuth(currentTracks, "login")
 
-        // 2. Pull server likes to initialize local store
         const serverLikes = await getLikedSongsAction()
         if (serverLikes.success && serverLikes.data) {
-          clearFavorites()
-          serverLikes.data.forEach((track) => {
-            _toggleFavorite(track)
-          })
+          replaceFavorites(serverLikes.data)
         }
 
         window.location.href = redirectTo
@@ -72,6 +68,7 @@ export function useAuth() {
 
   const logout = () => {
     startTransition(async () => {
+      clearFavorites()
       const res = await logoutAction()
       if (res.success) {
         window.location.href = "/"

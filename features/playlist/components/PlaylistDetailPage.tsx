@@ -125,6 +125,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                     tabIndex={0}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
+                        if (e.target !== e.currentTarget) return
                         if (e.key === " ") e.preventDefault()
                         handleTrackClick()
                       }
@@ -162,11 +163,16 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-500"
+                        className="h-8 w-8 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 hover:bg-rose-500/10 hover:text-rose-500"
                         disabled={isRemoving}
                         onClick={(e) => {
                           e.stopPropagation()
                           removeTrack(track.id)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.stopPropagation()
+                          }
                         }}
                         aria-label="Remove track"
                       >
