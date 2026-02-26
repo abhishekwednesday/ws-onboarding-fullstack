@@ -8,6 +8,7 @@ import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { auth } from "@/lib/auth/auth"
 import {
   type CreatePlaylistInput,
+  CreatePlaylistSchema,
   type PlaylistActionState,
   type PlaylistDetailType,
   type PlaylistTrackType,
@@ -50,9 +51,8 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
+  const pool = await createPool()
   try {
-    const pool = await createPool()
-
     const result = await pool.query(
       `SELECT p.*,
               (SELECT COUNT(*) FROM "playlist_track" pt WHERE pt."playlistId" = p."id")::int AS "trackcount"
@@ -61,8 +61,6 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
        ORDER BY p."isLiked" DESC, p."createdAt" DESC`,
       [userId]
     )
-
-    await pool.end()
 
     const playlists: PlaylistType[] = result.rows.map((row) => ({
       id: row.id,
@@ -79,6 +77,8 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
   } catch (err: unknown) {
     const error = err as { message?: string }
     return { success: false, error: error?.message ?? "Failed to fetch playlists" }
+  } finally {
+    await pool.end()
   }
 }
 
@@ -86,18 +86,18 @@ export async function getUserPlaylistsAction(): Promise<PlaylistActionState<Play
  * Fetches a single playlist with its full track list.
  * Track IDs are fetched from the database, then hydrated with
  * metadata from the iTunes API via itunesLookupAction.
+ * The resulting track array is sorted by addedAt ASC to preserve
+ * the original insertion order regardless of iTunes API response order.
  */
 export async function getPlaylistDetailAction(id: string): Promise<PlaylistActionState<PlaylistDetailType | null>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
+  const pool = await createPool()
   try {
-    const pool = await createPool()
-
     const playlistResult = await pool.query(`SELECT * FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [id, userId])
 
     if (playlistResult.rows.length === 0) {
-      await pool.end()
       return { success: true, data: null }
     }
 
@@ -105,8 +105,6 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
       `SELECT "trackId", "addedAt" FROM "playlist_track" WHERE "playlistId" = $1 ORDER BY "addedAt" ASC`,
       [id]
     )
-
-    await pool.end()
 
     const row = playlistResult.rows[0]
     const trackIds = trackRows.rows.map((t) => t.trackId)
@@ -116,18 +114,21 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
     let tracks: PlaylistTrackType[] = []
     if (trackIds.length > 0) {
       const itunesResponse = await itunesLookupAction(trackIds)
-      tracks = itunesResponse.results.map((t) => ({
-        id: t.trackId,
-        title: t.trackName,
-        artist: t.artistName,
-        album: t.collectionName,
-        artworkUrl: t.artworkUrl100,
-        previewUrl: t.previewUrl,
-        genre: t.primaryGenreName,
-        duration: t.trackTimeMillis,
-        trackViewUrl: t.trackViewUrl,
-        addedAt: addedAtMap[t.trackId] ?? new Date().toISOString(),
-      }))
+      tracks = itunesResponse.results
+        .map((t) => ({
+          id: t.trackId,
+          title: t.trackName,
+          artist: t.artistName,
+          album: t.collectionName,
+          artworkUrl: t.artworkUrl100,
+          previewUrl: t.previewUrl,
+          genre: t.primaryGenreName,
+          duration: t.trackTimeMillis,
+          trackViewUrl: t.trackViewUrl,
+          addedAt: addedAtMap[t.trackId] ?? new Date().toISOString(),
+        }))
+        // Re-sort by addedAt ASC since iTunes API does not preserve insertion order
+        .sort((a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime())
     }
 
     const detail: PlaylistDetailType = {
@@ -146,36 +147,43 @@ export async function getPlaylistDetailAction(id: string): Promise<PlaylistActio
   } catch (err: unknown) {
     const error = err as { message?: string }
     return { success: false, error: error?.message ?? "Failed to fetch playlist" }
+  } finally {
+    await pool.end()
   }
 }
 
 /**
  * Creates a new playlist for the authenticated user.
+ * Validates input at runtime using the CreatePlaylistSchema before any DB access.
  */
 export async function createPlaylistAction(data: CreatePlaylistInput): Promise<PlaylistActionState<PlaylistType>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
+  const parsed = CreatePlaylistSchema.safeParse(data)
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.errors.map((e) => e.message).join(", ") }
+  }
+  const validatedData = parsed.data
+
+  const pool = await createPool()
   try {
-    const pool = await createPool()
     const id = randomUUID()
     const now = new Date().toISOString()
 
     await pool.query(
       `INSERT INTO "playlist" ("id", "userId", "name", "description", "isLiked", "createdAt", "updatedAt")
        VALUES ($1, $2, $3, $4, FALSE, $5, $6)`,
-      [id, userId, data.name, data.description ?? null, now, now]
+      [id, userId, validatedData.name, validatedData.description ?? null, now, now]
     )
-
-    await pool.end()
 
     return {
       success: true,
       data: {
         id,
         userId,
-        name: data.name,
-        description: data.description ?? null,
+        name: validatedData.name,
+        description: validatedData.description ?? null,
         isLiked: false,
         trackCount: 0,
         createdAt: now,
@@ -185,6 +193,8 @@ export async function createPlaylistAction(data: CreatePlaylistInput): Promise<P
   } catch (err: unknown) {
     const error = err as { message?: string }
     return { success: false, error: error?.message ?? "Failed to create playlist" }
+  } finally {
+    await pool.end()
   }
 }
 
@@ -200,16 +210,14 @@ export async function addTrackToPlaylistAction(
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
+  const pool = await createPool()
   try {
-    const pool = await createPool()
-
     const ownerCheck = await pool.query(`SELECT 1 FROM "playlist" WHERE "id" = $1 AND "userId" = $2`, [
       playlistId,
       userId,
     ])
 
     if (ownerCheck.rows.length === 0) {
-      await pool.end()
       return { success: false, error: "Playlist not found" }
     }
 
@@ -220,11 +228,12 @@ export async function addTrackToPlaylistAction(
       [randomUUID(), playlistId, track.id, new Date().toISOString()]
     )
 
-    await pool.end()
     return { success: true, data: undefined }
   } catch (err: unknown) {
     const error = err as { message?: string }
     return { success: false, error: error?.message ?? "Failed to add track to playlist" }
+  } finally {
+    await pool.end()
   }
 }
 
@@ -232,6 +241,7 @@ export async function addTrackToPlaylistAction(
  * Syncs locally-stored liked songs into the user's "Liked Songs" playlist.
  * Creates the "Liked Songs" playlist if it doesn't exist yet.
  * Merges new track IDs — idempotent, safe to call on every login.
+ * Uses a single batched INSERT to avoid N+1 queries.
  */
 export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<PlaylistActionState<void>> {
   if (tracks.length === 0) return { success: true, data: undefined }
@@ -239,8 +249,8 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<P
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
+  const pool = await createPool()
   try {
-    const pool = await createPool()
     const now = new Date().toISOString()
 
     // Find or create the "Liked Songs" playlist
@@ -260,20 +270,30 @@ export async function syncLikedSongsAction(tracks: CatalogItemType[]): Promise<P
       )
     }
 
-    // Merge track IDs — ON CONFLICT DO NOTHING ensures idempotency
-    for (const track of tracks) {
-      await pool.query(
-        `INSERT INTO "playlist_track" ("id", "playlistId", "trackId", "addedAt")
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT ("playlistId", "trackId") DO NOTHING`,
-        [randomUUID(), playlistId, track.id, now]
-      )
-    }
+    // Batch insert tracks using a multi-row VALUES clause to prevent N+1 queries
+    // SQL: INSERT INTO ... VALUES ($1, $2, $3, $4), ($5, $6, $7, $8), ...
+    const queryParts: string[] = []
+    const params: (string | number)[] = []
 
-    await pool.end()
+    tracks.forEach((track, index) => {
+      const offset = index * 4
+      queryParts.push(`($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4})`)
+      params.push(randomUUID(), playlistId, track.id, now)
+    })
+
+    const query = `
+      INSERT INTO "playlist_track" ("id", "playlistId", "trackId", "addedAt")
+      VALUES ${queryParts.join(", ")}
+      ON CONFLICT ("playlistId", "trackId") DO NOTHING
+    `
+
+    await pool.query(query, params)
+
     return { success: true, data: undefined }
   } catch (err: unknown) {
     const error = err as { message?: string }
     return { success: false, error: error?.message ?? "Failed to sync liked songs" }
+  } finally {
+    await pool.end()
   }
 }

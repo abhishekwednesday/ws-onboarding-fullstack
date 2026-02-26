@@ -10,6 +10,24 @@ CREATE TABLE IF NOT EXISTS "playlist" (
 );
 ALTER TABLE "playlist" ENABLE ROW LEVEL SECURITY;
 
+-- Auto-update "updatedAt" on every row modification
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW."updatedAt" = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_playlist_updated_at
+    BEFORE UPDATE ON "playlist"
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Enforce at most one "Liked Songs" playlist per user at the database level
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_playlist_user_liked_unique"
+    ON "playlist"("userId")
+    WHERE "isLiked" = TRUE;
+
 -- Playlist Track Table: Stores only the iTunes track ID reference.
 -- Full track metadata (title, artist, artwork, etc.) is fetched from
 -- the iTunes API at read time using the existing itunesLookupAction.
