@@ -1,6 +1,7 @@
 "use client"
 
 import { ArrowLeft, Clock, Music, Play, Plus } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import * as React from "react"
@@ -59,9 +60,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
             {playlist.isLiked ? "System Playlist" : "Private Playlist"}
           </span>
           <h1 className="text-4xl font-black tracking-tight sm:text-6xl md:text-7xl">{playlist.name}</h1>
-          {playlist.description && (
-            <p className="text-muted-foreground max-w-2xl text-lg">{playlist.description}</p>
-          )}
+          {playlist.description && <p className="text-muted-foreground max-w-2xl text-lg">{playlist.description}</p>}
           <div className="mt-2 flex items-center gap-4 text-sm font-medium">
             <span className="text-foreground">{playlist.tracks.length} tracks</span>
             <span className="text-muted-foreground">•</span>
@@ -72,16 +71,20 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
 
       {/* Actions */}
       <div className="flex items-center gap-4">
+        {/* TODO: Wire to a play-all handler once audio playback is implemented */}
         <Button
           size="lg"
+          disabled
           className="h-14 rounded-full px-8 text-lg font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
         >
           <Play className="mr-2 h-6 w-6 fill-current" />
           Play All
         </Button>
+        {/* TODO: Wire to an add-track modal once track search within playlist is implemented */}
         <Button
           variant="outline"
           size="icon"
+          disabled
           className="h-14 w-14 rounded-full border-white/10 bg-white/5 hover:bg-white/10"
           aria-label="Add track"
         >
@@ -131,7 +134,13 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                     <div className="flex items-center gap-3 overflow-hidden">
                       <div className="bg-muted flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded">
                         {track.artworkUrl ? (
-                          <img src={track.artworkUrl} alt={track.title} className="h-full w-full object-cover" />
+                          <Image
+                            src={track.artworkUrl}
+                            alt={track.title}
+                            width={40}
+                            height={40}
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <Music className="h-5 w-5 opacity-40" />
                         )}
@@ -189,4 +198,3 @@ function PlaylistDetailSkeleton() {
     </div>
   )
 }
-

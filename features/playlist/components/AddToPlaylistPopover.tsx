@@ -13,10 +13,11 @@ import { usePlaylistStore } from "../store/usePlaylistStore"
 interface PlaylistItemProps {
   playlist: { id: string; name: string }
   track: CatalogItemType
-  isTrackInPlaylist: (playlistId: string, trackId: string) => boolean
+  isTrackInPlaylist: (playlistId: string, trackId: number) => boolean
+  onClose?: () => void
 }
 
-function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps) {
+function PlaylistItem({ playlist, track, isTrackInPlaylist, onClose }: PlaylistItemProps) {
   const { addTrack: addTrackToThis, isAdding: isAddingToThis } = usePlaylistDetail(playlist.id)
   const alreadyAdded = isTrackInPlaylist(playlist.id, track.id)
 
@@ -26,6 +27,7 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps)
         e.stopPropagation()
         if (alreadyAdded || isAddingToThis) return
         await addTrackToThis(track)
+        onClose?.()
       }}
       disabled={isAddingToThis}
       className={cn(
@@ -46,7 +48,6 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps)
         </div>
         <span className="truncate font-medium">{playlist.name}</span>
       </div>
-
       {isAddingToThis ? (
         <Loader2 className="text-primary h-4 w-4 animate-spin" />
       ) : alreadyAdded ? (
@@ -89,6 +90,7 @@ export function AddToPlaylistPopover({ track, onClose }: { track: CatalogItemTyp
                 playlist={playlist}
                 track={track}
                 isTrackInPlaylist={isTrackInPlaylist}
+                onClose={onClose}
               />
             ))
           ) : (

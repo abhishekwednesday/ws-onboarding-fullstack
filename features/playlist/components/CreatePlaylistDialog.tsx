@@ -44,7 +44,7 @@ export function CreatePlaylistDialog() {
         name: name.trim(),
         description: description.trim() || undefined,
       })
-      setOpen(false)
+      handleOpenChange(false)
     } catch (error) {
       // Error is already handled by toast in usePlaylists
       console.error("Failed to create playlist:", error)
