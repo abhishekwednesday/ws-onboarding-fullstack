@@ -6,10 +6,10 @@ declare global {
   var globalDbPool: Pool | undefined
 }
 
-function parseIntWithDefault(value: string | undefined, fallback: number): number {
-  if (!value) return fallback
+function parsePositiveInt(value: string | undefined, fallback: number): number {
+  if (!value || !/^\d+$/.test(value)) return fallback
   const parsed = parseInt(value, 10)
-  return Number.isNaN(parsed) ? fallback : parsed
+  return parsed > 0 ? parsed : fallback
 }
 
 /**
@@ -17,12 +17,14 @@ function parseIntWithDefault(value: string | undefined, fallback: number): numbe
  * Prevents connection exhaustion during development (hot reloading)
  * and across serverless function invocations where the process isn't terminated.
  */
+const isExistingPool = !!global.globalDbPool
+
 export const dbPool =
   global.globalDbPool ||
   new Pool({
     connectionString: env.DATABASE_URL,
-    connectionTimeoutMillis: parseIntWithDefault(process.env.DB_CONN_TIMEOUT_MS, 2000),
-    max: parseIntWithDefault(process.env.DB_POOL_MAX, 5),
+    connectionTimeoutMillis: parsePositiveInt(process.env.DB_CONN_TIMEOUT_MS, 2000),
+    max: parsePositiveInt(process.env.DB_POOL_MAX, 5),
     ssl:
       process.env.NODE_ENV === "production"
         ? true
@@ -31,10 +33,11 @@ export const dbPool =
           },
   })
 
-dbPool.on("error", (err) => {
-  console.error("Unexpected error on idle database client:", err)
-})
-
-if (process.env.NODE_ENV !== "production") {
-  global.globalDbPool = dbPool
+if (!isExistingPool) {
+  dbPool.on("error", (err) => {
+    console.error("Unexpected error on idle database client:", err)
+  })
+  if (process.env.NODE_ENV !== "production") {
+    global.globalDbPool = dbPool
+  }
 }
