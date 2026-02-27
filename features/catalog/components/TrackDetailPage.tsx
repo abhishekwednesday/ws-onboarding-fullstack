@@ -47,7 +47,7 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
             </button>
           </div>
 
-          <div className="mx-auto mt-2 w-full max-w-xl flex-1 flex-col items-center px-4 sm:px-0">
+          <div className="mx-auto mt-2 flex w-full max-w-xl flex-1 flex-col items-center px-4 sm:px-0">
             <TrackDetailArtwork title={item.title} artworkUrl={item.artworkUrl} isPlaying={isPlaying} />
 
             <TrackDetailInfo item={item} />

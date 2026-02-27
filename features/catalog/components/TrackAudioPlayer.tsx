@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import {
   AudioPlayerButton,
@@ -13,7 +13,7 @@ import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
 
 /**
- * A sub-component to observe and sync the ElevenLabs audio player state
+ * A sub-component to observe and sync the audio player state
  * back up to the parent component (for animating the artwork).
  */
 function PlayerStateObserver({ onPlayingChange }: { onPlayingChange: (isPlaying: boolean) => void }) {
@@ -33,6 +33,14 @@ export function TrackAudioPlayer({
   item: CatalogItemType
   onPlayingChange: (isPlaying: boolean) => void
 }) {
+  const [isPlaying, setIsPlaying] = useState(false)
+  const handlePlayingChange = useCallback(
+    (playing: boolean) => {
+      setIsPlaying(playing)
+      onPlayingChange(playing)
+    },
+    [onPlayingChange]
+  )
   const [trackItem, setTrackItem] = useState({
     id: item.id.toString(),
     src: item.previewUrl || "",
@@ -59,7 +67,7 @@ export function TrackAudioPlayer({
   return (
     <div className="mt-8 mb-12 w-full space-y-6 px-4 sm:px-0">
       <AudioPlayerProvider>
-        <PlayerStateObserver onPlayingChange={onPlayingChange} />
+        <PlayerStateObserver onPlayingChange={handlePlayingChange} />
 
         <div className="flex w-full flex-col gap-6">
           {/* Player Progress */}
@@ -83,7 +91,7 @@ export function TrackAudioPlayer({
             <div className="relative">
               {/* Glow effect behind play button when playing */}
               {trackItem.src && (
-                <div className="bg-primary/20 absolute inset-0 rounded-full blur-xl transition-opacity duration-700 data-[playing=false]:opacity-0 data-[playing=true]:opacity-100" />
+                <div data-playing={isPlaying} className="bg-primary/20 absolute inset-0 rounded-full blur-xl transition-opacity duration-700 data-[playing=false]:opacity-0 data-[playing=true]:opacity-100" />
               )}
               <AudioPlayerButton
                 item={trackItem}

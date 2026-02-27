@@ -196,18 +196,63 @@ export function AudioPlayerProvider<TData = unknown>({ children }: { children: R
     [activeItem]
   )
 
-  useAnimationFrame(() => {
-    if (audioRef.current) {
-      _setActiveItem(itemRef.current)
-      setReadyState(audioRef.current.readyState)
-      setNetworkState(audioRef.current.networkState)
-      setTime(audioRef.current.currentTime)
-      setDuration(audioRef.current.duration)
-      setPaused(audioRef.current.paused)
-      setError(audioRef.current.error)
-      setPlaybackRateState(audioRef.current.playbackRate)
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const syncActiveItem = () => _setActiveItem(itemRef.current)
+    const syncTime = () => setTime(audio.currentTime)
+    const syncDuration = () => setDuration(audio.duration)
+    const syncPaused = () => setPaused(audio.paused)
+    const syncPlaybackRate = () => setPlaybackRateState(audio.playbackRate)
+    const syncError = () => setError(audio.error)
+    const syncBufferState = () => {
+      setReadyState(audio.readyState)
+      setNetworkState(audio.networkState)
     }
-  })
+    const handlePlay = () => {
+      syncPaused()
+      syncActiveItem()
+    }
+    const handlePlaying = () => {
+      syncPaused()
+      syncBufferState()
+    }
+
+    audio.addEventListener("timeupdate", syncTime)
+    audio.addEventListener("play", handlePlay)
+    audio.addEventListener("pause", syncPaused)
+    audio.addEventListener("ratechange", syncPlaybackRate)
+    audio.addEventListener("durationchange", syncDuration)
+    audio.addEventListener("loadedmetadata", syncDuration)
+    audio.addEventListener("loadedmetadata", syncBufferState)
+    audio.addEventListener("canplay", syncBufferState)
+    audio.addEventListener("canplaythrough", syncBufferState)
+    audio.addEventListener("waiting", syncBufferState)
+    audio.addEventListener("playing", handlePlaying)
+    audio.addEventListener("progress", syncBufferState)
+    audio.addEventListener("error", syncError)
+    audio.addEventListener("loadstart", syncActiveItem)
+    audio.addEventListener("loadstart", syncBufferState)
+
+    return () => {
+      audio.removeEventListener("timeupdate", syncTime)
+      audio.removeEventListener("play", handlePlay)
+      audio.removeEventListener("pause", syncPaused)
+      audio.removeEventListener("ratechange", syncPlaybackRate)
+      audio.removeEventListener("durationchange", syncDuration)
+      audio.removeEventListener("loadedmetadata", syncDuration)
+      audio.removeEventListener("loadedmetadata", syncBufferState)
+      audio.removeEventListener("canplay", syncBufferState)
+      audio.removeEventListener("canplaythrough", syncBufferState)
+      audio.removeEventListener("waiting", syncBufferState)
+      audio.removeEventListener("playing", handlePlaying)
+      audio.removeEventListener("progress", syncBufferState)
+      audio.removeEventListener("error", syncError)
+      audio.removeEventListener("loadstart", syncActiveItem)
+      audio.removeEventListener("loadstart", syncBufferState)
+    }
+  }, [])
 
   const isPlaying = !paused
   const isBuffering = readyState < ReadyState.HAVE_FUTURE_DATA && networkState === NetworkState.NETWORK_LOADING
@@ -267,7 +312,7 @@ export const AudioPlayerProgress = ({
       {...otherProps}
       value={[time]}
       onValueChange={(vals) => {
-        player.seek(vals[0])
+        player.seek(vals[0] ?? 0)
         otherProps.onValueChange?.(vals)
       }}
       min={0}
@@ -422,36 +467,6 @@ export function AudioPlayerButton<TData = unknown>({ item, ...otherProps }: Audi
   )
 }
 
-type Callback = (delta: number) => void
-
-function useAnimationFrame(callback: Callback) {
-  const requestRef = useRef<number | null>(null)
-  const previousTimeRef = useRef<number | null>(null)
-  const callbackRef = useRef<Callback>(callback)
-
-  useEffect(() => {
-    callbackRef.current = callback
-  }, [callback])
-
-  useEffect(() => {
-    const animate = (time: number) => {
-      if (previousTimeRef.current !== null) {
-        const delta = time - previousTimeRef.current
-        callbackRef.current(delta)
-      }
-      previousTimeRef.current = time
-      requestRef.current = requestAnimationFrame(animate)
-    }
-
-    requestRef.current = requestAnimationFrame(animate)
-
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current)
-      previousTimeRef.current = null
-    }
-  }, [])
-}
-
 const PLAYBACK_SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] as const
 
 export interface AudioPlayerSpeedProps extends React.ComponentProps<typeof Button> {
@@ -528,52 +543,52 @@ export function AudioPlayerSpeedButtonGroup({
 export const exampleTracks = [
   {
     id: "0",
-    name: "II - 00",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/00.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/00.mp3",
+    data: { name: "II - 00" },
   },
   {
     id: "1",
-    name: "II - 01",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/01.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/01.mp3",
+    data: { name: "II - 01" },
   },
   {
     id: "2",
-    name: "II - 02",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/02.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/02.mp3",
+    data: { name: "II - 02" },
   },
   {
     id: "3",
-    name: "II - 03",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/03.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/03.mp3",
+    data: { name: "II - 03" },
   },
   {
     id: "4",
-    name: "II - 04",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/04.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/04.mp3",
+    data: { name: "II - 04" },
   },
   {
     id: "5",
-    name: "II - 05",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/05.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/05.mp3",
+    data: { name: "II - 05" },
   },
   {
     id: "6",
-    name: "II - 06",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/06.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/06.mp3",
+    data: { name: "II - 06" },
   },
   {
     id: "7",
-    name: "II - 07",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/07.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/07.mp3",
+    data: { name: "II - 07" },
   },
   {
     id: "8",
-    name: "II - 08",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/08.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/08.mp3",
+    data: { name: "II - 08" },
   },
   {
     id: "9",
-    name: "II - 09",
-    url: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/09.mp3",
+    src: "https://storage.googleapis.com/eleven-public-cdn/audio/ui-elevenlabs-io/09.mp3",
+    data: { name: "II - 09" },
   },
 ]
