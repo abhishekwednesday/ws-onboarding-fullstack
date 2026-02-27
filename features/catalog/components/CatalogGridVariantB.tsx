@@ -86,7 +86,7 @@ export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
 
             {/* Actions */}
             <div
-              className="flex items-center gap-2 pr-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:opacity-100"
+              className="flex items-center gap-2 pr-2 opacity-100 transition-opacity duration-300 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {

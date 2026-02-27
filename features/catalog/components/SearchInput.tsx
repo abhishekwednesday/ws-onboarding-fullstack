@@ -42,6 +42,7 @@ export function SearchInput({
         placeholder={placeholder}
         value={value}
         onChange={handleInputChange}
+        aria-label="Search"
       />
       {value && (
         <div className="absolute inset-y-0 right-2 flex items-center">

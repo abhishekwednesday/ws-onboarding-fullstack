@@ -47,7 +47,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
       {/* Artwork Section */}
       <div className="relative aspect-square w-full overflow-hidden">
         {/* Action Buttons Overlay */}
-        <div className="absolute top-3 right-3 z-20 flex translate-x-4 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+        <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 opacity-100 transition-all duration-300 sm:translate-x-4 sm:opacity-0 sm:group-hover:translate-x-0 sm:group-hover:opacity-100 sm:group-focus-within:translate-x-0 sm:group-focus-within:opacity-100">
           <FavoriteButton track={item} className="bg-background/40 hover:bg-background/80 shadow-md backdrop-blur-md" />
           <AddToPlaylistButton
             track={item}

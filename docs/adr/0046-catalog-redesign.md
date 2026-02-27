@@ -18,5 +18,5 @@ We redesigned the catalog components with the following changes:
 ## Consequences
 
 - **Visual Consistency**: The catalog now perfectly matches the premium look set by the Landing and Layout redesigns.
-- **Usability**: The search input and catalog list rows feel significantly more responsive due to focus-within ring animations and layout padding expansions.
+- **Usability**: The search input and catalog list rows feel significantly more responsive due to focus-within-ring animations and layout padding expansions.
 - **Compatibility**: All Playwright E2E and Unit Tests remain green, confirming that the redesign successfully updated the aesthetic without removing critical interactive elements or attributes used for assertions.
