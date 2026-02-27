@@ -14,10 +14,10 @@ We redesigned the layout wrappers with the following implementations:
 2.  **DRY Mobile/Desktop Routing**: Condensed the routing logic into a single array (`links`) mapped iteratively in the desktop and mobile menus, entirely eliminating DOM string duplication while conditionally injecting protected routes (like Playlists) for authenticated users.
 3.  **Refined Typography Constraints**: Injected `.font-serif` (`Playfair Display`) into the logo brand marks to elevate the aesthetic.
 4.  **Immersive Footer**: Added a subtle fading primary gradient to the bottom of the viewport behind the `Footer.tsx` and tightened tracking/casing on copyright lines for a minimal, cinematic close to the page.
-5.  **BasePage Padding adjustments**: Shifted the flex layout constraints to ensure content always remains highly visible without crunching against the fixed `glass` Navbar.
+5.  **BasePage Padding adjustments**: Shifted the flex layout constraints to ensure content always remains highly visible without crunching against the sticky `glass` Navbar.
 
 ## Consequences
 
 - **Maintainability**: Adding new top-level routes is now as simple as adding an object to the `links` array.
 - **Performance**: Reducing DOM size slightly assists with React hydration speed.
-- **Visual Consistency**: Every interior page wrapped by `BasePage` will now automatically inherit the breathtaking framing of the new Navigation and Footer, making the implementation of downstream views easier.
+- **Visual Consistency**: Every interior page wrapped by `BasePage` will now automatically inherit the framing of the new Navigation and Footer, making the implementation of downstream views easier.
