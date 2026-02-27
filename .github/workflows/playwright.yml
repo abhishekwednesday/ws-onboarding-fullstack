@@ -14,6 +14,18 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-noble
       options: --user root
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
@@ -47,6 +59,7 @@ jobs:
         env:
           HOME: /root
           CI: true
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
 
       - uses: actions/upload-artifact@v4
         if: always()
