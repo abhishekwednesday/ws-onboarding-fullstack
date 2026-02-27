@@ -28,7 +28,7 @@ export function RegisterForm() {
     }
 
     // Server action register hook wrapper
-    register({ name, email, password }, "/", (errMs) => setError(errMs))
+    register({ name, email, password }, "/playlists", (errMs) => setError(errMs))
   }
 
   return (

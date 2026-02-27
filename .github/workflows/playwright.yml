@@ -14,6 +14,18 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.52.0-noble
       options: --user root
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - run: echo "node_version=$(cat .github/nodejs.version)" >> $GITHUB_ENV
@@ -42,11 +54,34 @@ jobs:
             }
           "
 
+      - name: Apply database schema
+        run: |
+          node -e "
+            const { Pool } = require('pg');
+            const fs = require('fs');
+            const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false });
+            async function run() {
+              const authSql = fs.readFileSync('docs/db/auth-schema.sql', 'utf8');
+              for (const stmt of authSql.split(';').map(s => s.trim()).filter(Boolean)) {
+                try { await pool.query(stmt); }
+                catch (e) { console.warn('Skipped (will be created by Better Auth):', e.message); }
+              }
+              const playlistSql = fs.readFileSync('docs/db/playlist-schema.sql', 'utf8');
+              await pool.query(playlistSql);
+              await pool.end();
+              console.log('Database schema applied');
+            }
+            run().catch(e => { console.error(e); process.exit(1); });
+          "
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+
       - name: Run Playwright tests
         run: pnpm playwright test
         env:
           HOME: /root
           CI: true
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
 
       - uses: actions/upload-artifact@v4
         if: always()

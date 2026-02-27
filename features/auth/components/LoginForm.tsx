@@ -23,7 +23,7 @@ export function LoginForm() {
     }
 
     // Server action login hook wrapper
-    login({ email, password }, "/", (errMs) => setError(errMs))
+    login({ email, password }, "/playlists", (errMs) => setError(errMs))
   }
 
   return (
