@@ -10,16 +10,16 @@ test.describe("Landing Page", () => {
   })
 
   test("should render the hero section with branding", async ({ page }) => {
-    const heading = page.getByRole("heading", { name: /Find music/i })
+    const heading = page.getByRole("heading", { name: /Find the music/i })
     await expect(heading).toBeVisible()
-    await expect(heading).toContainText(/you'll love/i)
+    await expect(heading).toContainText(/you love/i)
 
-    const subtext = page.getByText(/Search tracks, artists, and albums/i)
+    const subtext = page.getByText(/A premium, high-fidelity catalog powered by iTunes/i)
     await expect(subtext).toBeVisible()
   })
 
   test("should have functional hero call-to-action buttons", async ({ page }) => {
-    const browseButton = page.getByRole("link", { name: /Browse the catalog/i })
+    const browseButton = page.getByRole("link", { name: /Enter Catalog/i })
     await expect(browseButton).toBeVisible()
     await expect(browseButton).toHaveAttribute("href", "/catalog")
   })

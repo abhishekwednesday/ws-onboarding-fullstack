@@ -42,7 +42,7 @@ function PlaylistCard({ playlist }: { playlist: PlaylistType }) {
 
   return (
     <Link href={`/playlists/${playlist.id}`} className="group block h-full">
-      <Card className="flex h-full flex-col overflow-hidden border-white/5 bg-white/5 py-0 transition-all duration-300 group-hover:border-white/20 group-hover:bg-white/10 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+      <Card className="border-border bg-card/40 group-hover:border-border group-hover:bg-card/60 flex h-full flex-col overflow-hidden py-0 transition-all duration-300 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
         <CardHeader className="relative pt-6 pb-0">
           <div className="from-primary/20 to-primary/5 mb-4 flex aspect-square items-center justify-center rounded-xl bg-gradient-to-br transition-transform duration-500 group-hover:scale-105">
             {playlist.isLiked ? (
@@ -69,7 +69,7 @@ function PlaylistCard({ playlist }: { playlist: PlaylistType }) {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="text-primary border-t border-white/5 bg-white/[0.02] py-3 text-xs font-semibold transition-colors group-hover:bg-white/[0.05]">
+        <CardFooter className="text-primary border-border bg-muted/30 group-hover:bg-muted/50 border-t py-3 text-xs font-semibold transition-colors">
           <span className="flex w-full items-center justify-between">
             View Details
             <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />

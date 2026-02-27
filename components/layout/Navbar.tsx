@@ -39,7 +39,7 @@ export function Navbar() {
   }, [pathname])
 
   return (
-    <nav className="bg-background/60 sticky top-0 z-50 w-full border-b border-white/5 backdrop-blur-xl">
+    <nav className="bg-background/60 border-border sticky top-0 z-50 w-full border-b backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <div className="flex flex-1 items-center justify-start">
@@ -53,14 +53,14 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden flex-1 items-center justify-center md:flex">
-          <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1 backdrop-blur-sm dark:border-white/5 dark:bg-black/20">
+          <div className="border-border bg-muted/50 flex items-center gap-1 rounded-full border p-1 backdrop-blur-sm">
             <Link
               href="/"
               className={cn(
                 "rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200",
                 pathname === "/"
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
               Home
@@ -71,7 +71,7 @@ export function Navbar() {
                 "rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200",
                 isCatalogActive
                   ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
               Catalog
@@ -83,7 +83,7 @@ export function Navbar() {
                   "rounded-full px-5 py-1.5 text-sm font-medium transition-all duration-200",
                   isPlaylistsActive
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
               >
                 Playlists
@@ -106,7 +106,7 @@ export function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={handleToggleMobileMenu}
-            className="group text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 transition-all hover:bg-white/10 md:hidden"
+            className="group text-muted-foreground hover:text-foreground border-border bg-muted/50 hover:bg-accent flex h-9 w-9 items-center justify-center rounded-lg border transition-all md:hidden"
             aria-label="Toggle menu"
             aria-expanded={isMobileMenuOpen}
             aria-controls="mobile-menu"
@@ -194,13 +194,13 @@ export function Navbar() {
           </div>
 
           {/* Social/Theme Section */}
-          <div className="space-y-8 border-t border-white/10 pt-8">
+          <div className="border-border space-y-8 border-t pt-8">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
                 <p className="text-sm font-semibold">Appearance</p>
                 <p className="text-muted-foreground text-xs">Toggle between light and dark modes</p>
               </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-1 backdrop-blur-sm">
+              <div className="border-border bg-muted/50 rounded-xl border p-1 backdrop-blur-sm">
                 <ModeToggle />
               </div>
             </div>

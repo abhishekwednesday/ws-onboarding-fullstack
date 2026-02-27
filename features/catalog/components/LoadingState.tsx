@@ -11,8 +11,8 @@ export function CatalogCardSkeleton() {
       <Skeleton className="absolute inset-0 h-full w-full" />
       {/* Simulated overlay strip at the bottom */}
       <div className="absolute right-0 bottom-0 left-0 space-y-1.5 p-4">
-        <Skeleton className="h-3.5 w-2/3 bg-white/20" />
-        <Skeleton className="h-3 w-1/2 bg-white/15" />
+        <Skeleton className="bg-muted h-3.5 w-2/3" />
+        <Skeleton className="bg-muted h-3 w-1/2" />
       </div>
     </div>
   )

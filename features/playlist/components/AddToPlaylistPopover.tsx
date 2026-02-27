@@ -45,13 +45,13 @@ function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps)
         "group flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors",
         alreadyAdded
           ? "bg-primary/10 text-primary cursor-pointer"
-          : "text-foreground/80 hover:text-foreground hover:bg-white/10"
+          : "text-foreground/80 hover:text-foreground hover:bg-accent"
       )}
     >
       <div className="flex min-w-0 items-center gap-3">
         <div
           className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded bg-white/5",
+            "bg-muted/50 flex h-8 w-8 shrink-0 items-center justify-center rounded",
             alreadyAdded && "bg-primary/20"
           )}
         >
@@ -91,7 +91,7 @@ export function AddToPlaylistPopover({ track, onClose }: { track: CatalogItemTyp
           {isPlaylistsLoading ? (
             <div className="flex flex-col gap-1 p-2">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-10 w-full animate-pulse rounded-lg bg-white/5" />
+                <div key={i} className="bg-muted/50 h-10 w-full animate-pulse rounded-lg" />
               ))}
             </div>
           ) : playlists.length > 0 ? (

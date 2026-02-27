@@ -96,7 +96,7 @@ export function TrackAudioPlayer({
 
       <div>
         <div
-          className="relative h-1.5 w-full cursor-pointer overflow-hidden rounded-full bg-white/10"
+          className="bg-muted relative h-1.5 w-full cursor-pointer overflow-hidden rounded-full"
           onClick={handleProgressClick}
           role="slider"
           aria-label="Preview progress"
@@ -105,11 +105,11 @@ export function TrackAudioPlayer({
           aria-valuemax={100}
         >
           <div
-            className="h-full rounded-full bg-white/80 transition-all duration-100"
+            className="bg-foreground/80 h-full rounded-full transition-all duration-100"
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="mt-1 flex justify-between text-[11px] text-white/30">
+        <div className="text-muted-foreground/60 mt-1 flex justify-between text-[11px]">
           <span>{formatSeconds(currentTime)}</span>
           <span>{audioDuration ? formatSeconds(audioDuration) : "0:30"} · preview</span>
         </div>
@@ -119,12 +119,12 @@ export function TrackAudioPlayer({
         <button
           onClick={handleTogglePreview}
           aria-label={isPlaying ? "Pause preview" : "Play 30-second preview"}
-          className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-black shadow-xl transition-transform hover:scale-105 active:scale-95"
+          className="bg-foreground text-background flex h-16 w-16 items-center justify-center rounded-full shadow-xl transition-transform hover:scale-105 active:scale-95"
         >
           {isPlaying ? <Pause className="h-7 w-7 fill-current" /> : <Play className="ml-0.5 h-7 w-7 fill-current" />}
         </button>
         <div className="absolute top-1/2 right-0 translate-x-12 -translate-y-1/2">
-          <FavoriteButton track={item} className="h-12 w-12 bg-white/5 backdrop-blur-md hover:bg-white/10" />
+          <FavoriteButton track={item} className="bg-muted/50 hover:bg-accent h-12 w-12 backdrop-blur-md" />
         </div>
       </div>
     </div>

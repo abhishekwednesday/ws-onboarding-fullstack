@@ -47,7 +47,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
     <div className="animate-in fade-in slide-in-from-bottom-4 flex flex-col gap-8 py-8 duration-500 md:py-12">
       {/* Header Section */}
       <div className="flex flex-col gap-6 md:flex-row md:items-end">
-        <div className="from-primary/30 to-primary/10 flex aspect-square w-48 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br shadow-2xl md:w-64">
+        <div className="from-primary/30 to-primary/10 border-border flex aspect-square w-48 shrink-0 items-center justify-center rounded-2xl border bg-gradient-to-br shadow-2xl md:w-64">
           {playlist.isLiked ? (
             <Music className="text-primary h-24 w-24 opacity-80 md:h-32 md:w-32" />
           ) : (
@@ -85,7 +85,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
           variant="outline"
           size="icon"
           disabled
-          className="h-14 w-14 rounded-full border-white/10 bg-white/5 hover:bg-white/10"
+          className="border-border bg-muted/50 hover:bg-accent h-14 w-14 rounded-full"
           aria-label="Add track"
         >
           <Plus className="h-6 w-6" />
@@ -93,8 +93,8 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
       </div>
 
       {/* Tracks List */}
-      <div className="overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm">
-        <div className="text-muted-foreground grid grid-cols-[48px_1fr_120px] gap-4 border-b border-white/5 px-6 py-3 text-xs font-bold tracking-wider uppercase">
+      <div className="border-border bg-card/40 overflow-hidden rounded-2xl border backdrop-blur-sm">
+        <div className="text-muted-foreground border-border grid grid-cols-[48px_1fr_120px] gap-4 border-b px-6 py-3 text-xs font-bold tracking-wider uppercase">
           <span className="text-center">#</span>
           <span>Title / Artist</span>
           <span className="flex items-center justify-end text-right">
@@ -119,7 +119,7 @@ export function PlaylistDetailPage({ playlistId }: { playlistId: string }) {
                 return (
                   <div
                     key={track.id}
-                    className="group grid cursor-pointer grid-cols-[48px_1fr_120px] gap-4 px-6 py-3 transition-colors hover:bg-white/10"
+                    className="group hover:bg-accent grid cursor-pointer grid-cols-[48px_1fr_120px] gap-4 px-6 py-3 transition-colors"
                     onClick={handleTrackClick}
                     role="button"
                     tabIndex={0}
@@ -213,7 +213,7 @@ function PlaylistDetailSkeleton() {
         <Skeleton className="h-14 w-40 rounded-full" />
         <Skeleton className="h-14 w-14 rounded-full" />
       </div>
-      <div className="space-y-4 rounded-2xl border border-white/5 bg-white/[0.02] p-6">
+      <div className="border-border bg-card/40 space-y-4 rounded-2xl border p-6">
         {Array.from({ length: 5 }).map((_, i) => (
           <Skeleton key={i} className="h-14 w-full" />
         ))}

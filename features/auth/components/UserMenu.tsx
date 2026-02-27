@@ -20,7 +20,7 @@ export function UserMenu() {
   const { logout } = useAuth()
 
   if (isPending) {
-    return <div className="h-9 w-9 animate-pulse rounded-full bg-white/10" />
+    return <div className="bg-muted h-9 w-9 animate-pulse rounded-full" />
   }
 
   if (!session?.user) {
@@ -52,7 +52,7 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="relative h-9 w-9 rounded-full border border-white/10 bg-white/5 transition-colors hover:bg-white/10"
+          className="border-border bg-muted/50 hover:bg-accent relative h-9 w-9 rounded-full border transition-colors"
         >
           <User className="text-muted-foreground h-4 w-4" />
         </Button>
