@@ -21,16 +21,17 @@ export function TrackDetailArtwork({
             src={highResArtwork}
             alt=""
             className="h-full w-full object-cover object-center"
-            style={{ filter: "blur(80px) saturate(1.4)", transform: "scale(1.15)", opacity: 0.45 }}
+            style={{ filter: "blur(120px) saturate(1.5)", transform: "scale(1.2)", opacity: 0.2 }}
           />
-          <div className="bg-background/60 absolute inset-0" />
+          <div className="bg-background/80 absolute inset-0" />
+          <div className="from-background/90 to-background absolute inset-0 bg-gradient-to-b via-transparent" />
         </div>
       )}
 
       {/* Primary Artwork Card */}
       <div
-        className={`relative mx-auto mb-8 w-full transition-all duration-700 ${
-          isPlaying ? "scale-[1.03]" : "scale-100"
+        className={`relative mx-auto mb-12 w-full max-w-[320px] transition-all duration-[800ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:max-w-[400px] ${
+          isPlaying ? "scale-105" : "scale-100"
         }`}
       >
         {highResArtwork && (
@@ -39,8 +40,8 @@ export function TrackDetailArtwork({
             style={{
               backgroundImage: `url(${highResArtwork})`,
               backgroundSize: "cover",
-              opacity: isPlaying ? 0.6 : 0.35,
-              transition: "opacity 0.6s",
+              opacity: isPlaying ? 0.7 : 0.4,
+              transition: "opacity 0.8s",
             }}
           />
         )}
@@ -48,7 +49,7 @@ export function TrackDetailArtwork({
           <img
             src={highResArtwork}
             alt={`${title} artwork`}
-            className="relative aspect-square w-full rounded-3xl object-cover shadow-2xl"
+            className="relative aspect-square w-full rounded-2xl border border-white/10 object-cover shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
           />
         ) : (
           <div className="bg-muted relative flex aspect-square w-full items-center justify-center rounded-3xl">

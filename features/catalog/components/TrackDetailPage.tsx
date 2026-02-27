@@ -33,21 +33,21 @@ export function TrackDetailPage({ id }: TrackDetailPagePropsType) {
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-120px)] flex-col py-6">
+    <div className="flex min-h-[calc(100dvh-120px)] flex-col py-8 pb-32">
       {item && (
         <>
           {/* Back Action - Top of page context */}
-          <div className="mb-8">
+          <div className="mx-auto mb-10 flex w-full max-w-xl justify-start px-4">
             <button
               onClick={handleBack}
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm transition-colors"
+              className="text-muted-foreground hover:bg-accent hover:text-foreground bg-background/30 border-border/30 inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm shadow-sm backdrop-blur-xl transition-all"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Catalog
             </button>
           </div>
 
-          <div className="mx-auto w-full max-w-sm flex-1 flex-col items-center">
+          <div className="mx-auto mt-2 w-full max-w-xl flex-1 flex-col items-center px-4 sm:px-0">
             <TrackDetailArtwork title={item.title} artworkUrl={item.artworkUrl} isPlaying={isPlaying} />
 
             <TrackDetailInfo item={item} />

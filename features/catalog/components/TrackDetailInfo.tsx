@@ -18,32 +18,28 @@ export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
   }, [])
 
   return (
-    <div className="mb-6 space-y-1">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <h1 className="truncate text-2xl font-bold tracking-tight">{item.title}</h1>
-          <p className="text-muted-foreground truncate text-base">{item.artist}</p>
-          {item.album && <p className="text-muted-foreground/50 truncate text-sm italic">{item.album}</p>}
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {item.genre && (
-            <span className="text-muted-foreground shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-medium tracking-wider uppercase">
-              {item.genre}
-            </span>
-          )}
-          <FavoriteButton track={item} className="h-9 w-9" />
-        </div>
+    <div className="mb-6 flex flex-col items-center space-y-4 text-center">
+      <div className="w-full space-y-1.5 px-4">
+        <h1 className="text-foreground font-serif text-4xl leading-tight font-bold tracking-tight text-balance drop-shadow-sm sm:text-5xl">
+          {item.title}
+        </h1>
+        <p className="text-muted-foreground text-xl font-medium drop-shadow-sm sm:text-2xl">{item.artist}</p>
+        {item.album && <p className="text-muted-foreground/60 text-sm italic">{item.album}</p>}
       </div>
-      {item.duration && (
-        <div className="text-muted-foreground/60 flex items-center gap-1 pt-0.5 text-xs">
-          <Clock className="h-3 w-3" />
-          <span>{formatDuration(item.duration)}</span>
+      {item.genre && (
+        <div className="pt-2">
+          <span className="text-muted-foreground border-border/30 bg-background/20 rounded-full border px-4 py-1.5 text-[11px] font-bold tracking-widest uppercase shadow-sm backdrop-blur-md">
+            {item.genre}
+          </span>
         </div>
       )}
 
       {isAiSummariesEnabled && (
-        <div className="bg-muted/50 mt-3 rounded-lg border border-dashed px-3 py-2">
-          <p className="text-muted-foreground text-xs">🤖 AI summary — coming soon</p>
+        <div className="bg-background/20 mt-4 inline-flex items-center gap-2 rounded-full border border-white/5 px-4 py-1.5 backdrop-blur-md">
+          <span className="text-primary text-[10px]">✨</span>
+          <p className="text-muted-foreground text-[11px] font-medium tracking-wide uppercase">
+            AI Summary Coming Soon
+          </p>
         </div>
       )}
     </div>
