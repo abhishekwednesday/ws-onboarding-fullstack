@@ -1,10 +1,30 @@
-import { Pause, Play } from "lucide-react"
 import * as React from "react"
-import { useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
-import { formatSeconds } from "@/lib/utils/track-formatters"
+import {
+  AudioPlayerButton,
+  AudioPlayerDuration,
+  AudioPlayerProgress,
+  AudioPlayerProvider,
+  AudioPlayerTime,
+  useAudioPlayer,
+} from "@/components/ui/audio-player"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
+
+/**
+ * A sub-component to observe and sync the audio player state
+ * back up to the parent component (for animating the artwork).
+ */
+function PlayerStateObserver({ onPlayingChange }: { onPlayingChange: (isPlaying: boolean) => void }) {
+  const { isPlaying } = useAudioPlayer()
+
+  useEffect(() => {
+    onPlayingChange(isPlaying)
+  }, [isPlaying, onPlayingChange])
+
+  return null
+}
 
 export function TrackAudioPlayer({
   item,
@@ -13,67 +33,28 @@ export function TrackAudioPlayer({
   item: CatalogItemType
   onPlayingChange: (isPlaying: boolean) => void
 }) {
-  const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [audioDuration, setAudioDuration] = useState(0)
+  const handlePlayingChange = useCallback(
+    (playing: boolean) => {
+      setIsPlaying(playing)
+      onPlayingChange(playing)
+    },
+    [onPlayingChange]
+  )
+  const [trackItem, setTrackItem] = useState({
+    id: item.id.toString(),
+    src: item.previewUrl || "",
+    data: { title: item.title, artist: item.artist },
+  })
 
-  // Sync internal isPlaying with parent
+  // Update track when item changes
   useEffect(() => {
-    onPlayingChange(isPlaying)
-  }, [isPlaying, onPlayingChange])
-
-  // Reset player when track changes
-  useEffect(() => {
-    setIsPlaying(false)
-    setProgress(0)
-    setCurrentTime(0)
-    audioRef.current?.pause()
-  }, [item.id])
-
-  const handleTogglePreview = () => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    if (isPlaying) {
-      audio.pause()
-      setIsPlaying(false)
-    } else {
-      audio
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => setIsPlaying(false))
-    }
-  }
-
-  const handleAudioEnd = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0
-    }
-    setIsPlaying(false)
-    setProgress(0)
-    setCurrentTime(0)
-  }
-
-  const handleTimeUpdate = () => {
-    const a = audioRef.current
-    if (a) {
-      setCurrentTime(a.currentTime)
-      setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0)
-    }
-  }
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) setAudioDuration(audioRef.current.duration)
-  }
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRef.current
-    if (!audio || !audio.duration) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration
-  }
+    setTrackItem({
+      id: item.id.toString(),
+      src: item.previewUrl || "",
+      data: { title: item.title, artist: item.artist },
+    })
+  }, [item])
 
   if (!item.previewUrl) {
     return (
@@ -84,49 +65,48 @@ export function TrackAudioPlayer({
   }
 
   return (
-    <div className="mb-8 space-y-4">
-      <audio
-        ref={audioRef}
-        src={item.previewUrl}
-        onEnded={handleAudioEnd}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        preload="none"
-      />
+    <div className="mt-8 mb-12 w-full space-y-6 px-4 sm:px-0">
+      <AudioPlayerProvider>
+        <PlayerStateObserver onPlayingChange={handlePlayingChange} />
 
-      <div>
-        <div
-          className="bg-muted relative h-1.5 w-full cursor-pointer overflow-hidden rounded-full"
-          onClick={handleProgressClick}
-          role="slider"
-          aria-label="Preview progress"
-          aria-valuenow={Math.round(progress)}
-          aria-valuemin={0}
-          aria-valuemax={100}
-        >
-          <div
-            className="bg-foreground/80 h-full rounded-full transition-all duration-100"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <div className="text-muted-foreground/60 mt-1 flex justify-between text-[11px]">
-          <span>{formatSeconds(currentTime)}</span>
-          <span>{audioDuration ? formatSeconds(audioDuration) : "0:30"} · preview</span>
-        </div>
-      </div>
+        <div className="flex w-full flex-col gap-6">
+          {/* Player Progress */}
+          <div className="w-full space-y-2">
+            <AudioPlayerProgress className="h-2 w-full cursor-pointer transition-all hover:h-3" />
+            <div className="text-muted-foreground flex justify-between px-1 font-mono text-xs font-medium">
+              <AudioPlayerTime />
+              <AudioPlayerDuration />
+            </div>
+          </div>
 
-      <div className="relative flex justify-center">
-        <button
-          onClick={handleTogglePreview}
-          aria-label={isPlaying ? "Pause preview" : "Play 30-second preview"}
-          className="bg-foreground text-background flex h-16 w-16 items-center justify-center rounded-full shadow-xl transition-transform hover:scale-105 active:scale-95"
-        >
-          {isPlaying ? <Pause className="h-7 w-7 fill-current" /> : <Play className="ml-0.5 h-7 w-7 fill-current" />}
-        </button>
-        <div className="absolute top-1/2 right-0 translate-x-12 -translate-y-1/2">
-          <FavoriteButton track={item} className="bg-muted/50 hover:bg-accent h-12 w-12 backdrop-blur-md" />
+          {/* Primary Controls */}
+          <div className="flex items-center justify-center gap-8 px-4">
+            {/* Left side secondary controls (Like) */}
+            <FavoriteButton
+              track={item}
+              className="bg-background/30 hover:bg-accent border-border/30 h-12 w-12 rounded-full border shadow-sm backdrop-blur-md transition-transform hover:scale-105"
+            />
+
+            {/* Main Play Button */}
+            <div className="relative">
+              {/* Glow effect behind play button when playing */}
+              {trackItem.src && (
+                <div
+                  data-playing={isPlaying}
+                  className="bg-primary/20 absolute inset-0 rounded-full blur-xl transition-opacity duration-700 data-[playing=false]:opacity-0 data-[playing=true]:opacity-100"
+                />
+              )}
+              <AudioPlayerButton
+                item={trackItem}
+                className="relative z-10 h-20 w-20 rounded-full border border-white/10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] transition-transform duration-300 hover:scale-[1.05] active:scale-[0.95]"
+              />
+            </div>
+
+            {/* Right side spacer for symmetry (could be volume/speed in future) */}
+            <div className="h-12 w-12 border border-transparent" />
+          </div>
         </div>
-      </div>
+      </AudioPlayerProvider>
     </div>
   )
 }
