@@ -11,7 +11,7 @@ Previously, `Navbar.tsx` duplicated its navigation links completely across the D
 We redesigned the layout wrappers with the following implementations:
 
 1.  **Glassmorphic Navigation**: Switched `Navbar.tsx` to utilize `backdrop-blur-2xl` and semi-transparent backgrounds with subtle borders to give the illusion of a floating, frosted glass header.
-2.  **DRY Mobile/Desktop Routing**: Condensed the routing logic into a single array (`links`) mapped iteratively in the desktop and mobile menus, entirely eliminating DOM string duplication while conditionally injecting protected routes (like Playlists) for authenticated users.
+2.  **DRY Mobile/Desktop Routing**: Condensed the routing logic into a single array (`links`) mapped iteratively in the desktop and mobile menus, eliminating DOM string duplication while conditionally injecting protected routes (like Playlists) for authenticated users.
 3.  **Refined Typography Constraints**: Injected `.font-serif` (`Playfair Display`) into the logo brand marks to elevate the aesthetic.
 4.  **Immersive Footer**: Added a subtle fading primary gradient to the bottom of the viewport behind the `Footer.tsx` and tightened tracking/casing on copyright lines for a minimal, cinematic close to the page.
 5.  **BasePage Padding adjustments**: Shifted the flex layout constraints to ensure content always remains highly visible without crunching against the sticky `glass` Navbar.

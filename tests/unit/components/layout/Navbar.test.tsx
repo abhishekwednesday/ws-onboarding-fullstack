@@ -49,38 +49,36 @@ describe("Navbar component", () => {
   it("toggles the mobile menu on button click", () => {
     render(<Navbar />)
     const toggle = screen.getByRole("button", { name: /toggle menu/i })
-    const mobileMenu = document.getElementById("mobile-menu")!
 
     expect(toggle).toHaveAttribute("aria-expanded", "false")
-    expect(mobileMenu).toHaveAttribute("aria-hidden", "true")
+    expect(document.getElementById("mobile-menu")).toBeNull()
 
     fireEvent.click(toggle)
 
     expect(toggle).toHaveAttribute("aria-expanded", "true")
-    expect(mobileMenu).toHaveAttribute("aria-hidden", "false")
+    expect(document.getElementById("mobile-menu")).toBeInTheDocument()
 
     const closeBtn = screen.getByRole("button", { name: /close menu/i })
     fireEvent.click(closeBtn)
 
     expect(toggle).toHaveAttribute("aria-expanded", "false")
-    expect(mobileMenu).toHaveAttribute("aria-hidden", "true")
+    expect(document.getElementById("mobile-menu")).toBeNull()
   })
 
   it("closes the mobile menu when a navigation link is clicked", () => {
     mockUsePathname.mockReturnValue("/")
     const { rerender } = render(<Navbar />)
     const toggle = screen.getByRole("button", { name: /toggle menu/i })
-    const mobileMenu = document.getElementById("mobile-menu")!
 
     fireEvent.click(toggle)
 
     expect(toggle).toHaveAttribute("aria-expanded", "true")
-    expect(mobileMenu).toHaveAttribute("aria-hidden", "false")
+    expect(document.getElementById("mobile-menu")).toBeInTheDocument()
 
     mockUsePathname.mockReturnValue("/catalog")
     rerender(<Navbar />)
 
     expect(toggle).toHaveAttribute("aria-expanded", "false")
-    expect(mobileMenu).toHaveAttribute("aria-hidden", "true")
+    expect(document.getElementById("mobile-menu")).toBeNull()
   })
 })

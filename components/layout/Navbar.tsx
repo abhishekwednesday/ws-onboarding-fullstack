@@ -45,83 +45,81 @@ export function Navbar() {
 
   return (
     <>
-      {/* Mobile Menu Overlay — rendered outside nav to avoid parent backdrop-filter context */}
-      <div
-        id="mobile-menu"
-        aria-hidden={!isMobileMenuOpen}
-        className={cn(
-          "bg-background/95 fixed inset-0 z-[60] flex flex-col backdrop-blur-xl backdrop-saturate-150 transition-all duration-500 ease-in-out md:hidden",
-          isMobileMenuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-        )}
-      >
-        {/* Overlay header matching navbar */}
-        <div className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="group flex items-center space-x-2.5">
-            <div className="bg-primary/20 text-primary flex items-center justify-center rounded-xl p-2">
-              <Music className="h-5 w-5" />
-            </div>
-            <span className="text-foreground font-serif text-lg font-bold tracking-tight">MusicStream</span>
-          </Link>
-          <button
-            onClick={handleToggleMobileMenu}
-            className="group border-border bg-muted/50 text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border transition-all"
-            aria-label="Close menu"
-          >
-            <X className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
-          </button>
-        </div>
+      {/* Mobile Menu Overlay — conditionally mounted to keep focusable elements out of the DOM when closed */}
+      {isMobileMenuOpen && (
+        <div
+          id="mobile-menu"
+          className="bg-background/95 animate-in fade-in fixed inset-0 z-[60] flex flex-col backdrop-blur-xl backdrop-saturate-150 duration-300 md:hidden"
+        >
+          {/* Overlay header matching navbar */}
+          <div className="flex h-16 shrink-0 items-center justify-between px-4 sm:px-6">
+            <Link href="/" className="group flex items-center space-x-2.5">
+              <div className="bg-primary/20 text-primary flex items-center justify-center rounded-xl p-2">
+                <Music className="h-5 w-5" />
+              </div>
+              <span className="text-foreground font-serif text-lg font-bold tracking-tight">MusicStream</span>
+            </Link>
+            <button
+              onClick={handleToggleMobileMenu}
+              className="group border-border bg-muted/50 text-muted-foreground hover:text-foreground flex h-9 w-9 items-center justify-center rounded-lg border transition-all"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
+            </button>
+          </div>
 
-        <div className="flex flex-1 flex-col justify-between overflow-y-auto px-8 pb-12">
-          {/* Navigation Links */}
-          <div className="flex flex-col space-y-4">
-            <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">Navigation</p>
-            <div className="flex flex-col space-y-2">
-              {links.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={cn(
-                    "group flex items-center justify-between py-4 font-serif text-3xl font-medium tracking-tight transition-all",
-                    link.isActive ? "text-primary" : "text-foreground/80 hover:text-foreground hover:translate-x-2"
-                  )}
-                >
-                  <span>{link.name}</span>
-                  <div
+          <div className="flex flex-1 flex-col justify-between overflow-y-auto px-8 pb-12">
+            {/* Navigation Links */}
+            <div className="flex flex-col space-y-4">
+              <p className="text-muted-foreground text-[10px] font-bold tracking-[0.2em] uppercase">Navigation</p>
+              <div className="flex flex-col space-y-2">
+                {links.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
                     className={cn(
-                      "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
-                      link.isActive
-                        ? "scale-100 opacity-100 shadow-[0_0_10px_rgba(6,182,212,0.8)]"
-                        : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
+                      "group flex items-center justify-between py-4 font-serif text-3xl font-medium tracking-tight transition-all",
+                      link.isActive ? "text-primary" : "text-foreground/80 hover:text-foreground hover:translate-x-2"
                     )}
-                  />
+                  >
+                    <span>{link.name}</span>
+                    <div
+                      className={cn(
+                        "bg-primary h-1.5 w-1.5 rounded-full transition-all duration-300",
+                        link.isActive
+                          ? "scale-100 opacity-100 shadow-[0_0_10px_rgba(6,182,212,0.8)]"
+                          : "scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-50"
+                      )}
+                    />
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Social/Theme Section */}
+            <div className="border-border space-y-8 border-t pt-8">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-foreground text-sm font-semibold">Appearance</p>
+                  <p className="text-muted-foreground text-xs">Toggle display modes</p>
+                </div>
+                <div className="border-border bg-muted/50 rounded-xl border p-1 backdrop-blur-md">
+                  <ModeToggle />
+                </div>
+              </div>
+
+              <div>
+                <Link
+                  href="/catalog"
+                  className="bg-primary text-primary-foreground flex items-center justify-center rounded-xl py-4 text-sm font-bold transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] active:scale-95"
+                >
+                  Start Browsing
                 </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* Social/Theme Section */}
-          <div className="border-border space-y-8 border-t pt-8">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-foreground text-sm font-semibold">Appearance</p>
-                <p className="text-muted-foreground text-xs">Toggle display modes</p>
               </div>
-              <div className="border-border bg-muted/50 rounded-xl border p-1 backdrop-blur-md">
-                <ModeToggle />
-              </div>
-            </div>
-
-            <div>
-              <Link
-                href="/catalog"
-                className="bg-primary text-primary-foreground flex items-center justify-center rounded-xl py-4 text-sm font-bold transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] active:scale-95"
-              >
-                Start Browsing
-              </Link>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       <nav className="bg-background/60 border-border sticky top-0 z-50 w-full border-b shadow-sm backdrop-blur-2xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
