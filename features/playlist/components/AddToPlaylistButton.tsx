@@ -49,7 +49,7 @@ export function AddToPlaylistButton({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[280px] border-white/10 bg-black/90 p-0 shadow-2xl backdrop-blur-xl"
+        className="border-border bg-popover w-[280px] p-0 shadow-2xl backdrop-blur-xl"
         align="end"
         onClick={(e) => e.stopPropagation()}
       >

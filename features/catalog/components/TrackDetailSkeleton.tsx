@@ -45,7 +45,7 @@ export function TrackDetailSkeleton() {
       </div>
 
       {/* iTunes compliance */}
-      <div className="flex flex-col items-center gap-2 border-t border-white/10 pt-4">
+      <div className="border-border flex flex-col items-center gap-2 border-t pt-4">
         <Skeleton className="h-3 w-44" />
         <Skeleton className="h-8 w-24" />
       </div>

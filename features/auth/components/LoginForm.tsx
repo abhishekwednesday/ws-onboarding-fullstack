@@ -27,7 +27,7 @@ export function LoginForm() {
   }
 
   return (
-    <Card className="bg-background/60 mx-auto w-full max-w-md border-white/10 shadow-xl backdrop-blur-xl">
+    <Card className="bg-background/60 border-border mx-auto w-full max-w-md shadow-xl backdrop-blur-xl">
       <CardHeader className="space-y-1">
         <CardTitle className="text-center text-2xl font-bold tracking-tight">Welcome back</CardTitle>
         <CardDescription className="text-muted-foreground text-center">
@@ -44,7 +44,7 @@ export function LoginForm() {
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="focus-visible:ring-primary/50 border-white/10 bg-white/5 pl-10 transition-colors"
+                className="focus-visible:ring-primary/50 border-border bg-muted/50 pl-10 transition-colors"
                 disabled={isPending}
                 required
               />
@@ -58,7 +58,7 @@ export function LoginForm() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="focus-visible:ring-primary/50 border-white/10 bg-white/5 pl-10 transition-colors"
+                className="focus-visible:ring-primary/50 border-border bg-muted/50 pl-10 transition-colors"
                 disabled={isPending}
                 required
                 minLength={8}
@@ -75,7 +75,7 @@ export function LoginForm() {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center border-t border-white/5 pt-4">
+      <CardFooter className="border-border flex justify-center border-t pt-4">
         <p className="text-muted-foreground text-sm">
           Don't have an account?{" "}
           <Link href="/register" className="text-primary hover:text-primary/80 font-semibold transition-colors">
