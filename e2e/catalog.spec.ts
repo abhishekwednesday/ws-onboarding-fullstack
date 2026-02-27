@@ -67,26 +67,20 @@ test.describe("Music Catalog Page", () => {
     // Wait for the initial data to load
     await expect(page.getByTestId("catalog-card").first()).toBeVisible({ timeout: 30000 })
 
-    // Scroll in steps to ensure the intersection observer has time to fire multiple times
-    // This handles cases where the API might return duplicates and require multiple scroll triggers
-    // to eventually hit the "no more unique items" state.
-    for (let i = 0; i < 3; i++) {
-      await page.evaluate(() => window.scrollBy(0, 2000))
-      await page.waitForTimeout(1000)
-    }
+    const endMessage = page.getByText("You've reached the end of the catalog.")
 
-    // Final jump to bottom
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    // Scroll in steps to ensure the intersection observer has time to fire multiple times
+    for (let i = 0; i < 20; i++) {
+      // Use generic mouse wheel instead of targeting DOM elements that might unmount
+      await page.mouse.wheel(0, 3000)
+      await page.waitForTimeout(500)
+
+      const isEndVisible = await endMessage.isVisible()
+      if (isEndVisible) break
+    }
 
     // Instead of asserting on item count (which is unreliable due to API behavior),
     // we verify that we eventually hit the "End of Catalog" message.
-    // This confirms that:
-    // 1. The Intersection Observer fired.
-    // 2. The loadMore function was called.
-    // 3. The useCatalog hook correctly handled the results (even if they were duplicates)
-    //    and set hasMore to false.
-    await expect(page.getByText("You've reached the end of the catalog.")).toBeVisible({
-      timeout: 30000,
-    })
+    await expect(endMessage).toBeVisible({ timeout: 10000 })
   })
 })
