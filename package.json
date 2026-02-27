@@ -158,5 +158,10 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "packageManager": "pnpm@10.0.0"
+  "packageManager": "pnpm@10.0.0",
+  "pnpm": {
+    "patchedDependencies": {
+      "@secretlint/node@11.3.1": "patches/@secretlint__node@11.3.1.patch"
+    }
+  }
 }

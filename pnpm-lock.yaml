@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@secretlint/node@11.3.1':
+    hash: 3502329c95f4b2dfe642508b3de6904261a6cb2e547a3378de14693e7f308ef2
+    path: patches/@secretlint__node@11.3.1.patch
+
 importers:
 
   .:
@@ -14695,7 +14700,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@secretlint/node@11.3.1':
+  '@secretlint/node@11.3.1(patch_hash=3502329c95f4b2dfe642508b3de6904261a6cb2e547a3378de14693e7f308ef2)':
     dependencies:
       '@secretlint/config-loader': 11.3.1
       '@secretlint/core': 11.3.1
@@ -20925,7 +20930,7 @@ snapshots:
     dependencies:
       '@secretlint/config-creator': 11.3.1
       '@secretlint/formatter': 11.3.1
-      '@secretlint/node': 11.3.1
+      '@secretlint/node': 11.3.1(patch_hash=3502329c95f4b2dfe642508b3de6904261a6cb2e547a3378de14693e7f308ef2)
       '@secretlint/profiler': 11.3.1
       '@secretlint/resolver': 11.3.1
       debug: 4.4.3
