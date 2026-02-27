@@ -8,15 +8,15 @@ test.describe("Playlists Page", () => {
     // 1. Visit the home page
     await page.goto("/")
 
-    // 2. Click "Log in"
+    // 2. Click "Log in" — wait longer for CI first-time compilation + client hydration + session check
     const signinButton = page.getByRole("link", { name: /Log in/i })
-    await expect(signinButton.first()).toBeVisible()
+    await expect(signinButton.first()).toBeVisible({ timeout: 15_000 })
     await signinButton.first().click()
 
     // 3. Fill out the "Sign In" form
     const emailInput = page.getByPlaceholder("name@example.com")
     const passwordInput = page.getByPlaceholder("Password")
-    await expect(emailInput).toBeVisible()
+    await expect(emailInput).toBeVisible({ timeout: 10_000 })
     await expect(passwordInput).toBeVisible()
 
     await emailInput.fill("test@test.com")
@@ -31,27 +31,23 @@ test.describe("Playlists Page", () => {
   })
 
   test("should display the Recommended for You carousel", async ({ page }) => {
-    // Check for the "Recommended for You" heading
+    // The heading only appears once the session loads and the recommendations query runs.
+    // With a fresh user, fallback search terms hit the iTunes API which can be slow.
     const recommendationsHeading = page.getByRole("heading", { name: "Recommended for You" }).first()
-    await expect(recommendationsHeading).toBeVisible()
+    await expect(recommendationsHeading).toBeVisible({ timeout: 30_000 })
 
-    // Check that the carousel container is visible
     const carouselContainer = page.getByTestId("recommendation-carousel")
-    await expect(carouselContainer).toBeVisible()
+    await expect(carouselContainer).toBeVisible({ timeout: 30_000 })
 
-    // Wait for at least one catalog card to appear in the carousel
-    // The recommendations depend on external API and DB state, so we wait for the cards to render
     const catalogCards = page.getByTestId("catalog-card")
-    await expect(catalogCards.first()).toBeVisible()
+    await expect(catalogCards.first()).toBeVisible({ timeout: 30_000 })
 
-    // Check that there are multiple cards rendered
     const cardCount = await catalogCards.count()
     expect(cardCount).toBeGreaterThan(0)
   })
 
   test("should display the playlists grid", async ({ page }) => {
-    // Check for the main heading
     const mainHeading = page.getByRole("heading", { name: "Playlists", exact: true })
-    await expect(mainHeading).toBeVisible()
+    await expect(mainHeading).toBeVisible({ timeout: 15_000 })
   })
 })
