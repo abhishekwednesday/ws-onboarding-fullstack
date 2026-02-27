@@ -32,24 +32,26 @@ export function RegisterForm() {
   }
 
   return (
-    <Card className="bg-background/60 border-border mx-auto w-full max-w-md shadow-xl backdrop-blur-xl">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-center text-2xl font-bold tracking-tight">Create an account</CardTitle>
-        <CardDescription className="text-muted-foreground text-center">
+    <Card className="glass-card border-border/40 mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
+      <CardHeader className="space-y-1 pt-8 pb-8">
+        <CardTitle className="text-foreground text-center font-serif text-3xl font-bold tracking-tight sm:text-4xl">
+          Create an account
+        </CardTitle>
+        <CardDescription className="text-muted-foreground text-center text-base">
           Enter your details below to create your account
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="pb-8">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <div className="relative">
-              <User className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+              <User className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
               <Input
                 type="text"
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="focus-visible:ring-primary/50 border-border bg-muted/50 pl-10 transition-colors"
+                className="focus-visible:ring-primary/50 border-border/40 bg-background/40 h-14 rounded-xl pl-12 text-base backdrop-blur-sm transition-all"
                 disabled={isPending}
                 required
               />
@@ -57,13 +59,13 @@ export function RegisterForm() {
           </div>
           <div className="space-y-2">
             <div className="relative">
-              <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+              <Mail className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
               <Input
                 type="email"
                 placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="focus-visible:ring-primary/50 border-border bg-muted/50 pl-10 transition-colors"
+                className="focus-visible:ring-primary/50 border-border/40 bg-background/40 h-14 rounded-xl pl-12 text-base backdrop-blur-sm transition-all"
                 disabled={isPending}
                 required
               />
@@ -71,13 +73,13 @@ export function RegisterForm() {
           </div>
           <div className="space-y-2">
             <div className="relative">
-              <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+              <Lock className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="focus-visible:ring-primary/50 border-border bg-muted/50 pl-10 transition-colors"
+                className="focus-visible:ring-primary/50 border-border/40 bg-background/40 h-14 rounded-xl pl-12 text-base backdrop-blur-sm transition-all"
                 disabled={isPending}
                 required
                 minLength={8}
@@ -87,17 +89,20 @@ export function RegisterForm() {
           {error && <p className="text-destructive text-sm font-medium">{error}</p>}
           <Button
             type="submit"
-            className="bg-primary hover:bg-primary/90 w-full font-semibold transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-primary/25 mt-2 h-14 w-full rounded-xl text-[15px] font-bold tracking-wide shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
             disabled={isPending}
           >
-            {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Create Account"}
+            {isPending ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Create Account"}
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="border-border flex justify-center border-t pt-4">
+      <CardFooter className="border-border/20 bg-muted/10 flex justify-center border-t py-6">
         <p className="text-muted-foreground text-sm">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
+          <Link
+            href="/login"
+            className="text-foreground hover:text-primary font-bold underline underline-offset-4 transition-colors"
+          >
             Sign in
           </Link>
         </p>
