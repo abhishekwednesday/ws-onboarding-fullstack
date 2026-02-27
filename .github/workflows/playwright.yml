@@ -54,6 +54,28 @@ jobs:
             }
           "
 
+      - name: Apply database schema
+        run: |
+          node -e "
+            const { Pool } = require('pg');
+            const fs = require('fs');
+            const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: false });
+            async function run() {
+              const authSql = fs.readFileSync('docs/db/auth-schema.sql', 'utf8');
+              for (const stmt of authSql.split(';').map(s => s.trim()).filter(Boolean)) {
+                try { await pool.query(stmt); }
+                catch (e) { console.warn('Skipped (will be created by Better Auth):', e.message); }
+              }
+              const playlistSql = fs.readFileSync('docs/db/playlist-schema.sql', 'utf8');
+              await pool.query(playlistSql);
+              await pool.end();
+              console.log('Database schema applied');
+            }
+            run().catch(e => { console.error(e); process.exit(1); });
+          "
+        env:
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
+
       - name: Run Playwright tests
         run: pnpm playwright test
         env:
