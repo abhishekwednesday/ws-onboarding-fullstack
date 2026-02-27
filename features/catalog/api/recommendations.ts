@@ -7,13 +7,32 @@ import { getAuthenticatedUserId, withAuthenticatedClient } from "@/features/play
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 
 const FALLBACK_TERMS = ["pop", "rock"] as const
+const CACHE_TTL_MS = 5 * 60 * 1000
+
+interface CacheEntry {
+  data: CatalogItemType[]
+  timestamp: number
+}
+
+const recommendationCache = new Map<string, CacheEntry>()
+
+/** Exposed for tests only — clears the server-side recommendation cache. */
+export async function _clearRecommendationCache(): Promise<void> {
+  recommendationCache.clear()
+}
 
 /**
  * Fetches recommended tracks based on the user's liked songs and playlists.
+ * Results are cached per-user for 5 minutes to avoid redundant API/DB calls on page reloads.
  */
 export async function getRecommendedTracksAction(): Promise<ActionState<CatalogItemType[]>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
+
+  const cached = recommendationCache.get(userId)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
+    return { success: true, data: cached.data }
+  }
 
   return withActionHandler(async () => {
     // 1. Get liked songs as seed data
@@ -47,17 +66,15 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
       termFrequencies.set(normalized, (termFrequencies.get(normalized) || 0) + weight)
     }
 
-    // Weight artists more heavily than genres
     likedSongs.forEach((track) => {
       addTerm(track.artist, 2)
       addTerm(track.genre, 1)
     })
 
     let topTerms = Array.from(termFrequencies.entries())
-      .sort((a, b) => b[1] - a[1]) // Sort by frequency descending
+      .sort((a, b) => b[1] - a[1])
       .map((entry) => entry[0])
 
-    // Fallback terms if user has no liked songs
     if (topTerms.length === 0) {
       topTerms = [...FALLBACK_TERMS]
     }
@@ -76,7 +93,6 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
     const recommendations: CatalogItemType[] = []
     const seenIds = new Set<number>()
 
-    // Filter out liked songs and recent playlist tracks
     for (const t of likedSongs) {
       seenIds.add(t.id)
     }
@@ -103,6 +119,9 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
 
     // 5. Shuffle and return top 15 results
     const shuffled = recommendations.sort(() => 0.5 - Math.random())
-    return shuffled.slice(0, 15)
+    const result = shuffled.slice(0, 15)
+
+    recommendationCache.set(userId, { data: result, timestamp: Date.now() })
+    return result
   }, "Failed to fetch recommended tracks")
 }

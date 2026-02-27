@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import * as catalogActions from "@/features/catalog/api/catalog-actions"
-import { getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
+import { _clearRecommendationCache, getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import * as playlistSync from "@/features/playlist/api/playlist-sync"
 import * as playlistUtils from "@/features/playlist/api/playlist-utils"
@@ -17,6 +17,7 @@ vi.mock("@/env.mjs", () => ({ env: {} }))
 describe("getRecommendedTracksAction", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    _clearRecommendationCache()
   })
 
   it("should return unauthorized if user is not authenticated", async () => {

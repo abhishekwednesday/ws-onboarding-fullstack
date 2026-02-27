@@ -22,8 +22,8 @@ test.describe("Playlists Page", () => {
     const submitButton = page.getByRole("button", { name: "Sign In" })
     await submitButton.click()
 
-    // 4. Wait for redirect
-    await page.waitForURL("**/playlists", { timeout: 15000 })
+    // 4. Wait for redirect — CI is slow due to login sync + page hydration
+    await page.waitForURL("**/playlists", { timeout: 30000 })
   })
 
   test("should display the Recommended for You carousel", async ({ page }) => {
