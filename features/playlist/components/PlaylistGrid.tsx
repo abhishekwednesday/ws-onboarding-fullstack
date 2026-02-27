@@ -42,22 +42,24 @@ function PlaylistCard({ playlist }: { playlist: PlaylistType }) {
 
   return (
     <Link href={`/playlists/${playlist.id}`} className="group block h-full">
-      <Card className="border-border bg-card/40 group-hover:border-border group-hover:bg-card/60 flex h-full flex-col overflow-hidden py-0 transition-all duration-300 group-hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+      <Card className="glass-card border-border/40 hover:border-primary/30 group-hover:bg-card/40 flex h-full flex-col overflow-hidden rounded-3xl py-0 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
         <CardHeader className="relative pt-6 pb-0">
-          <div className="from-primary/20 to-primary/5 mb-4 flex aspect-square items-center justify-center rounded-xl bg-gradient-to-br transition-transform duration-500 group-hover:scale-105">
+          <div className="from-primary/20 to-primary/5 mb-6 flex h-56 w-full items-center justify-center rounded-2xl bg-gradient-to-br transition-all duration-700 group-hover:scale-[1.03] group-hover:shadow-lg md:h-48 lg:h-40 xl:h-48">
             {playlist.isLiked ? (
-              <ListMusic className="text-primary h-20 w-20 opacity-80" />
+              <ListMusic className="text-primary h-20 w-20 opacity-80 drop-shadow-md" />
             ) : (
-              <Music className="text-muted-foreground/40 group-hover:text-primary h-16 w-16 transition-colors duration-300" />
+              <Music className="text-muted-foreground/40 group-hover:text-primary h-16 w-16 drop-shadow-sm transition-colors duration-500" />
             )}
           </div>
           {playlist.isLiked && (
-            <Badge className="bg-primary/20 text-primary border-primary/20 absolute top-6 right-6 backdrop-blur-md">
+            <Badge className="bg-primary/20 text-primary border-primary/20 absolute top-8 right-8 shadow-sm backdrop-blur-md">
               System
             </Badge>
           )}
-          <CardTitle className="group-hover:text-primary line-clamp-1 transition-colors">{playlist.name}</CardTitle>
-          <CardDescription className="line-clamp-2 h-10">
+          <CardTitle className="group-hover:text-primary line-clamp-1 font-serif text-2xl font-bold tracking-tight transition-colors">
+            {playlist.name}
+          </CardTitle>
+          <CardDescription className="mt-1 line-clamp-2 h-10 text-sm">
             {playlist.description || "No description provided."}
           </CardDescription>
         </CardHeader>
@@ -69,10 +71,10 @@ function PlaylistCard({ playlist }: { playlist: PlaylistType }) {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="text-primary border-border bg-muted/30 group-hover:bg-muted/50 border-t py-3 text-xs font-semibold transition-colors">
+        <CardFooter className="text-primary border-border/30 bg-muted/10 group-hover:bg-muted/30 border-t py-4 text-xs font-bold tracking-wider uppercase transition-colors">
           <span className="flex w-full items-center justify-between">
             View Details
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight className="h-4 w-4 transition-transform duration-500 group-hover:translate-x-2" />
           </span>
         </CardFooter>
       </Card>
