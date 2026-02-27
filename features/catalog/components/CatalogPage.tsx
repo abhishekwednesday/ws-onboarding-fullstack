@@ -61,9 +61,9 @@ export function CatalogPage() {
   return (
     <div className="space-y-8 py-10">
       <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-        <div className="flex flex-col space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Music Catalog</h1>
-          <p className="text-muted-foreground max-w-[500px] text-sm">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-foreground font-serif text-4xl font-bold tracking-tight sm:text-5xl">Music Catalog</h1>
+          <p className="text-muted-foreground max-w-[500px] text-base leading-relaxed">
             Discover and explore millions of tracks and artists from the iTunes library.
           </p>
         </div>
@@ -75,14 +75,19 @@ export function CatalogPage() {
                 <button
                   onClick={handleToggleFavorites}
                   className={cn(
-                    "flex h-11 w-11 shrink-0 items-center justify-center rounded-md border transition-all duration-300",
+                    "group flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border transition-all duration-300",
                     shouldShowFavoritesOnly
-                      ? "border-rose-500 bg-rose-500 text-white shadow-lg shadow-rose-900/20"
-                      : "bg-background/50 text-muted-foreground hover:bg-background hover:text-foreground border-gray-300 backdrop-blur-sm"
+                      ? "border-rose-500/50 bg-rose-500/10 text-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.2)]"
+                      : "bg-background/40 text-muted-foreground hover:bg-background hover:text-foreground border-border/50 backdrop-blur-md hover:shadow-sm"
                   )}
                   aria-label={shouldShowFavoritesOnly ? "Show all tracks" : "Show favorites only"}
                 >
-                  <Heart className={cn("h-5 w-5", shouldShowFavoritesOnly && "fill-current")} />
+                  <Heart
+                    className={cn(
+                      "h-6 w-6 transition-transform duration-300 group-hover:scale-110",
+                      shouldShowFavoritesOnly && "fill-current"
+                    )}
+                  />
                 </button>
               </TooltipTrigger>
               <TooltipContent>{shouldShowFavoritesOnly ? "Showing Favorites" : "Show Favorites Only"}</TooltipContent>
@@ -91,7 +96,7 @@ export function CatalogPage() {
         </div>
       </div>
 
-      <div className="border-t pt-10">
+      <div className="border-border/40 border-t pt-10">
         {isLoading && <LoadingState isNewLayout={isNewLayout} />}
 
         {isError && (
@@ -116,7 +121,7 @@ export function CatalogPage() {
               <EmptyState onReset={handleClear} />
             )}
 
-            <div className="flex flex-col items-center gap-2 border-t pt-8">
+            <div className="border-border/40 flex flex-col items-center gap-2 border-t pt-8">
               <p className="text-muted-foreground/40 text-xs italic">Data provided courtesy of iTunes</p>
             </div>
           </>

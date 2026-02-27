@@ -36,7 +36,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
 
   return (
     <div
-      className="group relative aspect-square w-full cursor-pointer overflow-hidden rounded-2xl"
+      className="glass-card group relative flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
@@ -44,38 +44,45 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
       aria-label={`View details for ${item.title}`}
       data-testid="catalog-card"
     >
-      {/* Action Buttons */}
-      <div className="absolute top-3 right-3 z-10 flex flex-col gap-2">
-        <FavoriteButton track={item} className="bg-background/20 hover:bg-background/40 backdrop-blur-md" />
-        <AddToPlaylistButton
-          track={item}
-          iconOnly
-          className="bg-background/20 hover:bg-background/40 backdrop-blur-md"
-        />
+      {/* Artwork Section */}
+      <div className="relative aspect-square w-full overflow-hidden">
+        {/* Action Buttons Overlay */}
+        <div className="absolute top-3 right-3 z-20 flex translate-x-4 flex-col gap-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+          <FavoriteButton track={item} className="bg-background/40 hover:bg-background/80 shadow-md backdrop-blur-md" />
+          <AddToPlaylistButton
+            track={item}
+            iconOnly
+            className="bg-background/40 hover:bg-background/80 shadow-md backdrop-blur-md"
+          />
+        </div>
+
+        {highResArtwork ? (
+          <img
+            src={highResArtwork}
+            alt={item.title}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+        ) : (
+          <div className="bg-muted absolute inset-0 flex items-center justify-center">
+            <span className="text-muted-foreground text-sm font-medium">No Artwork</span>
+          </div>
+        )}
+
+        {/* Inner gradient overlay for artwork base depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
       </div>
 
-      {/* Artwork */}
-      {highResArtwork ? (
-        <img
-          src={highResArtwork}
-          alt={item.title}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : (
-        <div className="bg-muted absolute inset-0 flex items-center justify-center">
-          <span className="text-muted-foreground text-sm">No Artwork</span>
+      {/* Info Section */}
+      <div className="flex flex-1 flex-col justify-between p-5">
+        <div className="space-y-1">
+          <p className="text-foreground group-hover:text-primary line-clamp-1 font-serif text-lg font-bold tracking-tight transition-colors">
+            {item.title}
+          </p>
+          <p className="text-muted-foreground line-clamp-1 text-sm font-medium">{item.artist}</p>
         </div>
-      )}
 
-      {/* Gradient overlay — artwork blends into dark at the bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-      {/* Track info overlaid on the gradient */}
-      <div className="absolute right-0 bottom-0 left-0 space-y-0.5 p-4">
-        <p className="line-clamp-1 text-sm font-semibold text-white">{item.title}</p>
-        <p className="line-clamp-1 text-xs text-white/70">{item.artist}</p>
-        <div className="flex items-center justify-between pt-1">
-          <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium tracking-wide text-white/80 uppercase backdrop-blur-sm">
+        <div className="mt-4 flex items-center justify-between">
+          <span className="border-border/50 text-muted-foreground group-hover:border-primary/30 group-hover:text-foreground rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase transition-colors">
             {item.genre || "Music"}
           </span>
           {item.trackViewUrl && (
@@ -85,13 +92,9 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
               rel="noopener noreferrer"
               onClick={handleBadgeClick}
               aria-label="Listen on Apple Music"
-              className="text-white/50 transition-colors hover:text-white/90"
+              className="opacity-50 transition-opacity hover:opacity-100"
             >
-              <img
-                src="/images/branding/itunes-badge.png"
-                alt="Listen on Apple Music"
-                className="h-5 w-auto opacity-70 transition-opacity hover:opacity-100"
-              />
+              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
             </a>
           )}
         </div>

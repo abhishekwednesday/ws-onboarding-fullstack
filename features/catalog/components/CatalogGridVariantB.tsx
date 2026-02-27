@@ -10,8 +10,8 @@ import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
 
 /**
- * Variant B of the catalog layout: a horizontal row list optimised for scannability.
- * Used in the `new-catalog-layout` A/B experiment as the treatment condition.
+ * Variant B of the catalog layout: a horizontal row list optimized for scannability.
+ * Redesigned with a premium glass list aesthetic.
  */
 export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
   const router = useRouter()
@@ -37,14 +37,14 @@ export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
   }
 
   return (
-    <div className="flex flex-col divide-y" data-testid="catalog-variant-b">
+    <div className="flex flex-col gap-3" data-testid="catalog-variant-b">
       {items.map((item) => {
-        const thumbnailUrl = item.artworkUrl?.replace("100x100bb.jpg", "96x96bb.jpg")
+        const thumbnailUrl = item.artworkUrl?.replace("100x100bb.jpg", "120x120bb.jpg")
 
         return (
           <div
             key={item.id}
-            className="hover:bg-muted/50 flex cursor-pointer items-center gap-4 px-2 py-3 transition-colors"
+            className="glass-card group flex cursor-pointer items-center gap-5 p-3 transition-all duration-300 hover:translate-x-1 hover:shadow-md"
             onClick={() => handleRowClick(item)}
             onKeyDown={(e) => handleRowKeyDown(e, item)}
             role="button"
@@ -52,31 +52,41 @@ export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
             aria-label={`View details for ${item.title}`}
             data-testid="catalog-card"
           >
-            {thumbnailUrl ? (
-              <Image
-                src={thumbnailUrl}
-                alt={item.title}
-                width={48}
-                height={48}
-                className="h-12 w-12 shrink-0 rounded-lg object-cover"
-              />
-            ) : (
-              <div className="bg-muted h-12 w-12 shrink-0 rounded-lg" />
-            )}
-
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">{item.title}</p>
-              <p className="text-muted-foreground truncate text-xs">{item.artist}</p>
+            {/* Artwork Thumbnail */}
+            <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl shadow-sm">
+              {thumbnailUrl ? (
+                <Image
+                  src={thumbnailUrl}
+                  alt={item.title}
+                  width={64}
+                  height={64}
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              ) : (
+                <div className="bg-muted flex h-full w-full items-center justify-center">
+                  <span className="text-muted-foreground text-[10px]">No Art</span>
+                </div>
+              )}
             </div>
 
-            {item.genre && (
-              <span className="text-muted-foreground hidden shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase sm:inline">
-                {item.genre}
-              </span>
-            )}
+            {/* Track Info */}
+            <div className="flex min-w-0 flex-1 flex-col justify-center">
+              <p className="text-foreground group-hover:text-primary truncate font-serif text-lg font-bold tracking-tight transition-colors">
+                {item.title}
+              </p>
+              <div className="flex items-center gap-3">
+                <p className="text-muted-foreground truncate text-sm font-medium">{item.artist}</p>
+                {item.genre && (
+                  <span className="text-muted-foreground border-border/50 group-hover:border-primary/30 hidden items-center rounded-full border px-2 py-px text-[9px] font-bold tracking-widest uppercase transition-colors sm:inline-flex">
+                    {item.genre}
+                  </span>
+                )}
+              </div>
+            </div>
 
+            {/* Actions */}
             <div
-              className="flex items-center gap-1"
+              className="flex items-center gap-2 pr-2 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:opacity-100"
               onClick={(e) => e.stopPropagation()}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
@@ -84,8 +94,16 @@ export function CatalogGridVariantB({ items }: { items: CatalogItemType[] }) {
                 }
               }}
             >
-              <AddToPlaylistButton track={item} iconOnly className="h-9 w-9" />
-              <FavoriteButton track={item} iconOnly />
+              <AddToPlaylistButton
+                track={item}
+                iconOnly
+                className="bg-background/50 hover:bg-background h-9 w-9 shadow-sm transition-all hover:scale-105"
+              />
+              <FavoriteButton
+                track={item}
+                iconOnly
+                className="bg-background/50 hover:bg-background h-9 w-9 shadow-sm transition-all hover:scale-105"
+              />
             </div>
           </div>
         )

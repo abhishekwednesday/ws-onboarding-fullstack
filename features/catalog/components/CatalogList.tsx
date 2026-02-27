@@ -17,7 +17,7 @@ export function CatalogList({ items }: CatalogListPropsType) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 md:gap-8 lg:grid-cols-4 xl:grid-cols-5">
       {items.map((item) => (
         <CatalogCard key={item.id} item={item} />
       ))}
