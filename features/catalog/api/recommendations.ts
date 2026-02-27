@@ -6,6 +6,8 @@ import { getLikedSongsAction } from "@/features/playlist/api/playlist-sync"
 import { getAuthenticatedUserId, withAuthenticatedClient } from "@/features/playlist/api/playlist-utils"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 
+export const FALLBACK_TERMS = ["pop", "rock"] as const
+
 /**
  * Fetches recommended tracks based on the user's liked songs and playlists.
  */
@@ -38,6 +40,7 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
     const addTerm = (term?: string, weight: number = 1) => {
       if (!term) return
       const normalized = term.toLowerCase().trim()
+      if (!normalized) return
       termFrequencies.set(normalized, (termFrequencies.get(normalized) || 0) + weight)
     }
 
@@ -53,7 +56,7 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
 
     // Fallback terms if user has no liked songs
     if (topTerms.length === 0) {
-      topTerms = ["pop", "rock", "jazz", "lofi", "chill", "classical"]
+      topTerms = [...FALLBACK_TERMS]
     }
 
     // Pick 3 random terms from the top 10 choices to ensure variety
@@ -71,22 +74,25 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
     const seenIds = new Set<number>()
 
     // Filter out liked songs and recent playlist tracks
-    likedSongs.forEach((t) => seenIds.add(t.id))
-    playlistTracks.forEach((id) => seenIds.add(id))
+    for (const t of likedSongs) { seenIds.add(t.id) }
+    for (const id of playlistTracks) { seenIds.add(id) }
 
-    // 4. Search iTunes for these terms
-    for (const term of selectedTerms) {
-      if (!term) continue
-      try {
-        const result = await itunesSearchAction(term, 0)
-        for (const item of result.items) {
-          if (!seenIds.has(item.id)) {
-            recommendations.push(item)
-            seenIds.add(item.id)
-          }
+    // 4. Search iTunes for these terms in parallel
+    const searchResults = await Promise.allSettled(
+      selectedTerms
+        .filter((term) => !!term)
+        .map((term) => itunesSearchAction(term, 0))
+    )
+    for (const settled of searchResults) {
+      if (settled.status === "rejected") {
+        console.error("Failed to fetch recommendations for a term", settled.reason)
+        continue
+      }
+      for (const item of settled.value.items) {
+        if (!seenIds.has(item.id)) {
+          recommendations.push(item)
+          seenIds.add(item.id)
         }
-      } catch (error) {
-        console.error(`Failed to fetch recommendations for term: ${term}`, error)
       }
     }
 

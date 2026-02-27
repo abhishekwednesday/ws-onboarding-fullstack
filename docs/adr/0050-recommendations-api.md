@@ -17,7 +17,7 @@ The flow operates as follows:
 1. **Fetch User Context:** Retrieve the user's "Liked Songs" and tracks recently added to custom playlists.
 2. **Aggregate Preferences:** Extract `artistName` and `primaryGenreName` from the liked songs, weighing artists heavier than genres, to build a map of the user's top musical terms.
 3. **Select Search Seeds:** Randomly select three terms from the user's top ten most frequent terms. This ensures recommendations are relevant but also varied across different sessions. If a user has no listening history, fallback terms (e.g., "pop", "rock") are used.
-4. **Fetch External Data:** Query the `searchItunes` function using the selected seeds.
+4. **Fetch External Data:** Query the `itunesSearchAction` function using the selected seeds.
 5. **Filter and Deduplicate:** Iterate through the iTunes results and filter out any tracks whose IDs are already present in the user's "Liked Songs" or recent playlists.
 6. **Shuffle and Return:** Randomly shuffle the remaining tracks and return a subset (15 tracks) to the client.
 
@@ -25,7 +25,7 @@ The flow operates as follows:
 
 ### Positive
 
-- **No Additional Extenal API Dependencies:** We provide a recommendation experience without needing a 3rd party recommendation engine (like Spotify's API).
+- **No Additional External API Dependencies:** We provide a recommendation experience without needing a 3rd party recommendation engine (like Spotify's API).
 - **Data Privacy:** All aggregation logic happens on the server. The client simply receives a list of recommended tracks.
 - **Freshness:** Randomly selecting seeds from the top 10 choices ensures the recommendations change, preventing the UI from becoming stale.
 - **High Reusability:** The `getRecommendedTracksAction` is entirely modular and can be consumed by any client-side hook or component.

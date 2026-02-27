@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import * as catalogActions from "@/features/catalog/api/catalog-actions"
-import { getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
+import { FALLBACK_TERMS, getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import * as playlistSync from "@/features/playlist/api/playlist-sync"
 import * as playlistUtils from "@/features/playlist/api/playlist-utils"
@@ -62,11 +62,8 @@ describe("getRecommendedTracksAction", () => {
     // Verify successful action
     expect(result.success).toBe(true)
     if (result.success) {
-      // Only the new track (id: 301) should remain after filtering out liked songs and playlist tracks
-      // Wait, there are 3 search terms. If it searches 3 times, it'll get 3 new tracks and filter them all into 1 distinct track id 301 because of duplicates.
-      // Set guarantees distinct ids anyway. Let's just check length > 0
-      expect(result.data.length).toBeGreaterThan(0)
-      expect(result.data.find((t) => t.id === 301)).toBeDefined()
+      expect(result.data).toHaveLength(1)
+      expect(result.data[0].id).toBe(301)
       expect(result.data.find((t) => t.id === 101)).toBeUndefined()
       expect(result.data.find((t) => t.id === 201)).toBeUndefined()
 
@@ -111,8 +108,7 @@ describe("getRecommendedTracksAction", () => {
       // Check that itunesSearchAction was called with one of the fallback terms
       expect(catalogActions.itunesSearchAction).toHaveBeenCalled()
       const searchCall = vi.mocked(catalogActions.itunesSearchAction).mock.calls[0]?.[0] as string
-      const fallbackTerms = ["pop", "rock", "jazz", "lofi", "chill", "classical"]
-      expect(fallbackTerms.includes(searchCall)).toBe(true)
+      expect((FALLBACK_TERMS as readonly string[]).includes(searchCall)).toBe(true)
     }
   })
 })
