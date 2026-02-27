@@ -59,7 +59,7 @@ jobs:
         env:
           HOME: /root
           CI: true
-          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
 
       - uses: actions/upload-artifact@v4
         if: always()
