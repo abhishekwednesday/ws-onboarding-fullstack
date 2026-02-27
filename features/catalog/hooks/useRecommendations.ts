@@ -4,12 +4,16 @@ import { useQuery } from "@tanstack/react-query"
 
 import { getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+import { useSession } from "@/lib/auth/auth-client"
 
 /**
  * Hook for fetching and managing recommended tracks.
  * Integrates with React Query for caching, revalidation, and loading states.
  */
 export function useRecommendations() {
+  const { data: session } = useSession()
+  const userId = session?.user?.id
+
   const {
     data: recommendations = [] as CatalogItemType[],
     isLoading,
@@ -18,7 +22,8 @@ export function useRecommendations() {
     refetch,
     isRefetching,
   } = useQuery({
-    queryKey: ["recommendations"],
+    queryKey: ["recommendations", userId],
+    enabled: !!userId,
     queryFn: async () => {
       const result = await getRecommendedTracksAction()
       if (!result.success) {

@@ -7,6 +7,12 @@ import * as recommendationsApi from "@/features/catalog/api/recommendations"
 import { useRecommendations } from "@/features/catalog/hooks/useRecommendations"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 
+const mockUseSession = vi.fn()
+
+vi.mock("@/lib/auth/auth-client", () => ({
+  useSession: () => mockUseSession(),
+}))
+
 vi.mock("@/features/catalog/api/recommendations", () => ({
   getRecommendedTracksAction: vi.fn(),
 }))
@@ -38,6 +44,7 @@ const mockRecommendations: CatalogItemType[] = [
 describe("useRecommendations hook", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockUseSession.mockReturnValue({ data: { user: { id: "user-1" } } })
   })
 
   it("should fetch recommendations successfully", async () => {
