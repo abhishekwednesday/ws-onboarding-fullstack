@@ -1,25 +1,13 @@
 "use server"
 
 import { itunesSearchAction } from "@/features/catalog/api/catalog-actions"
+import { getCachedRecommendations, setCachedRecommendations } from "@/features/catalog/api/recommendation-cache"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { getLikedSongsAction } from "@/features/playlist/api/playlist-sync"
 import { getAuthenticatedUserId, withAuthenticatedClient } from "@/features/playlist/api/playlist-utils"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 
 const FALLBACK_TERMS = ["pop", "rock"] as const
-const CACHE_TTL_MS = 5 * 60 * 1000
-
-interface CacheEntry {
-  data: CatalogItemType[]
-  timestamp: number
-}
-
-const recommendationCache = new Map<string, CacheEntry>()
-
-/** Exposed for tests only — clears the server-side recommendation cache. */
-export async function _clearRecommendationCache(): Promise<void> {
-  recommendationCache.clear()
-}
 
 /**
  * Fetches recommended tracks based on the user's liked songs and playlists.
@@ -29,9 +17,9 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 
-  const cached = recommendationCache.get(userId)
-  if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-    return { success: true, data: cached.data }
+  const cached = getCachedRecommendations(userId)
+  if (cached) {
+    return { success: true, data: cached }
   }
 
   return withActionHandler(async () => {
@@ -121,7 +109,7 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
     const shuffled = recommendations.sort(() => 0.5 - Math.random())
     const result = shuffled.slice(0, 15)
 
-    recommendationCache.set(userId, { data: result, timestamp: Date.now() })
+    setCachedRecommendations(userId, result)
     return result
   }, "Failed to fetch recommended tracks")
 }

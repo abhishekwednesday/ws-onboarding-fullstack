@@ -1,6 +1,9 @@
 import { expect, test } from "@playwright/test"
 
 test.describe("Playlists Page", () => {
+  // Login + sync + redirect + page hydration is slow in CI
+  test.setTimeout(60_000)
+
   test.beforeEach(async ({ page }) => {
     // 1. Visit the home page
     await page.goto("/")
@@ -22,8 +25,9 @@ test.describe("Playlists Page", () => {
     const submitButton = page.getByRole("button", { name: "Sign In" })
     await submitButton.click()
 
-    // 4. Wait for redirect — CI is slow due to login sync + page hydration
-    await page.waitForURL("**/playlists", { timeout: 30000 })
+    // 4. Wait for redirect — "commit" avoids waiting for the full load event;
+    //    subsequent assertions use auto-retry for content visibility.
+    await page.waitForURL("**/playlists", { timeout: 45_000, waitUntil: "commit" })
   })
 
   test("should display the Recommended for You carousel", async ({ page }) => {

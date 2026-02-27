@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import * as catalogActions from "@/features/catalog/api/catalog-actions"
-import { _clearRecommendationCache, getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
+import { _clearRecommendationCache } from "@/features/catalog/api/recommendation-cache"
+import { getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import * as playlistSync from "@/features/playlist/api/playlist-sync"
 import * as playlistUtils from "@/features/playlist/api/playlist-utils"
