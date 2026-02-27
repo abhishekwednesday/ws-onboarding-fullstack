@@ -14,11 +14,18 @@ export default function PlaylistsPage() {
   const { playlists, isLoading, isError, error, refetch } = usePlaylists()
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 flex flex-col gap-8 py-8 duration-500 md:py-12">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-foreground text-3xl font-bold tracking-tight md:text-4xl">Your Playlists</h1>
-          <p className="text-muted-foreground text-lg">Curate your perfect soundtrack.</p>
+    <div className="animate-in fade-in slide-in-from-bottom-4 relative flex flex-col gap-8 py-8 duration-700 md:py-16">
+      {/* Subtle ambient glow for the header */}
+      <div className="pointer-events-none absolute top-0 left-0 -z-10 flex w-full items-start justify-center opacity-50">
+        <div className="bg-primary/10 h-[300px] w-[600px] rounded-full blur-[120px]" />
+      </div>
+
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-2">
+          <h1 className="text-foreground font-serif text-4xl font-bold tracking-tight drop-shadow-sm sm:text-5xl md:text-6xl">
+            Your Playlists
+          </h1>
+          <p className="text-muted-foreground text-lg font-medium sm:text-xl">Curate your perfect soundtrack.</p>
         </div>
         <CreatePlaylistDialog />
       </div>
