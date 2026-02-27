@@ -25,7 +25,7 @@ The flow operates as follows:
 
 ### Positive
 
-- **No Additional External API Dependencies:** We provide a recommendation experience without needing a 3rd party recommendation engine (like Spotify's API).
+- **No Additional External API Dependencies:** We provide a recommendation experience without needing a 3rd-party recommendation engine (like Spotify's API).
 - **Data Privacy:** All aggregation logic happens on the server. The client simply receives a list of recommended tracks.
 - **Freshness:** Randomly selecting seeds from the top 10 choices ensures the recommendations change, preventing the UI from becoming stale.
 - **High Reusability:** The `getRecommendedTracksAction` is entirely modular and can be consumed by any client-side hook or component.

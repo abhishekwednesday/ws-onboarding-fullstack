@@ -18,7 +18,10 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
   return withActionHandler(async () => {
     // 1. Get liked songs as seed data
     const likedRes = await getLikedSongsAction()
-    const likedSongs = likedRes.success ? likedRes.data : []
+    if (!likedRes.success) {
+      throw new Error(likedRes.error ?? "Failed to fetch liked songs")
+    }
+    const likedSongs = likedRes.data
 
     // 2. Query recent tracks added to custom playlists to filter out from recommendations
     const playlistTracks = await withAuthenticatedClient(userId, async (client) => {
@@ -74,14 +77,16 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
     const seenIds = new Set<number>()
 
     // Filter out liked songs and recent playlist tracks
-    for (const t of likedSongs) { seenIds.add(t.id) }
-    for (const id of playlistTracks) { seenIds.add(id) }
+    for (const t of likedSongs) {
+      seenIds.add(t.id)
+    }
+    for (const id of playlistTracks) {
+      seenIds.add(id)
+    }
 
     // 4. Search iTunes for these terms in parallel
     const searchResults = await Promise.allSettled(
-      selectedTerms
-        .filter((term) => !!term)
-        .map((term) => itunesSearchAction(term, 0))
+      selectedTerms.filter((term) => !!term).map((term) => itunesSearchAction(term, 0))
     )
     for (const settled of searchResults) {
       if (settled.status === "rejected") {
