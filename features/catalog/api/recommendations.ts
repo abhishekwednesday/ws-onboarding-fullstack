@@ -6,7 +6,7 @@ import { getLikedSongsAction } from "@/features/playlist/api/playlist-sync"
 import { getAuthenticatedUserId, withAuthenticatedClient } from "@/features/playlist/api/playlist-utils"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 
-export const FALLBACK_TERMS = ["pop", "rock"] as const
+const FALLBACK_TERMS = ["pop", "rock"] as const
 
 /**
  * Fetches recommended tracks based on the user's liked songs and playlists.

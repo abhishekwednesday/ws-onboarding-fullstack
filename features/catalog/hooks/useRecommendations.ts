@@ -27,7 +27,8 @@ export function useRecommendations() {
     queryFn: async () => {
       const result = await getRecommendedTracksAction()
       if (!result.success) {
-        throw new Error(result.error)
+        const errorMsg = result.error ?? JSON.stringify(result) ?? "Unknown recommendation error"
+        throw new Error(errorMsg)
       }
       return result.data
     },

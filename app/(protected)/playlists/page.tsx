@@ -2,65 +2,55 @@
 
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { RecommendationCarousel } from "@/features/catalog/components/RecommendationCarousel"
 import { CreatePlaylistDialog } from "@/features/playlist/components/CreatePlaylistDialog"
 import { PlaylistGrid } from "@/features/playlist/components/PlaylistGrid"
 import { usePlaylists } from "@/features/playlist/hooks/usePlaylists"
 
-/**
- * Main playlists page for logged-in users.
- * Fetches and displays the user's collection of playlists.
- */
 export default function PlaylistsPage() {
   const { playlists, isLoading, isError, error, refetch } = usePlaylists()
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-4 relative flex flex-col gap-8 py-8 duration-700 md:py-16">
-      {/* Subtle ambient glow for the header */}
-      <div className="pointer-events-none absolute top-0 left-0 -z-10 flex w-full items-start justify-center opacity-50">
-        <div className="bg-primary/10 h-[300px] w-[600px] rounded-full blur-[120px]" />
-      </div>
-
-      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-        <div className="space-y-2">
-          <h1 className="text-foreground font-serif text-4xl font-bold tracking-tight drop-shadow-sm sm:text-5xl md:text-6xl">
-            Your Playlists
-          </h1>
-          <p className="text-muted-foreground text-lg font-medium sm:text-xl">Curate your perfect soundtrack.</p>
-        </div>
+    <div className="animate-in fade-in relative flex flex-col gap-10 py-6 duration-500 md:py-10">
+      <header className="flex items-center justify-between">
+        <h1 className="text-foreground font-serif text-3xl font-bold tracking-tight sm:text-4xl">Playlists</h1>
         <CreatePlaylistDialog />
-      </div>
+      </header>
 
-      <div className="min-h-[400px]">
-        {isLoading ? (
-          <PlaylistSkeleton />
-        ) : isError ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <h3 className="text-xl font-semibold text-rose-500">Failed to load playlists</h3>
-            <p className="text-muted-foreground mt-2">{error?.message || "Please try again later."}</p>
-            <Button variant="link" onClick={() => refetch()} className="text-primary mt-6">
-              Try again
-            </Button>
-          </div>
-        ) : (
-          <PlaylistGrid playlists={playlists} />
-        )}
-      </div>
+      <RecommendationCarousel />
+
+      {isLoading ? (
+        <PlaylistSkeleton />
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-lg font-semibold text-rose-500">Failed to load playlists</p>
+          <p className="text-muted-foreground mt-1 text-sm">{error?.message || "Please try again later."}</p>
+          <Button variant="link" onClick={() => refetch()} className="text-primary mt-3 text-sm">
+            Try again
+          </Button>
+        </div>
+      ) : (
+        <PlaylistGrid playlists={playlists} />
+      )}
     </div>
   )
 }
 
 function PlaylistSkeleton() {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="border-border bg-card/40 flex flex-col gap-4 rounded-xl border p-6">
-          <Skeleton className="aspect-square w-full rounded-lg" />
-          <div className="space-y-2">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="border-border/50 rounded-xl border p-5">
+          <div className="flex items-start gap-4">
+            <Skeleton className="h-12 w-12 shrink-0 rounded-lg" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
           </div>
-          <div className="border-border mt-4 border-t pt-4">
-            <Skeleton className="h-4 w-1/4" />
+          <div className="mt-4 flex justify-between">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-3 w-12" />
           </div>
         </div>
       ))}

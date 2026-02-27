@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import * as catalogActions from "@/features/catalog/api/catalog-actions"
-import { FALLBACK_TERMS, getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
+import { getRecommendedTracksAction } from "@/features/catalog/api/recommendations"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import * as playlistSync from "@/features/playlist/api/playlist-sync"
 import * as playlistUtils from "@/features/playlist/api/playlist-utils"
@@ -108,7 +108,7 @@ describe("getRecommendedTracksAction", () => {
       // Check that itunesSearchAction was called with one of the fallback terms
       expect(catalogActions.itunesSearchAction).toHaveBeenCalled()
       const searchCall = vi.mocked(catalogActions.itunesSearchAction).mock.calls[0]?.[0] as string
-      expect((FALLBACK_TERMS as readonly string[]).includes(searchCall)).toBe(true)
+      expect(["pop", "rock"].includes(searchCall)).toBe(true)
     }
   })
 })
