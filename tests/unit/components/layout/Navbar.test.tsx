@@ -1,9 +1,25 @@
 import { fireEvent, render, screen } from "@testing-library/react"
-import { describe, expect, it, vi } from "vitest"
+import { beforeEach, describe, expect, it, vi } from "vitest"
 
 import { Navbar } from "@/components/layout/Navbar"
 
 const mockUsePathname = vi.fn(() => "/")
+
+beforeEach(() => {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  })
+})
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockUsePathname(),
@@ -20,31 +36,33 @@ vi.mock("@/features/auth/components/UserMenu", () => ({
 describe("Navbar component", () => {
   it("renders the branding name", () => {
     render(<Navbar />)
-    expect(screen.getByText(/MusicStream/i)).toBeInTheDocument()
+    const brandingElements = screen.getAllByText(/MusicStream/i)
+    expect(brandingElements.length).toBeGreaterThan(0)
   })
 
   it("renders navigation links", () => {
     render(<Navbar />)
-    const links = screen.getAllByRole("link", { name: /Catalog/i })
-    expect(links).toHaveLength(2) // Desktop + Mobile
-    expect(links[0]).toHaveAttribute("href", "/catalog")
+    const desktopLink = screen.getByRole("link", { name: /Catalog/i })
+    expect(desktopLink).toHaveAttribute("href", "/catalog")
   })
 
   it("toggles the mobile menu on button click", () => {
     render(<Navbar />)
     const toggle = screen.getByRole("button", { name: /toggle menu/i })
 
-    // Initial state
     expect(toggle).toHaveAttribute("aria-expanded", "false")
+    expect(document.getElementById("mobile-menu")).toBeNull()
 
-    // Click to open
     fireEvent.click(toggle)
+
     expect(toggle).toHaveAttribute("aria-expanded", "true")
-    expect(screen.getByText(/Start Browsing/i)).toBeInTheDocument()
+    expect(document.getElementById("mobile-menu")).toBeInTheDocument()
 
-    // Click to close
-    fireEvent.click(toggle)
+    const closeBtn = screen.getByRole("button", { name: /close menu/i })
+    fireEvent.click(closeBtn)
+
     expect(toggle).toHaveAttribute("aria-expanded", "false")
+    expect(document.getElementById("mobile-menu")).toBeNull()
   })
 
   it("closes the mobile menu when a navigation link is clicked", () => {
@@ -52,15 +70,15 @@ describe("Navbar component", () => {
     const { rerender } = render(<Navbar />)
     const toggle = screen.getByRole("button", { name: /toggle menu/i })
 
-    // Open menu
     fireEvent.click(toggle)
-    expect(screen.getByText(/Start Browsing/i)).toBeInTheDocument()
 
-    // Simulate navigation by changing mock return value and rerendering
+    expect(toggle).toHaveAttribute("aria-expanded", "true")
+    expect(document.getElementById("mobile-menu")).toBeInTheDocument()
+
     mockUsePathname.mockReturnValue("/catalog")
     rerender(<Navbar />)
 
-    // Menu should be closed
     expect(toggle).toHaveAttribute("aria-expanded", "false")
+    expect(document.getElementById("mobile-menu")).toBeNull()
   })
 })
