@@ -296,18 +296,12 @@ importers:
       mkdirp:
         specifier: ^3.0.1
         version: 3.0.1
-      patch-package:
-        specifier: ^8.0.0
-        version: 8.0.0
       postcss:
         specifier: ^8.5.3
         version: 8.5.3
       postcss-import:
         specifier: ^16.1.0
         version: 16.1.0(postcss@8.5.3)
-      postinstall-postinstall:
-        specifier: ^2.1.0
-        version: 2.1.0
       prettier:
         specifier: 3.0.3
         version: 3.0.3
