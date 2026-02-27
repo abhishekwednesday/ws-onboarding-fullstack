@@ -91,7 +91,10 @@ export function TrackAudioPlayer({
             <div className="relative">
               {/* Glow effect behind play button when playing */}
               {trackItem.src && (
-                <div data-playing={isPlaying} className="bg-primary/20 absolute inset-0 rounded-full blur-xl transition-opacity duration-700 data-[playing=false]:opacity-0 data-[playing=true]:opacity-100" />
+                <div
+                  data-playing={isPlaying}
+                  className="bg-primary/20 absolute inset-0 rounded-full blur-xl transition-opacity duration-700 data-[playing=false]:opacity-0 data-[playing=true]:opacity-100"
+                />
               )}
               <AudioPlayerButton
                 item={trackItem}
