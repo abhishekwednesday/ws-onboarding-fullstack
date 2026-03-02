@@ -40,7 +40,7 @@ describe("RecommendationCarousel Component", () => {
     expect(screen.getByText(/finding tracks/i)).toBeInTheDocument()
   })
 
-  it("should return null if there is an error", () => {
+  it("should render empty state if there is an error", () => {
     vi.mocked(useRecommendations).mockReturnValue({
       recommendations: [],
       isLoading: false,
@@ -50,11 +50,11 @@ describe("RecommendationCarousel Component", () => {
       isRefetching: false,
     })
 
-    const { container } = render(<RecommendationCarousel />)
-    expect(container).toBeEmptyDOMElement()
+    render(<RecommendationCarousel />)
+    expect(screen.getByText(/no recommendations yet/i)).toBeInTheDocument()
   })
 
-  it("should return null if recommendations array is empty", () => {
+  it("should render empty state if recommendations array is empty", () => {
     vi.mocked(useRecommendations).mockReturnValue({
       recommendations: [],
       isLoading: false,
@@ -64,8 +64,8 @@ describe("RecommendationCarousel Component", () => {
       isRefetching: false,
     })
 
-    const { container } = render(<RecommendationCarousel />)
-    expect(container).toBeEmptyDOMElement()
+    render(<RecommendationCarousel />)
+    expect(screen.getByText(/no recommendations yet/i)).toBeInTheDocument()
   })
 
   it("should render recommendations successfully", () => {
