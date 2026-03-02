@@ -24,7 +24,14 @@ export function RecommendationCarousel() {
   }
 
   if (isError || !recommendations || recommendations.length === 0) {
-    return null
+    return (
+      <section aria-labelledby="recommendations-heading" className="space-y-3" data-testid="recommendation-carousel">
+        <SectionHeader />
+        <div className="border-border/50 flex h-36 items-center justify-center rounded-xl border">
+          <p className="text-muted-foreground text-sm">No recommendations yet — start liking some tracks!</p>
+        </div>
+      </section>
+    )
   }
 
   return (
