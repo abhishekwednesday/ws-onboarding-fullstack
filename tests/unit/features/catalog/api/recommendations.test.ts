@@ -65,7 +65,7 @@ describe("getRecommendedTracksAction", () => {
     expect(result.success).toBe(true)
     if (result.success) {
       expect(result.data).toHaveLength(1)
-      expect(result.data[0].id).toBe(301)
+      expect(result.data[0]?.id).toBe(301)
       expect(result.data.find((t) => t.id === 101)).toBeUndefined()
       expect(result.data.find((t) => t.id === 201)).toBeUndefined()
 
