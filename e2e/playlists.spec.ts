@@ -11,6 +11,8 @@ test.describe("Playlists Page", () => {
     await expect(emailInput).toBeVisible({ timeout: 15_000 })
     await expect(passwordInput).toBeVisible()
 
+    await page.waitForLoadState("networkidle")
+
     await emailInput.fill("test@test.com")
     await passwordInput.fill("testpass")
 
