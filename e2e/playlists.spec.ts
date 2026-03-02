@@ -4,22 +4,19 @@ test.describe("Playlists Page", () => {
   test.setTimeout(60_000)
 
   test.beforeEach(async ({ page }) => {
-    await page.goto("/login?returnTo=/playlists")
+    await page.goto("/login?returnTo=/playlists", { waitUntil: "domcontentloaded" })
 
     const emailInput = page.getByPlaceholder("name@example.com")
     const passwordInput = page.getByPlaceholder("Password")
     await expect(emailInput).toBeVisible({ timeout: 15_000 })
-    await expect(passwordInput).toBeVisible()
-
-    await page.waitForLoadState("networkidle")
+    await expect(passwordInput).toBeVisible({ timeout: 5_000 })
 
     await emailInput.fill("test@test.com")
     await passwordInput.fill("testpass")
 
-    const submitButton = page.getByRole("button", { name: "Sign In" })
-    await submitButton.click()
+    await page.getByRole("button", { name: "Sign In" }).click()
 
-    await page.waitForURL("**/playlists", { timeout: 45_000, waitUntil: "commit" })
+    await page.waitForURL("**/playlists", { timeout: 45_000, waitUntil: "domcontentloaded" })
   })
 
   test("should display the Recommended for You carousel", async ({ page }) => {
