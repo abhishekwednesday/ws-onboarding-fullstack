@@ -48,11 +48,16 @@ jobs:
             const crypto = require('crypto');
             const dotenv = require('dotenv');
             const envConfig = dotenv.parse(fs.readFileSync('.env.test'));
+            const SKIP = new Set(['DATABASE_URL']);
             for (const k in envConfig) {
+              if (SKIP.has(k)) continue;
               const delimiter = \`GH_ENV_\${k}_\${crypto.randomBytes(4).toString('hex')}\`;
               fs.appendFileSync(process.env.GITHUB_ENV, \`\${k}<<\${delimiter}\n\${envConfig[k]}\n\${delimiter}\n\`);
             }
           "
+
+      - name: Set CI database URL
+        run: echo "DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable" >> $GITHUB_ENV
 
       - name: Apply database schema
         run: |
@@ -73,15 +78,12 @@ jobs:
             }
             run().catch(e => { console.error(e); process.exit(1); });
           "
-        env:
-          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
 
       - name: Run Playwright tests
         run: pnpm playwright test
         env:
           HOME: /root
           CI: true
-          DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable
 
       - uses: actions/upload-artifact@v4
         if: always()
