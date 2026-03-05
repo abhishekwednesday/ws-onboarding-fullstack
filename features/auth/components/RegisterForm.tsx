@@ -42,7 +42,7 @@ export function RegisterForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-8">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
           <div className="space-y-2">
             <div className="relative">
               <User className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />

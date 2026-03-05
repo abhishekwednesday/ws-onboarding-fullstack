@@ -40,8 +40,11 @@ export function useCatalog() {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["catalog", deferredTerm || DEFAULT_SEARCH_TERM],
-    queryFn: ({ pageParam }) => itunesSearchAction(deferredTerm || DEFAULT_SEARCH_TERM, pageParam),
+    queryKey: ["catalog", deferredTerm.trim() || DEFAULT_SEARCH_TERM],
+    queryFn: ({ pageParam }) => {
+      const normalizedTerm = deferredTerm.trim() || DEFAULT_SEARCH_TERM
+      return itunesSearchAction(normalizedTerm, pageParam)
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
@@ -136,7 +139,7 @@ export function useCatalog() {
     error: shouldShowFavoritesOnly ? null : error,
     refetch,
     loadMore,
-    hasMore: shouldShowFavoritesOnly ? false : hasNextPage,
+    hasMore: shouldShowFavoritesOnly ? false : Boolean(hasNextPage),
     shouldShowFavoritesOnly,
     toggleShowFavoritesOnly,
     debouncedSearchTerm: deferredTerm,
