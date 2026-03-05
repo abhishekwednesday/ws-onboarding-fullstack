@@ -22,10 +22,10 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
 
   const highResArtwork = item.artworkUrl?.replace("100x100bb.jpg", "400x400bb.jpg")
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " " || e.key === "Spacebar") {
-      if (e.key === " " || e.key === "Spacebar") {
-        e.preventDefault()
-      }
+    if (e.key === "Enter") {
+      handleCardClick()
+    } else if (e.key === " " || e.key === "Spacebar") {
+      e.preventDefault()
       handleCardClick()
     }
   }

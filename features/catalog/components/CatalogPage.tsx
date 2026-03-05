@@ -46,6 +46,9 @@ export function CatalogPage() {
   // Also handle mount state for hydration safety
   React.useEffect(() => {
     setIsMounted(true)
+  }, [])
+
+  React.useEffect(() => {
     window.scrollTo(0, 0)
   }, [shouldShowFavoritesOnly, debouncedSearchTerm])
 

@@ -59,6 +59,9 @@ export async function itunesLookupSingleAction(id: number): Promise<CatalogItemT
     return mapItunesTrackToCatalogItem(track)
   } catch (error) {
     console.error("ITunes Single Lookup Error:", error)
-    throw new Error("Failed to load track details.")
+    if (error instanceof Error && error.message.includes("not found")) {
+      throw error
+    }
+    throw new Error("Failed to load track details. Please try again.")
   }
 }
