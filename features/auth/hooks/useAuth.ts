@@ -70,12 +70,14 @@ export function useAuth() {
     })
   }
 
-  const logout = () => {
+  const logout = (onError?: (msg: string) => void) => {
     startTransition(async () => {
       clearFavorites()
       const res = await logoutAction()
       if (res.success) {
         window.location.href = "/"
+      } else {
+        if (onError) onError(res.error)
       }
     })
   }

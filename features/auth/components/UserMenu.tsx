@@ -2,6 +2,7 @@
 
 import { LogOut, User } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -67,7 +68,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="text-destructive focus:text-destructive group cursor-pointer"
-          onClick={() => logout()}
+          onClick={() => logout((msg) => toast.error(msg))}
         >
           <LogOut className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />
           <span>Log out</span>
