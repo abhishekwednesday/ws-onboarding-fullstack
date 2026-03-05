@@ -10,10 +10,14 @@ test.describe("Playlists Page", () => {
     await expect(page.getByPlaceholder("Password")).toBeVisible({ timeout: 5_000 })
 
     // Single retry block: fill credentials, click sign-in, and verify navigation.
-    // Re-query locators on each attempt so React re-renders don't cause stale refs.
+    // Guard fill/click behind visibility checks so retries after successful
+    // navigation (when login form no longer exists) don't throw.
     await expect(async () => {
-      await page.getByPlaceholder("name@example.com").fill("test@test.com")
-      await page.getByPlaceholder("Password").fill("testpass")
+      const emailInput = page.getByPlaceholder("name@example.com")
+      if (await emailInput.isVisible().catch(() => false)) {
+        await emailInput.fill("test@test.com")
+        await page.getByPlaceholder("Password").fill("testpass")
+      }
       const signInBtn = page.getByRole("button", { name: "Sign In" })
       if (await signInBtn.isVisible().catch(() => false)) {
         await signInBtn.click()
