@@ -25,8 +25,6 @@ export function useCatalog() {
   const favoritesMap = useFavoritesStore((state) => state.favorites)
   const favoriteItems = useMemo(() => Object.values(favoritesMap), [favoritesMap])
 
-
-
   // React Query for infinite scrolling
   const {
     data,

@@ -100,7 +100,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
             <span
               onClick={handleBadgeClick}
               aria-label="Listen on Apple Music"
-              className="opacity-50 transition-opacity hover:opacity-100 cursor-not-allowed"
+              className="cursor-not-allowed opacity-50 transition-opacity hover:opacity-100"
             >
               <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
             </span>

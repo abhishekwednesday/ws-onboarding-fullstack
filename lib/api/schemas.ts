@@ -14,7 +14,11 @@ export const ItunesTrackSchema = z.object({
   trackTimeMillis: z.number().optional(),
   releaseDate: z.string().optional(),
   primaryGenreName: z.string().optional(),
-  trackViewUrl: z.string().url().refine((url) => url.startsWith("https:"), { message: "URL must use HTTPS protocol" }).optional(),
+  trackViewUrl: z
+    .string()
+    .url()
+    .refine((url) => url.startsWith("https:"), { message: "URL must use HTTPS protocol" })
+    .optional(),
 })
 
 export type ItunesTrackType = z.infer<typeof ItunesTrackSchema>

@@ -38,8 +38,9 @@ export function TrackDetailArtwork({
 
       {/* Primary Artwork Card */}
       <div
-        className={`relative mx-auto mb-12 aspect-square w-full max-w-[320px] transition-all duration-[800ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:max-w-[400px] ${isPlaying ? "scale-105" : "scale-100"
-          }`}
+        className={`relative mx-auto mb-12 aspect-square w-full max-w-[320px] transition-all duration-[800ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:max-w-[400px] ${
+          isPlaying ? "scale-105" : "scale-100"
+        }`}
       >
         {highResArtwork && (
           <div
