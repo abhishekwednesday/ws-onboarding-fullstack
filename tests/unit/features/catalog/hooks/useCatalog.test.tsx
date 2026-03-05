@@ -123,7 +123,7 @@ describe("useCatalog hook", () => {
       })
       .mockResolvedValueOnce({
         totalCount: 50,
-        nextOffset: null,
+        nextOffset: 100,
         items: fiftyItems, // Return same items to test duplicate handling
       })
 
@@ -142,5 +142,38 @@ describe("useCatalog hook", () => {
       expect(result.current.isFetchingMore).toBe(false)
       expect(result.current.hasMore).toBe(false)
     })
+  })
+
+  it("should reset items and dedupe cache when search term changes", async () => {
+    const searchBatch = [{ id: 10, title: "Search Result", artist: "Search Artist", artworkUrl: "", previewUrl: "" }]
+
+    vi.mocked(catalogActions.itunesSearchAction).mockClear()
+    vi.mocked(catalogActions.itunesSearchAction)
+      .mockResolvedValueOnce({
+        items: mockItems, // consumed by initial mount "top music"
+        nextOffset: null,
+        totalCount: 2,
+      })
+      .mockResolvedValueOnce({
+        items: searchBatch, // consumed by "new" term search
+        nextOffset: null,
+        totalCount: 1,
+      })
+
+    const { result } = renderHook(() => useCatalog(), {
+      wrapper: createWrapper(),
+    })
+
+    act(() => {
+      result.current.setSearchTerm("new")
+    })
+
+    await waitFor(
+      () => {
+        expect(result.current.data.length).toBe(1)
+        expect(result.current.data[0]?.title).toBe("Search Result")
+      },
+      { timeout: 3000 }
+    )
   })
 })

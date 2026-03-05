@@ -24,6 +24,6 @@ A code review process highlighted several areas of improvement across the catalo
 
 ## Consequences
 
-- **Security**: Closed arbitrary code-execution risk from external links.
+- **Security**: Hardened URL/protocol handling to reduce the risk of `javascript:` / `data:` link injection and other unsafe external-link vectors.
 - **Maintainability**: Tests are robust and decoupled from component implementation changes using interaction semantics. Duplicated design code has been consolidated.
 - **Performance**: Paginating extensive catalog lists resolves without creating blocking loop bottlenecks. Media artwork operates via optimal CDN layouts.

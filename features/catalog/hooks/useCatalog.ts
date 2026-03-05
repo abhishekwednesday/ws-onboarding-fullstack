@@ -25,7 +25,7 @@ export function useCatalog() {
   const favoritesMap = useFavoritesStore((state) => state.favorites)
   const favoriteItems = useMemo(() => Object.values(favoritesMap), [favoritesMap])
 
-  const seenIdsRef = useRef<Set<number>>(new Set())
+
 
   // React Query for infinite scrolling
   const {
@@ -44,11 +44,21 @@ export function useCatalog() {
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
 
-      // Keep track of all seen items using a ref to avoid expensive map and Set operations
+      const seen = new Set<number>()
+      // Pre-fill seen IDs from previous pages
+      for (let i = 0; i < allPages.length - 1; i++) {
+        const page = allPages[i]
+        if (page) {
+          for (const item of page.items) {
+            seen.add(item.id)
+          }
+        }
+      }
+
       let newUniqueCount = 0
       for (const item of lastPage.items) {
-        if (!seenIdsRef.current.has(item.id)) {
-          seenIdsRef.current.add(item.id)
+        if (!seen.has(item.id)) {
+          seen.add(item.id)
           newUniqueCount++
         }
       }
@@ -81,7 +91,6 @@ export function useCatalog() {
   const setSearchTerm = useCallback(
     (term: string) => {
       setSearchTermState(term)
-      seenIdsRef.current.clear() // Clear deduplication ref on new search
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString())
         if (term) {

@@ -61,4 +61,18 @@ describe("CatalogCard component", () => {
     const img = screen.getByAltText(mockItem.title)
     expect(img).toBeInTheDocument()
   })
+
+  it("should render non-clickable fallback for non-HTTPS trackViewUrl", () => {
+    const nonHttpsItem = { ...mockItem, trackViewUrl: "http://example.com/itunes-store" }
+    render(<CatalogCard item={nonHttpsItem} />)
+
+    // An anchor element (link) should not exist
+    const storeLink = screen.queryByRole("link", { name: /listen on apple music/i })
+    expect(storeLink).not.toBeInTheDocument()
+
+    // Instead, a generic element with the label should be present
+    const storeBadge = screen.getByLabelText(/listen on apple music/i)
+    expect(storeBadge).toBeInTheDocument()
+    expect(storeBadge.tagName.toLowerCase()).not.toBe("a")
+  })
 })

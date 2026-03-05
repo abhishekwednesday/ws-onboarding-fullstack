@@ -105,7 +105,7 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
       }
     }
 
-    if (recommendations.length === 0 && process.env.CI) {
+    if (recommendations.length === 0 && process.env.CI === "true") {
       recommendations.push({
         id: -1,
         title: "CI Fallback Track",

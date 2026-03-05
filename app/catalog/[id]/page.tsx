@@ -1,21 +1,30 @@
 import { Metadata } from "next"
 import * as React from "react"
 
+import { itunesLookupSingleAction } from "@/features/catalog/api/catalog-actions"
 import { TrackDetailPage } from "@/features/catalog/components/TrackDetailPage"
-import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
-import { MOCK_CATALOG_ITEMS } from "@/features/catalog/utils/mock-data"
 
 interface PagePropsType {
   params: Promise<{ id: string }>
 }
 
-const getItemById = (id: string): CatalogItemType | undefined => MOCK_CATALOG_ITEMS.find((i) => String(i.id) === id)
-
 export async function generateMetadata({ params }: PagePropsType): Promise<Metadata> {
   const { id } = await params
-  const item = getItemById(id)
+
+  try {
+    const item = await itunesLookupSingleAction(Number(id))
+    if (item) {
+      return {
+        title: `${item.title} by ${item.artist} - MusicStream`,
+        description: `Listen to ${item.title} by ${item.artist}.`,
+      }
+    }
+  } catch (error) {
+    console.error(`Failed to generate metadata for track ${id}:`, error)
+  }
+
   return {
-    title: item ? `${item.title} by ${item.artist} - MusicStream` : `Track #${id} - MusicStream`,
+    title: `Track #${id} - MusicStream`,
     description: "Track detail page.",
   }
 }

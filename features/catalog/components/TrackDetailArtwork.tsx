@@ -29,6 +29,7 @@ export function TrackDetailArtwork({
               transform: "scale(1.2)",
               opacity: 0.2,
             }}
+            sizes="100vw"
           />
           <div className="bg-background/80 absolute inset-0" />
           <div className="from-background/90 to-background absolute inset-0 bg-gradient-to-b via-transparent" />
@@ -37,9 +38,8 @@ export function TrackDetailArtwork({
 
       {/* Primary Artwork Card */}
       <div
-        className={`relative mx-auto mb-12 w-full max-w-[320px] transition-all duration-[800ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:max-w-[400px] ${
-          isPlaying ? "scale-105" : "scale-100"
-        }`}
+        className={`relative mx-auto mb-12 aspect-square w-full max-w-[320px] transition-all duration-[800ms] ease-[cubic-bezier(0.2,0.8,0.2,1)] sm:max-w-[400px] ${isPlaying ? "scale-105" : "scale-100"
+          }`}
       >
         {highResArtwork && (
           <div
@@ -57,6 +57,7 @@ export function TrackDetailArtwork({
             src={highResArtwork}
             alt={`${title} artwork`}
             fill
+            sizes="(max-width: 640px) 320px, 400px"
             style={{ objectFit: "cover" }}
             className="rounded-2xl border border-white/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)]"
           />
