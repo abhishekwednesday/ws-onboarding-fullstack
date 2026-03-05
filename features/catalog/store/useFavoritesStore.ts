@@ -6,16 +6,16 @@ export const useFavoritesStore = create<FavoritesStateType>()(
   persist(
     (set, get) => ({
       favorites: {},
-      toggleFavorite: (track) => {
-        const { favorites } = get()
-        const newFavorites = { ...favorites }
-        if (newFavorites[track.id]) {
-          delete newFavorites[track.id]
-        } else {
-          newFavorites[track.id] = track
-        }
-        set({ favorites: newFavorites })
-      },
+      toggleFavorite: (track) =>
+        set((state) => {
+          const newFavorites = { ...state.favorites }
+          if (newFavorites[track.id]) {
+            delete newFavorites[track.id]
+          } else {
+            newFavorites[track.id] = track
+          }
+          return { favorites: newFavorites }
+        }),
       isFavorite: (id) => !!get().favorites[id],
       clearFavorites: () => set({ favorites: {} }),
       replaceFavorites: (tracks) => set({ favorites: Object.fromEntries(tracks.map((t) => [t.id, t])) }),

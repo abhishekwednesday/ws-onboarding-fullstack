@@ -1,10 +1,14 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react"
+import { useShallow } from "zustand/react/shallow"
 
 import { trackCatalogSearch } from "@/lib/analytics/events"
 import { itunesSearchAction } from "../api/catalog-actions"
 import { useFavoritesStore } from "../store/useFavoritesStore"
+import { type CatalogItemType } from "../types/catalog-types"
+
+const DEFAULT_SEARCH_TERM = "top music"
 
 /**
  * Core hook for managing the music catalog state, search, and pagination.
@@ -22,7 +26,7 @@ export function useCatalog() {
   const deferredTerm = useDeferredValue(searchTerm)
 
   const [shouldShowFavoritesOnly, setShouldShowFavoritesOnly] = useState(false)
-  const favoritesMap = useFavoritesStore((state) => state.favorites)
+  const favoritesMap = useFavoritesStore(useShallow((state) => state.favorites))
   const favoriteItems = useMemo(() => Object.values(favoritesMap), [favoritesMap])
 
   // React Query for infinite scrolling
@@ -36,8 +40,11 @@ export function useCatalog() {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["catalog", deferredTerm || "top music"],
-    queryFn: ({ pageParam }) => itunesSearchAction(deferredTerm || "top music", pageParam),
+    queryKey: ["catalog", deferredTerm.trim() || DEFAULT_SEARCH_TERM],
+    queryFn: ({ pageParam }) => {
+      const normalizedTerm = deferredTerm.trim() || DEFAULT_SEARCH_TERM
+      return itunesSearchAction(normalizedTerm, pageParam)
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
@@ -77,13 +84,17 @@ export function useCatalog() {
 
   // Flattened and deduplicated items from all pages
   const items = useMemo(() => {
-    const allItems = data?.pages.flatMap((page) => page.items) ?? []
-    const seen = new Set<number>()
-    return allItems.filter((item) => {
-      const duplicate = seen.has(item.id)
-      seen.add(item.id)
-      return !duplicate
-    })
+    if (!data?.pages) return []
+
+    const uniqueItems = new Map<number, CatalogItemType>()
+    for (const page of data.pages) {
+      for (const item of page.items) {
+        if (!uniqueItems.has(item.id)) {
+          uniqueItems.set(item.id, item)
+        }
+      }
+    }
+    return Array.from(uniqueItems.values())
   }, [data])
 
   const setSearchTerm = useCallback(
@@ -128,7 +139,7 @@ export function useCatalog() {
     error: shouldShowFavoritesOnly ? null : error,
     refetch,
     loadMore,
-    hasMore: shouldShowFavoritesOnly ? false : !!hasNextPage,
+    hasMore: shouldShowFavoritesOnly ? false : Boolean(hasNextPage),
     shouldShowFavoritesOnly,
     toggleShowFavoritesOnly,
     debouncedSearchTerm: deferredTerm,

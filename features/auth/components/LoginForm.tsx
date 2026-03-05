@@ -1,29 +1,37 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2, Lock, Mail } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "../hooks/useAuth"
+import { type LoginFormData, LoginSchema } from "../types/auth-types"
 
 export function LoginForm() {
   const { login, isPending } = useAuth()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    if (!email || !password) {
-      setError("Please fill in all fields")
-      return
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  })
 
+  const onSubmit = (data: LoginFormData) => {
+    setError("")
     // Server action login hook wrapper
-    login({ email, password }, "/playlists", (errMs) => setError(errMs))
+    login(data, "/playlists", (errMs) => setError(errMs))
   }
 
   return (
@@ -37,20 +45,19 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-8">
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
             <div className="relative">
               <Mail className="text-muted-foreground absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
               <Input
                 type="email"
                 placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                {...register("email")}
                 className="focus-visible:ring-primary/50 border-border/40 bg-background/40 h-14 rounded-xl pl-12 text-base backdrop-blur-sm transition-all"
                 disabled={isPending}
-                required
               />
             </div>
+            {errors.email && <p className="text-destructive text-sm font-medium">{errors.email.message}</p>}
           </div>
           <div className="space-y-2">
             <div className="relative">
@@ -58,14 +65,12 @@ export function LoginForm() {
               <Input
                 type="password"
                 placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
                 className="focus-visible:ring-primary/50 border-border/40 bg-background/40 h-14 rounded-xl pl-12 text-base backdrop-blur-sm transition-all"
                 disabled={isPending}
-                required
-                minLength={8}
               />
             </div>
+            {errors.password && <p className="text-destructive text-sm font-medium">{errors.password.message}</p>}
           </div>
           {error && <p className="text-destructive text-sm font-medium">{error}</p>}
           <Button
