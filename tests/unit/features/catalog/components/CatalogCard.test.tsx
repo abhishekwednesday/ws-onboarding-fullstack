@@ -32,33 +32,47 @@ const mockItem: CatalogItemType = {
   artworkUrl: "http://example.com/art.jpg",
   genre: "Rock",
   duration: 354000,
-  trackViewUrl: "http://example.com/itunes-store",
+  trackViewUrl: "https://example.com/itunes-store",
 }
 
 describe("CatalogCard component", () => {
   it("should render track title and artist", () => {
     render(<CatalogCard item={mockItem} />)
 
-    expect(screen.getByText(mockItem.title)).toBeDefined()
-    expect(screen.getByText(mockItem.artist)).toBeDefined()
+    expect(screen.getByText(mockItem.title)).toBeInTheDocument()
+    expect(screen.getByText(mockItem.artist)).toBeInTheDocument()
   })
 
   it("should display the iTunes store badge with a link", () => {
     render(<CatalogCard item={mockItem} />)
     const storeLink = screen.getByRole("link", { name: /listen on apple music/i })
-    expect(storeLink).toBeDefined()
+    expect(storeLink).toBeInTheDocument()
     expect(storeLink.getAttribute("href")).toBe(mockItem.trackViewUrl)
     expect(storeLink.getAttribute("target")).toBe("_blank")
   })
 
   it("should render genre", () => {
     render(<CatalogCard item={mockItem} />)
-    expect(screen.getByText(/Rock/i)).toBeDefined()
+    expect(screen.getByText(/Rock/i)).toBeInTheDocument()
   })
 
   it("should render artwork image with correct alt text", () => {
     render(<CatalogCard item={mockItem} />)
     const img = screen.getByAltText(mockItem.title)
-    expect(img).toBeDefined()
+    expect(img).toBeInTheDocument()
+  })
+
+  it("should render non-clickable fallback for non-HTTPS trackViewUrl", () => {
+    const nonHttpsItem = { ...mockItem, trackViewUrl: "http://example.com/itunes-store" }
+    render(<CatalogCard item={nonHttpsItem} />)
+
+    // An anchor element (link) should not exist
+    const storeLink = screen.queryByRole("link", { name: /listen on apple music/i })
+    expect(storeLink).not.toBeInTheDocument()
+
+    // Instead, a generic element with the label should be present
+    const storeBadge = screen.getByLabelText(/listen on apple music/i)
+    expect(storeBadge).toBeInTheDocument()
+    expect(storeBadge.tagName.toLowerCase()).not.toBe("a")
   })
 })

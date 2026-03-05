@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react"
+import { render, screen } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import * as React from "react"
 import { describe, expect, it, vi } from "vitest"
 
@@ -25,14 +26,15 @@ describe("EmptyState component", () => {
     expect(screen.queryByRole("button", { name: /clear search/i })).toBeNull()
   })
 
-  it("should render and invoke the clear button when onReset is provided", () => {
+  it("should render and invoke the clear button when onReset is provided", async () => {
+    const user = userEvent.setup()
     const onReset = vi.fn()
     render(<EmptyState onReset={onReset} />)
 
     const button = screen.getByRole("button", { name: /clear search/i })
     expect(button).toBeDefined()
 
-    fireEvent.click(button)
+    await user.click(button)
     expect(onReset).toHaveBeenCalledOnce()
   })
 })

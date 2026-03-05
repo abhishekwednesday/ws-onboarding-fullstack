@@ -85,7 +85,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
           <span className="border-border/50 text-muted-foreground group-hover:border-primary/30 group-hover:text-foreground rounded-full border px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase transition-colors">
             {item.genre || "Music"}
           </span>
-          {item.trackViewUrl && (
+          {item.trackViewUrl && item.trackViewUrl.startsWith("https://") ? (
             <a
               href={item.trackViewUrl}
               target="_blank"
@@ -96,7 +96,15 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
             >
               <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
             </a>
-          )}
+          ) : item.trackViewUrl ? (
+            <span
+              onClick={handleBadgeClick}
+              aria-label="Listen on Apple Music"
+              className="cursor-not-allowed opacity-50 transition-opacity hover:opacity-100"
+            >
+              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
+            </span>
+          ) : null}
         </div>
       </div>
     </div>

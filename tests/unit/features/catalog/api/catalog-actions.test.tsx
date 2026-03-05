@@ -10,7 +10,7 @@ vi.mock("@/lib/api/itunes", () => ({
 
 describe("itunesSearchAction server action", () => {
   it("should call searchItunes and return mapped data on success", async () => {
-    const mockResponse = {
+    const mockResponse: ItunesSearchResponseType = {
       resultCount: 1,
       results: [
         {
@@ -26,7 +26,7 @@ describe("itunesSearchAction server action", () => {
         },
       ],
     }
-    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockResponse as unknown as ItunesSearchResponseType)
+    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockResponse)
 
     const result = await itunesSearchAction("Queen")
     expect(result.items.length).toBe(1)
@@ -37,7 +37,7 @@ describe("itunesSearchAction server action", () => {
   })
 
   it("should return correct nextOffset for a full page", async () => {
-    const mockFullPage = {
+    const mockFullPage: ItunesSearchResponseType = {
       resultCount: 50,
       results: Array.from({ length: 50 }).map((_, i) => ({
         trackId: i,
@@ -51,7 +51,7 @@ describe("itunesSearchAction server action", () => {
         trackViewUrl: "",
       })),
     }
-    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockFullPage as unknown as ItunesSearchResponseType)
+    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockFullPage)
 
     const result = await itunesSearchAction("test", 0)
     expect(result.items.length).toBe(50)
@@ -59,7 +59,7 @@ describe("itunesSearchAction server action", () => {
   })
 
   it("should handle non-zero offsets correctly", async () => {
-    const mockPage2 = {
+    const mockPage2: ItunesSearchResponseType = {
       resultCount: 50,
       results: Array.from({ length: 50 }).map((_, i) => ({
         trackId: i + 50,
@@ -73,7 +73,7 @@ describe("itunesSearchAction server action", () => {
         trackViewUrl: "",
       })),
     }
-    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockPage2 as unknown as ItunesSearchResponseType)
+    vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockPage2)
 
     const result = await itunesSearchAction("test", 50)
     expect(result.items.length).toBe(50)

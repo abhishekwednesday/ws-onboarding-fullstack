@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from "react"
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react"
 
 import { trackCatalogSearch } from "@/lib/analytics/events"
 import { itunesSearchAction } from "../api/catalog-actions"
@@ -42,10 +42,24 @@ export function useCatalog() {
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
 
-      // If the last page added NO new unique items, stop to avoid infinite loops
-      const previousItems = allPages.slice(0, -1).flatMap((p) => p.items)
-      const existingIds = new Set(previousItems.map((i) => i.id))
-      const newUniqueCount = lastPage.items.filter((i) => !existingIds.has(i.id)).length
+      const seen = new Set<number>()
+      // Pre-fill seen IDs from previous pages
+      for (let i = 0; i < allPages.length - 1; i++) {
+        const page = allPages[i]
+        if (page) {
+          for (const item of page.items) {
+            seen.add(item.id)
+          }
+        }
+      }
+
+      let newUniqueCount = 0
+      for (const item of lastPage.items) {
+        if (!seen.has(item.id)) {
+          seen.add(item.id)
+          newUniqueCount++
+        }
+      }
 
       if (allPages.length > 1 && newUniqueCount === 0) return null
 
