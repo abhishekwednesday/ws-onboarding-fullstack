@@ -6,23 +6,14 @@ test.describe("Playlists Page", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/login?returnTo=/playlists", { waitUntil: "load" })
 
-    const emailInput = page.getByPlaceholder("name@example.com")
-    const passwordInput = page.getByPlaceholder("Password")
-    await expect(emailInput).toBeVisible({ timeout: 15_000 })
-    await expect(passwordInput).toBeVisible({ timeout: 5_000 })
+    await expect(page.getByPlaceholder("name@example.com")).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByPlaceholder("Password")).toBeVisible({ timeout: 5_000 })
 
-    // Retry fill until value persists — React hydration of controlled inputs
-    // can overwrite values filled before event handlers are attached
+    // Single retry block: fill credentials, click sign-in, and verify navigation.
+    // Re-query locators on each attempt so React re-renders don't cause stale refs.
     await expect(async () => {
-      await emailInput.fill("test@test.com")
-      await expect(emailInput).toHaveValue("test@test.com", { timeout: 1_000 })
-    }).toPass({ timeout: 10_000 })
-    await passwordInput.fill("testpass")
-
-    // Retry sign-in on transient DB connection timeouts (pool max=5, 2s timeout).
-    // Check for playlists heading instead of URL — Next.js App Router client-side
-    // navigation blocks Playwright's URL tracking indefinitely.
-    await expect(async () => {
+      await page.getByPlaceholder("name@example.com").fill("test@test.com")
+      await page.getByPlaceholder("Password").fill("testpass")
       const signInBtn = page.getByRole("button", { name: "Sign In" })
       if (await signInBtn.isVisible().catch(() => false)) {
         await signInBtn.click()
