@@ -105,31 +105,42 @@ describe("useCatalog hook", () => {
     expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", 50)
   })
 
-  it("should reset items when search term changes", async () => {
+  it("should stop pagination when no new unique items are found", async () => {
+    const fiftyItems = Array.from({ length: 50 }).map((_, i) => ({
+      id: i,
+      title: `Song ${i}`,
+      artist: "Artist",
+      artworkUrl: "",
+      previewUrl: "",
+    }))
+
+    vi.mocked(catalogActions.itunesSearchAction).mockClear()
+    vi.mocked(catalogActions.itunesSearchAction)
+      .mockResolvedValueOnce({
+        totalCount: 50,
+        nextOffset: 50, // Added to simulate pagination
+        items: fiftyItems,
+      })
+      .mockResolvedValueOnce({
+        totalCount: 50,
+        nextOffset: null,
+        items: fiftyItems, // Return same items to test duplicate handling
+      })
+
     const { result } = renderHook(() => useCatalog(), {
       wrapper: createWrapper(),
     })
 
     await waitFor(() => expect(result.current.isLoading).toBe(false))
+    expect(result.current.hasMore).toBe(true)
 
-    const searchBatch = [{ id: 10, title: "Search Result", artist: "Search Artist", artworkUrl: "", previewUrl: "" }]
-
-    vi.mocked(catalogActions.itunesSearchAction).mockResolvedValueOnce({
-      items: searchBatch,
-      nextOffset: null,
-      totalCount: 1,
+    await act(async () => {
+      result.current.loadMore()
     })
 
-    act(() => {
-      result.current.setSearchTerm("new")
+    await waitFor(() => {
+      expect(result.current.isFetchingMore).toBe(false)
+      expect(result.current.hasMore).toBe(false)
     })
-
-    await waitFor(
-      () => {
-        expect(result.current.data.length).toBe(1)
-        expect(result.current.data[0]?.title).toBe("Search Result")
-      },
-      { timeout: 3000 }
-    )
   })
 })

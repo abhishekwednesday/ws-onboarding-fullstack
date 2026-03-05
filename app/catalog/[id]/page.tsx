@@ -2,15 +2,20 @@ import { Metadata } from "next"
 import * as React from "react"
 
 import { TrackDetailPage } from "@/features/catalog/components/TrackDetailPage"
+import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+import { MOCK_CATALOG_ITEMS } from "@/features/catalog/utils/mock-data"
 
 interface PagePropsType {
   params: Promise<{ id: string }>
 }
 
+const getItemById = (id: string): CatalogItemType | undefined => MOCK_CATALOG_ITEMS.find((i) => String(i.id) === id)
+
 export async function generateMetadata({ params }: PagePropsType): Promise<Metadata> {
   const { id } = await params
+  const item = getItemById(id)
   return {
-    title: `Track #${id} - MusicStream`,
+    title: item ? `${item.title} by ${item.artist} - MusicStream` : `Track #${id} - MusicStream`,
     description: "Track detail page.",
   }
 }

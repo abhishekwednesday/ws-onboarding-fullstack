@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useDeferredValue, useEffect, useMemo, useState, useTransition } from "react"
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useTransition } from "react"
 
 import { trackCatalogSearch } from "@/lib/analytics/events"
 import { itunesSearchAction } from "../api/catalog-actions"
@@ -25,6 +25,8 @@ export function useCatalog() {
   const favoritesMap = useFavoritesStore((state) => state.favorites)
   const favoriteItems = useMemo(() => Object.values(favoritesMap), [favoritesMap])
 
+  const seenIdsRef = useRef<Set<number>>(new Set())
+
   // React Query for infinite scrolling
   const {
     data,
@@ -42,10 +44,14 @@ export function useCatalog() {
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
 
-      // If the last page added NO new unique items, stop to avoid infinite loops
-      const previousItems = allPages.slice(0, -1).flatMap((p) => p.items)
-      const existingIds = new Set(previousItems.map((i) => i.id))
-      const newUniqueCount = lastPage.items.filter((i) => !existingIds.has(i.id)).length
+      // Keep track of all seen items using a ref to avoid expensive map and Set operations
+      let newUniqueCount = 0
+      for (const item of lastPage.items) {
+        if (!seenIdsRef.current.has(item.id)) {
+          seenIdsRef.current.add(item.id)
+          newUniqueCount++
+        }
+      }
 
       if (allPages.length > 1 && newUniqueCount === 0) return null
 
@@ -75,6 +81,7 @@ export function useCatalog() {
   const setSearchTerm = useCallback(
     (term: string) => {
       setSearchTermState(term)
+      seenIdsRef.current.clear() // Clear deduplication ref on new search
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString())
         if (term) {

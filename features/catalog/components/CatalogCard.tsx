@@ -87,7 +87,7 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
           </span>
           {item.trackViewUrl && (
             <a
-              href={item.trackViewUrl}
+              href={item.trackViewUrl.startsWith("https://") ? item.trackViewUrl : "#"}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleBadgeClick}
