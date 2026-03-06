@@ -4,24 +4,15 @@ test.describe("Playlists Page", () => {
   test.setTimeout(60_000)
 
   test.beforeEach(async ({ page }) => {
-    await page.goto("/login?returnTo=/playlists", { waitUntil: "networkidle" })
-
-    await expect(page.getByPlaceholder("name@example.com")).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByPlaceholder("Password")).toBeVisible({ timeout: 5_000 })
-
-    // Single retry block: fill credentials, click sign-in, and verify navigation.
-    // Guard fill/click behind visibility checks so retries after successful
-    // navigation (when login form no longer exists) don't throw.
+    // Wrap the entire login flow (navigation + form fill + submit) in a single
+    // retry block so transient Firefox rendering/hydration failures trigger a
+    // full page reload rather than hanging on a never-visible input.
     await expect(async () => {
-      const emailInput = page.getByPlaceholder("name@example.com")
-      if (await emailInput.isVisible().catch(() => false)) {
-        await emailInput.fill("test@test.com")
-        await page.getByPlaceholder("Password").fill("testpass")
-      }
-      const signInBtn = page.getByRole("button", { name: "Sign In" })
-      if (await signInBtn.isVisible().catch(() => false)) {
-        await signInBtn.click()
-      }
+      await page.goto("/login?returnTo=/playlists", { waitUntil: "load" })
+      await expect(page.getByPlaceholder("name@example.com")).toBeVisible({ timeout: 10_000 })
+      await page.getByPlaceholder("name@example.com").fill("test@test.com")
+      await page.getByPlaceholder("Password").fill("testpass")
+      await page.getByRole("button", { name: "Sign In" }).click()
       await expect(page.getByRole("heading", { name: "Playlists", exact: true })).toBeVisible({ timeout: 5_000 })
     }).toPass({ timeout: 45_000 })
   })
