@@ -8,13 +8,24 @@ test.describe("Playlists Page", () => {
     // overwhelms the dev server when multiple browser workers run in parallel.
     await page.goto("/login?returnTo=/playlists")
 
-    // Wait generously for the client component to hydrate (SSR HTML is
-    // delivered immediately but React hydration + CSS fade-in animation
-    // can be slow under CI load).
+    // Wait for the email input to appear in the DOM (SSR delivers it immediately).
     await page.getByPlaceholder("name@example.com").waitFor({ state: "visible", timeout: 30_000 })
 
-    // Retry only the form interaction: fill() can trigger a React
-    // re-render that briefly removes elements from the DOM.
+    // Wait for React hydration to complete.  The SSR'd form elements are
+    // visible in the DOM before React attaches event handlers.  In Firefox
+    // on CI, clicking the submit button pre-hydration silently does nothing.
+    // React attaches __reactFiber / __reactProps properties to DOM nodes
+    // during hydration, so we poll for their presence on the <form> element.
+    await page.waitForFunction(
+      () => {
+        const form = document.querySelector("form")
+        return !!form && Object.keys(form).some((k) => k.startsWith("__react"))
+      },
+      { timeout: 30_000 }
+    )
+
+    // Retry the form interaction: fill() can trigger a React re-render
+    // that briefly removes elements from the DOM.
     await expect(async () => {
       await page.getByPlaceholder("name@example.com").fill("test@test.com")
       await page.getByPlaceholder("Password").fill("testpass")
