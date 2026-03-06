@@ -4,7 +4,7 @@ test.describe("Playlists Page", () => {
   test.setTimeout(60_000)
 
   test.beforeEach(async ({ page }) => {
-    await page.goto("/login?returnTo=/playlists", { waitUntil: "load" })
+    await page.goto("/login?returnTo=/playlists", { waitUntil: "networkidle" })
 
     await expect(page.getByPlaceholder("name@example.com")).toBeVisible({ timeout: 15_000 })
     await expect(page.getByPlaceholder("Password")).toBeVisible({ timeout: 5_000 })
