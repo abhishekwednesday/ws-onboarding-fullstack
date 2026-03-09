@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test"
 import fs from "fs"
 
-import { STORAGE_STATE_PATH } from "./global-setup"
+import { STORAGE_STATE_PATH, TEST_USER_EMAIL, TEST_USER_PASSWORD } from "./global-setup"
 
 /** Returns true when the saved storage state contains at least one cookie. */
 function hasSavedSession(): boolean {
@@ -49,8 +49,8 @@ test.describe("Playlists Page", () => {
       // Retry the form interaction: fill() can trigger a React re-render
       // that briefly removes elements from the DOM.
       await expect(async () => {
-        await page.getByPlaceholder("name@example.com").fill("test@test.com")
-        await page.getByPlaceholder("Password").fill("testpass")
+        await page.getByPlaceholder("name@example.com").fill(TEST_USER_EMAIL)
+        await page.getByPlaceholder("Password").fill(TEST_USER_PASSWORD)
         await page.getByRole("button", { name: "Sign In" }).click()
         await expect(page.getByRole("heading", { name: "Playlists", exact: true })).toBeVisible({ timeout: 10_000 })
       }).toPass({ timeout: 30_000 })
