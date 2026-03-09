@@ -63,7 +63,6 @@ export function useCatalog() {
     setMedia(isValidCatalogMediaType(spMedia || null))
     setCountryState(spCountry || undefined)
     setExplicit(isValidCatalogExplicitType(spExplicit || null))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [spQ, spMedia, spCountry, spExplicit])
 
   const deferredTerm = useDeferredValue(searchTerm)
@@ -146,7 +145,7 @@ export function useCatalog() {
       if (newFilters.explicit !== undefined) setExplicit(isValidCatalogExplicitType(newFilters.explicit))
 
       startTransition(() => {
-        const params = new URLSearchParams(searchParams.toString())
+        const params = new URLSearchParams(window.location.search)
         Object.entries(newFilters).forEach(([key, value]) => {
           if (value) {
             params.set(key, value)

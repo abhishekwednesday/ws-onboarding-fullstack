@@ -54,7 +54,7 @@ export async function itunesArtistLookupAction(
       .filter((i): i is CatalogItemType => i !== null)
 
     const artist = results.find((r) => r.id === artistId && r.collectionId === undefined)
-    const albums = results.filter((r) => r.id !== (artist?.id ?? artistId))
+    const albums = results.filter((r) => r.collectionId !== undefined)
 
     if (!artist) {
       throw new Error(`Artist with id ${artistId} not found`)

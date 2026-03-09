@@ -7,7 +7,6 @@ import { Suspense } from "react"
 import { itunesAlbumLookupAction } from "@/features/catalog/api/catalog-actions"
 import { FavoriteButton } from "@/features/catalog/components/FavoriteButton"
 import { LoadingState } from "@/features/catalog/components/LoadingState"
-import { cn } from "@/lib/utils"
 import { formatDuration } from "@/lib/utils/track-formatters"
 
 interface AlbumPageProps {
@@ -89,17 +88,24 @@ async function AlbumContent({ id }: { id: number }) {
               </div>
             </div>
             <div className="flex items-center gap-4 pt-4">
-              <Link
-                href={items.length > 0 ? `/catalog/${items[0]!.id}` : "#"}
-                aria-disabled={items.length === 0}
-                className={cn(
-                  "bg-primary text-primary-foreground flex h-14 items-center gap-2 rounded-2xl px-8 font-bold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95",
-                  items.length === 0 && "pointer-events-none opacity-50"
-                )}
-              >
-                <Play className="h-5 w-5 fill-current" />
-                Play Album
-              </Link>
+              {items.length > 0 ? (
+                <Link
+                  href={`/catalog/${items[0]!.id}`}
+                  className="bg-primary text-primary-foreground flex h-14 items-center gap-2 rounded-2xl px-8 font-bold transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] active:scale-95"
+                >
+                  <Play className="h-5 w-5 fill-current" />
+                  Play Album
+                </Link>
+              ) : (
+                <div
+                  aria-disabled="true"
+                  tabIndex={-1}
+                  className="bg-primary text-primary-foreground flex h-14 cursor-not-allowed items-center gap-2 rounded-2xl px-8 font-bold opacity-50"
+                >
+                  <Play className="h-5 w-5 fill-current" />
+                  Play Album
+                </div>
+              )}
               <FavoriteButton
                 track={album}
                 className="border-border/50 bg-background/40 h-14 w-14 rounded-2xl backdrop-blur-md"

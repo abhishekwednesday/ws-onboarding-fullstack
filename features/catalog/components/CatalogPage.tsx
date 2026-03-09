@@ -58,7 +58,7 @@ export function CatalogPage() {
 
   React.useEffect(() => {
     window.scrollTo(0, 0)
-  }, [shouldShowFavoritesOnly, debouncedSearchTerm])
+  }, [shouldShowFavoritesOnly, debouncedSearchTerm, media, country, explicit])
 
   const { sentinelRef } = useInfiniteScroll({
     onIntersect: loadMore,
