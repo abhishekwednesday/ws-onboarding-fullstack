@@ -24,9 +24,13 @@ export function useCatalog() {
 
   // Initialise from URL params so Back navigation restores the state
   const [searchTerm, setSearchTermState] = useState(() => searchParams.get("q") ?? "")
-  const [media, setMedia] = useState<CatalogMediaType | undefined>(() => (searchParams.get("media") as CatalogMediaType) || undefined)
+  const [media, setMedia] = useState<CatalogMediaType | undefined>(
+    () => (searchParams.get("media") as CatalogMediaType) || undefined
+  )
   const [country, setCountryState] = useState<string | undefined>(() => searchParams.get("country") || undefined)
-  const [explicit, setExplicit] = useState<CatalogExplicitType | undefined>(() => (searchParams.get("explicit") as CatalogExplicitType) || undefined)
+  const [explicit, setExplicit] = useState<CatalogExplicitType | undefined>(
+    () => (searchParams.get("explicit") as CatalogExplicitType) || undefined
+  )
 
   const deferredTerm = useDeferredValue(searchTerm)
   const deferredMedia = useDeferredValue(media)
@@ -104,9 +108,9 @@ export function useCatalog() {
   const setFilters = useCallback(
     (newFilters: { q?: string; media?: string; country?: string; explicit?: string }) => {
       if (newFilters.q !== undefined) setSearchTermState(newFilters.q)
-      if (newFilters.media !== undefined) setMedia(newFilters.media as CatalogMediaType || undefined)
+      if (newFilters.media !== undefined) setMedia((newFilters.media as CatalogMediaType) || undefined)
       if (newFilters.country !== undefined) setCountryState(newFilters.country || undefined)
-      if (newFilters.explicit !== undefined) setExplicit(newFilters.explicit as CatalogExplicitType || undefined)
+      if (newFilters.explicit !== undefined) setExplicit((newFilters.explicit as CatalogExplicitType) || undefined)
 
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString())

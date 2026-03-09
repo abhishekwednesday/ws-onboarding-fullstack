@@ -12,6 +12,7 @@ The application needed to support advanced music discovery through filtering and
 - **Deep Exploration Routes**:
   - Created `app/artist/[id]` and `app/album/[id]` as public routes.
   - Utilized the iTunes `/lookup` endpoint to fetch detailed data.
+  - Implemented robust identification logic in `itunesArtistLookupAction` to handle edge cases where entity IDs might be mapped differently (e.g., fallback check for `artistId`).
 - **Navigation Integration**:
   - Enhanced `CatalogCard` with clickable artist and album links using `artistId` and `collectionId`.
   - Integrated artist and album links into the Track Detail page.
