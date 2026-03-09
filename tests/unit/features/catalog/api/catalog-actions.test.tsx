@@ -125,6 +125,21 @@ describe("itunesSearchAction server action", () => {
       expect(result.items[0]!.id).toBe(123)
       expect(itunesApi.lookupItunes).toHaveBeenCalledWith([456], "song")
     })
+
+    it("should throw error if album not found", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce({
+        resultCount: 0,
+        results: [],
+      })
+
+      await expect(itunesAlbumLookupAction(999)).rejects.toThrow("Album with id 999 not found")
+    })
+
+    it("should throw user-friendly error if API rejects", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockRejectedValueOnce(new Error("Network Error"))
+
+      await expect(itunesAlbumLookupAction(456)).rejects.toThrow("Failed to load album details. Please try again.")
+    })
   })
 
   describe("itunesArtistLookupAction", () => {
@@ -172,20 +187,28 @@ describe("itunesSearchAction server action", () => {
     })
   })
 
-  describe("itunesAlbumLookupAction", () => {
-    it("should throw error if album not found", async () => {
-      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce({
-        resultCount: 0,
-        results: [],
-      })
-
-      await expect(itunesAlbumLookupAction(999)).rejects.toThrow("Album with id 999 not found")
+  describe("itunesLookupAction", () => {
+    it("should return empty results for empty ids", async () => {
+      const result = await itunesLookupAction([])
+      expect(result.resultCount).toBe(0)
+      expect(result.results.length).toBe(0)
     })
 
-    it("should throw user-friendly error if API rejects", async () => {
-      vi.mocked(itunesApi.lookupItunes).mockRejectedValueOnce(new Error("Network Error"))
+    it("should call lookupItunes and return data on success", async () => {
+      const mockResponse: ItunesSearchResponseType = {
+        resultCount: 1,
+        results: [{ trackId: 123 } as any],
+      }
+      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce(mockResponse)
 
-      await expect(itunesAlbumLookupAction(456)).rejects.toThrow("Failed to load album details. Please try again.")
+      const result = await itunesLookupAction([123])
+      expect(result.resultCount).toBe(1)
+      expect(itunesApi.lookupItunes).toHaveBeenCalledWith([123])
+    })
+
+    it("should throw error on API failure", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockRejectedValueOnce(new Error("API Error"))
+      await expect(itunesLookupAction([123])).rejects.toThrow("Failed to lookup tracks from ITunes API.")
     })
   })
 })

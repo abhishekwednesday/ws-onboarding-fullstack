@@ -23,25 +23,24 @@ export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
           {item.artistId ? (
             <Link
               href={`/artist/${item.artistId}`}
-              className="text-muted-foreground hover:text-primary text-xl font-medium transition-colors drop-shadow-sm sm:text-2xl"
+              className="text-muted-foreground hover:text-primary text-xl font-medium drop-shadow-sm transition-colors sm:text-2xl"
             >
               {item.artist}
             </Link>
           ) : (
             <p className="text-muted-foreground text-xl font-medium drop-shadow-sm sm:text-2xl">{item.artist}</p>
           )}
-          {item.album && (
-            item.collectionId ? (
+          {item.album &&
+            (item.collectionId ? (
               <Link
                 href={`/album/${item.collectionId}`}
-                className="text-muted-foreground/60 hover:text-primary text-sm font-medium transition-colors italic"
+                className="text-muted-foreground/60 hover:text-primary text-sm font-medium italic transition-colors"
               >
                 {item.album}
               </Link>
             ) : (
               <p className="text-muted-foreground/60 text-sm italic">{item.album}</p>
-            )
-          )}
+            ))}
         </div>
       </div>
       {item.genre && (

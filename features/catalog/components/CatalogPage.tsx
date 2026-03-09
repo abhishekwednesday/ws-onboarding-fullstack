@@ -74,14 +74,19 @@ export function CatalogPage() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex flex-1 items-center gap-2 min-w-[300px]">
-            <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} isPending={isSearchPending} />
+          <div className="flex min-w-[300px] flex-1 items-center gap-2">
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              onClear={handleClear}
+              isPending={isSearchPending}
+            />
             <CatalogFilters
-              media={media}
+              media={media || ""}
               setMedia={setMedia}
-              country={country}
+              country={country || ""}
               setCountry={setCountry}
-              explicit={explicit}
+              explicit={explicit || ""}
               setExplicit={setExplicit}
               onClear={handleClear}
             />

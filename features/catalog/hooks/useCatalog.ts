@@ -24,9 +24,9 @@ export function useCatalog() {
 
   // Initialise from URL params so Back navigation restores the state
   const [searchTerm, setSearchTermState] = useState(() => searchParams.get("q") ?? "")
-  const [media, setMedia] = useState(() => (searchParams.get("media") as CatalogMediaType) || ("" as CatalogMediaType))
+  const [media, setMedia] = useState<CatalogMediaType | undefined>(() => (searchParams.get("media") as CatalogMediaType) || undefined)
   const [country, setCountryState] = useState<string | undefined>(() => searchParams.get("country") || undefined)
-  const [explicit, setExplicit] = useState(() => (searchParams.get("explicit") as CatalogExplicitType) || ("" as CatalogExplicitType))
+  const [explicit, setExplicit] = useState<CatalogExplicitType | undefined>(() => (searchParams.get("explicit") as CatalogExplicitType) || undefined)
 
   const deferredTerm = useDeferredValue(searchTerm)
   const deferredMedia = useDeferredValue(media)
@@ -48,21 +48,15 @@ export function useCatalog() {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [
-      "catalog",
-      deferredTerm.trim() || DEFAULT_SEARCH_TERM,
-      deferredMedia,
-      deferredCountry,
-      deferredExplicit,
-    ],
+    queryKey: ["catalog", deferredTerm.trim() || DEFAULT_SEARCH_TERM, deferredMedia, deferredCountry, deferredExplicit],
     queryFn: ({ pageParam, queryKey }) => {
       const normalizedTerm = (queryKey[1] as string) || DEFAULT_SEARCH_TERM
       const options: SearchOptions = {
         term: normalizedTerm,
         offset: pageParam,
-        media: queryKey[2] as CatalogMediaType,
+        media: queryKey[2] as CatalogMediaType | undefined,
         country: queryKey[3] as string | undefined,
-        explicit: queryKey[4] as CatalogExplicitType,
+        explicit: queryKey[4] as CatalogExplicitType | undefined,
       }
       return itunesSearchAction(normalizedTerm, options)
     },
@@ -73,7 +67,9 @@ export function useCatalog() {
       // Deduplication logic: construction seen from all pages except lastPage
       const seenIds = new Set<number>()
       allPages.slice(0, -1).forEach((page) => {
-        page.items.forEach((item) => seenIds.add(item.id))
+        page.items.forEach((item) => {
+          seenIds.add(item.id)
+        })
       })
 
       const newUniqueCount = lastPage.items.filter((item) => !seenIds.has(item.id)).length
@@ -108,9 +104,9 @@ export function useCatalog() {
   const setFilters = useCallback(
     (newFilters: { q?: string; media?: string; country?: string; explicit?: string }) => {
       if (newFilters.q !== undefined) setSearchTermState(newFilters.q)
-      if (newFilters.media !== undefined) setMedia(newFilters.media as CatalogMediaType)
+      if (newFilters.media !== undefined) setMedia(newFilters.media as CatalogMediaType || undefined)
       if (newFilters.country !== undefined) setCountryState(newFilters.country || undefined)
-      if (newFilters.explicit !== undefined) setExplicit(newFilters.explicit as CatalogExplicitType)
+      if (newFilters.explicit !== undefined) setExplicit(newFilters.explicit as CatalogExplicitType || undefined)
 
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString())
@@ -124,7 +120,7 @@ export function useCatalog() {
         router.replace(`/catalog?${params.toString()}`, { scroll: false })
       })
     },
-    [router, searchParams]
+    [router, searchParams, startTransition]
   )
 
   const setSearchTerm = useCallback((q: string) => setFilters({ q }), [setFilters])
@@ -147,11 +143,11 @@ export function useCatalog() {
     searchTerm,
     setSearchTerm,
     media,
-    setMedia: (media: string) => setFilters({ media }),
+    setMedia: (media: string | undefined) => setFilters({ media: media || "" }),
     country,
-    setCountry: (country: string | undefined) => setFilters({ country }),
+    setCountry: (country: string | undefined) => setFilters({ country: country || "" }),
     explicit,
-    setExplicit: (explicit: string) => setFilters({ explicit }),
+    setExplicit: (explicit: string | undefined) => setFilters({ explicit: explicit || "" }),
     handleClear,
     data: shouldShowFavoritesOnly ? favoriteItems : items,
     isLoading: shouldShowFavoritesOnly ? false : isInitialLoading,

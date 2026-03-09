@@ -6,18 +6,18 @@ The application needed to support advanced music discovery through filtering and
 
 ## Decision
 
-- **Search Filters**: 
-    - Implemented with URL-driven state sync to allow bookmarking and sharing search results. 
-    - Added country, media type, and explicit content options.
-- **Deep Exploration Routes**: 
-    - Created `app/artist/[id]` and `app/album/[id]` as public routes.
-    - Utilized the iTunes `/lookup` endpoint to fetch detailed data.
+- **Search Filters**:
+  - Implemented with URL-driven state sync to allow bookmarking and sharing search results.
+  - Added country, media type, and explicit content options.
+- **Deep Exploration Routes**:
+  - Created `app/artist/[id]` and `app/album/[id]` as public routes.
+  - Utilized the iTunes `/lookup` endpoint to fetch detailed data.
 - **Navigation Integration**:
-    - Enhanced `CatalogCard` with clickable artist and album links using `artistId` and `collectionId`.
-    - Integrated artist and album links into the Track Detail page.
+  - Enhanced `CatalogCard` with clickable artist and album links using `artistId` and `collectionId`.
+  - Integrated artist and album links into the Track Detail page.
 - **UI Enhancements**:
-    - Implemented a glassmorphic filter dropdown on the catalog page.
-    - Used proxy high-res artwork for artists when specific images are unavailable.
+  - Implemented a glassmorphic filter dropdown on the catalog page.
+  - Used proxy high-res artwork for artists when specific images are unavailable.
 
 ## Consequences
 
