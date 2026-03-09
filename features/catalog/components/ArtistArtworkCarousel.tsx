@@ -19,14 +19,16 @@ export function ArtistArtworkCarousel({ artworks, artistName }: ArtistArtworkCar
     }, [artworks])
 
     React.useEffect(() => {
+        setCurrentIndex(0)
+
         if (uniqueArtworks.length <= 1) return
 
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % uniqueArtworks.length)
-        }, 4000) // Change image every 4 seconds
+        }, 4000)
 
         return () => clearInterval(interval)
-    }, [uniqueArtworks.length])
+    }, [uniqueArtworks])
 
     if (uniqueArtworks.length === 0) {
         return (

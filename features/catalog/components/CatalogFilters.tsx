@@ -10,8 +10,8 @@ import { CatalogExplicitType, CatalogMediaType } from "@/lib/api/schemas"
 interface CatalogFiltersProps {
     media: string
     setMedia: (val: string) => void
-    country: string
-    setCountry: (val: string) => void
+    country: string | undefined
+    setCountry: (val: string | undefined) => void
     explicit: string
     setExplicit: (val: string) => void
     onClear: () => void
@@ -89,14 +89,14 @@ export function CatalogFilters({
                 <div className="glass-card absolute top-full left-0 mt-4 w-[320px] overflow-hidden rounded-3xl border border-border/50 p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200 sm:w-[450px]">
                     <div className="grid gap-6 sm:grid-cols-2">
                         <div className="space-y-3">
-                            <label className="flex items-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                                <Music2 className="mr-2 h-3 w-3" />
+                            <label htmlFor="media-filter" className="mb-2 block text-xs font-bold uppercase tracking-widest text-muted-foreground/80">
                                 Media Type
                             </label>
                             <select
+                                id="media-filter"
                                 value={media}
-                                onChange={(e) => setMedia(e.target.value)}
-                                className="w-full h-11 rounded-xl border-border/50 bg-background/40 px-3 text-sm focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                                onChange={(e) => setMedia(e.target.value as CatalogMediaType)}
+                                className="w-full rounded-xl border border-border/40 bg-background/50 px-3 py-2 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                             >
                                 {MEDIA_TYPES.map((type) => (
                                     <option key={type.value} value={type.value}>
@@ -106,15 +106,15 @@ export function CatalogFilters({
                             </select>
                         </div>
 
-                        <div className="space-y-3">
-                            <label className="flex items-center text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                                <Globe className="mr-2 h-3 w-3" />
+                        <div className="flex-1">
+                            <label htmlFor="country-filter" className="mb-2 block text-xs font-bold uppercase tracking-widest text-muted-foreground/80">
                                 Store Country
                             </label>
                             <select
-                                value={country}
-                                onChange={(e) => setCountry(e.target.value)}
-                                className="w-full h-11 rounded-xl border-border/50 bg-background/40 px-3 text-sm focus:border-primary/50 focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                                id="country-filter"
+                                value={country || ""}
+                                onChange={(e) => setCountry(e.target.value || undefined)}
+                                className="w-full rounded-xl border border-border/40 bg-background/50 px-3 py-2 text-sm text-foreground outline-none transition-all focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                             >
                                 {COUNTRIES.map((c) => (
                                     <option key={c.code} value={c.code}>

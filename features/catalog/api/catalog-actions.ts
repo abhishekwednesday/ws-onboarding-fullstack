@@ -62,6 +62,9 @@ export async function itunesArtistLookupAction(
 
     return { artist, albums }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("not found")) {
+      throw error
+    }
     console.error("ITunes Artist Lookup Error:", error)
     throw new Error("Failed to load artist details. Please try again.")
   }
@@ -92,6 +95,9 @@ export async function itunesAlbumLookupAction(
 
     return { album, items }
   } catch (error) {
+    if (error instanceof Error && error.message.includes("not found")) {
+      throw error
+    }
     console.error("ITunes Album Lookup Error:", error)
     throw new Error("Failed to load album details. Please try again.")
   }

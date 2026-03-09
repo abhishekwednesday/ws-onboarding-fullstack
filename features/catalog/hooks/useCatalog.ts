@@ -5,6 +5,7 @@ import { useShallow } from "zustand/react/shallow"
 
 import { trackCatalogSearch } from "@/lib/analytics/events"
 import { itunesSearchAction } from "../api/catalog-actions"
+import { CatalogExplicitType, CatalogMediaType, type SearchOptions } from "@/lib/api/schemas"
 import { useFavoritesStore } from "../store/useFavoritesStore"
 import { type CatalogItemType } from "../types/catalog-types"
 
@@ -23,9 +24,9 @@ export function useCatalog() {
 
   // Initialise from URL params so Back navigation restores the state
   const [searchTerm, setSearchTermState] = useState(() => searchParams.get("q") ?? "")
-  const [media, setMedia] = useState(() => searchParams.get("media") ?? "")
-  const [country, setCountry] = useState(() => searchParams.get("country") ?? "")
-  const [explicit, setExplicit] = useState(() => searchParams.get("explicit") ?? "")
+  const [media, setMedia] = useState(() => (searchParams.get("media") as CatalogMediaType) || ("" as CatalogMediaType))
+  const [country, setCountryState] = useState<string | undefined>(() => searchParams.get("country") || undefined)
+  const [explicit, setExplicit] = useState(() => (searchParams.get("explicit") as CatalogExplicitType) || ("" as CatalogExplicitType))
 
   const deferredTerm = useDeferredValue(searchTerm)
   const deferredMedia = useDeferredValue(media)
@@ -54,40 +55,30 @@ export function useCatalog() {
       deferredCountry,
       deferredExplicit,
     ],
-    queryFn: ({ pageParam }) => {
-      const normalizedTerm = deferredTerm.trim() || DEFAULT_SEARCH_TERM
-      const options = {
+    queryFn: ({ pageParam, queryKey }) => {
+      const normalizedTerm = (queryKey[1] as string) || DEFAULT_SEARCH_TERM
+      const options: SearchOptions = {
+        term: normalizedTerm,
         offset: pageParam,
-        media: deferredMedia as any,
-        country: deferredCountry || undefined,
-        explicit: deferredExplicit as any,
+        media: queryKey[2] as CatalogMediaType,
+        country: queryKey[3] as string | undefined,
+        explicit: queryKey[4] as CatalogExplicitType,
       }
       return itunesSearchAction(normalizedTerm, options)
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      if (!lastPage.nextOffset) return null
+      if (!lastPage.nextOffset) return undefined
 
-      // Deduplication logic
-      const seen = new Set<number>()
-      for (const page of allPages) {
-        if (page) {
-          for (const item of page.items) {
-            seen.add(item.id)
-          }
-        }
-      }
+      // Deduplication logic: construction seen from all pages except lastPage
+      const seenIds = new Set<number>()
+      allPages.slice(0, -1).forEach((page) => {
+        page.items.forEach((item) => seenIds.add(item.id))
+      })
 
-      let newUniqueCount = 0
-      for (const item of lastPage.items) {
-        if (!seen.has(item.id)) {
-          newUniqueCount++
-        }
-      }
+      const newUniqueCount = lastPage.items.filter((item) => !seenIds.has(item.id)).length
 
-      if (allPages.length > 1 && newUniqueCount === 0) return null
-
-      return lastPage.nextOffset
+      return newUniqueCount > 0 ? lastPage.nextOffset : undefined
     },
     staleTime: 1000 * 60 * 5,
     enabled: !shouldShowFavoritesOnly,
@@ -117,9 +108,9 @@ export function useCatalog() {
   const setFilters = useCallback(
     (newFilters: { q?: string; media?: string; country?: string; explicit?: string }) => {
       if (newFilters.q !== undefined) setSearchTermState(newFilters.q)
-      if (newFilters.media !== undefined) setMedia(newFilters.media)
-      if (newFilters.country !== undefined) setCountry(newFilters.country)
-      if (newFilters.explicit !== undefined) setExplicit(newFilters.explicit)
+      if (newFilters.media !== undefined) setMedia(newFilters.media as CatalogMediaType)
+      if (newFilters.country !== undefined) setCountryState(newFilters.country || undefined)
+      if (newFilters.explicit !== undefined) setExplicit(newFilters.explicit as CatalogExplicitType)
 
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString())
@@ -158,7 +149,7 @@ export function useCatalog() {
     media,
     setMedia: (media: string) => setFilters({ media }),
     country,
-    setCountry: (country: string) => setFilters({ country }),
+    setCountry: (country: string | undefined) => setFilters({ country }),
     explicit,
     setExplicit: (explicit: string) => setFilters({ explicit }),
     handleClear,

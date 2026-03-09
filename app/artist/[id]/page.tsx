@@ -1,17 +1,15 @@
+import { ChevronLeft, Music2 } from "lucide-react"
 import { Metadata } from "next"
-import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
 import { itunesArtistLookupAction } from "@/features/catalog/api/catalog-actions"
+import { ArtistArtworkCarousel } from "@/features/catalog/components/ArtistArtworkCarousel"
 import { CatalogCard } from "@/features/catalog/components/CatalogCard"
 import { LoadingState } from "@/features/catalog/components/LoadingState"
-import { ChevronLeft, Music2, Users } from "lucide-react"
-
-import { ArtistArtworkCarousel } from "@/features/catalog/components/ArtistArtworkCarousel"
 
 interface ArtistPageProps {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: ArtistPageProps): Promise<Metadata> {
@@ -24,7 +22,7 @@ export async function generateMetadata({ params }: ArtistPageProps): Promise<Met
             title: `${artist.artist} - MusicStream`,
             description: `Explore albums and top tracks by ${artist.artist} on MusicStream.`,
         }
-    } catch (error) {
+    } catch {
         return { title: "Artist Not Found" }
     }
 }

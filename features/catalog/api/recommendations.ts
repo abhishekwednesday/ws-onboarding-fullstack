@@ -90,7 +90,7 @@ export async function getRecommendedTracksAction(): Promise<ActionState<CatalogI
 
     // 4. Search iTunes for these terms in parallel
     const searchResults = await Promise.allSettled(
-      selectedTerms.filter((term) => !!term).map((term) => itunesSearchAction(term, 0))
+      selectedTerms.filter((term) => !!term).map((term) => itunesSearchAction(term, { offset: 0 }))
     )
     for (const settled of searchResults) {
       if (settled.status === "rejected") {

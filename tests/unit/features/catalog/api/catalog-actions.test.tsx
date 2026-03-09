@@ -155,5 +155,37 @@ describe("itunesSearchAction server action", () => {
       expect(result.albums[0]!.id).toBe(456)
       expect(itunesApi.lookupItunes).toHaveBeenCalledWith([789], "album")
     })
+
+    it("should throw error if artist not found", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce({
+        resultCount: 0,
+        results: [],
+      })
+
+      await expect(itunesArtistLookupAction(999)).rejects.toThrow("Artist with id 999 not found")
+    })
+
+    it("should throw user-friendly error if API rejects", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockRejectedValueOnce(new Error("Network Error"))
+
+      await expect(itunesArtistLookupAction(789)).rejects.toThrow("Failed to load artist details. Please try again.")
+    })
+  })
+
+  describe("itunesAlbumLookupAction", () => {
+    it("should throw error if album not found", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce({
+        resultCount: 0,
+        results: [],
+      })
+
+      await expect(itunesAlbumLookupAction(999)).rejects.toThrow("Album with id 999 not found")
+    })
+
+    it("should throw user-friendly error if API rejects", async () => {
+      vi.mocked(itunesApi.lookupItunes).mockRejectedValueOnce(new Error("Network Error"))
+
+      await expect(itunesAlbumLookupAction(456)).rejects.toThrow("Failed to load album details. Please try again.")
+    })
   })
 })

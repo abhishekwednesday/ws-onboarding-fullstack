@@ -1,3 +1,4 @@
+import { ChevronLeft, Clock, Hash, Play } from "lucide-react"
 import { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -6,10 +7,10 @@ import { Suspense } from "react"
 import { itunesAlbumLookupAction } from "@/features/catalog/api/catalog-actions"
 import { FavoriteButton } from "@/features/catalog/components/FavoriteButton"
 import { LoadingState } from "@/features/catalog/components/LoadingState"
-import { ChevronLeft, Play, Clock, Hash } from "lucide-react"
+import { formatDuration } from "@/lib/utils/track-formatters"
 
 interface AlbumPageProps {
-    params: { id: string }
+    params: Promise<{ id: string }>
 }
 
 export async function generateMetadata({ params }: AlbumPageProps): Promise<Metadata> {
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: AlbumPageProps): Promise<Meta
             title: `${album.title} by ${album.artist} - MusicStream`,
             description: `Listen to ${album.title} by ${album.artist} on MusicStream.`,
         }
-    } catch (error) {
+    } catch {
         return { title: "Album Not Found" }
     }
 }
@@ -68,12 +69,18 @@ async function AlbumContent({ id }: { id: number }) {
                                 {album.title}
                             </h1>
                             <div className="flex items-center gap-2">
-                                <Link
-                                    href={`/artist/${album.artistId}`}
-                                    className="text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
-                                >
-                                    {album.artist}
-                                </Link>
+                                {album.artistId ? (
+                                    <Link
+                                        href={`/artist/${album.artistId}`}
+                                        className="text-lg font-medium text-muted-foreground transition-colors hover:text-primary"
+                                    >
+                                        {album.artist}
+                                    </Link>
+                                ) : (
+                                    <span className="text-lg font-medium text-muted-foreground">
+                                        {album.artist}
+                                    </span>
+                                )}
                                 <span className="text-muted-foreground/40">•</span>
                                 <span className="text-muted-foreground">{album.genre}</span>
                                 {items.length > 0 && (
@@ -130,7 +137,7 @@ async function AlbumContent({ id }: { id: number }) {
                                     </div>
                                     <span className="flex w-12 justify-end text-sm text-muted-foreground font-mono">
                                         {track.duration
-                                            ? `${Math.floor(track.duration / 60000)}:${String(Math.floor((track.duration % 60000) / 1000)).padStart(2, '0')}`
+                                            ? formatDuration(track.duration)
                                             : "--:--"}
                                     </span>
                                 </Link>
