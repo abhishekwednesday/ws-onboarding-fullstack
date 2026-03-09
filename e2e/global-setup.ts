@@ -78,7 +78,7 @@ export default async function globalSetup() {
         email: TEST_USER_EMAIL,
         password: TEST_USER_PASSWORD,
       },
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Origin: baseURL },
       failOnStatusCode: false,
     })
 
