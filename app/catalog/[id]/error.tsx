@@ -3,11 +3,7 @@
 import { useEffect } from "react"
 
 import { ErrorState } from "@/features/catalog/components/ErrorState"
-
-interface ErrorPagePropsType {
-  error: Error & { digest?: string }
-  reset: () => void
-}
+import { type ErrorPagePropsType } from "@/features/catalog/types/catalog-types"
 
 export default function Error({ error, reset }: ErrorPagePropsType) {
   useEffect(() => {

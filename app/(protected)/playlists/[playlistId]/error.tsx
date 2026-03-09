@@ -6,12 +6,12 @@ import { useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
 
-interface ErrorProps {
+interface ErrorPropsType {
   error: Error & { digest?: string }
   reset: () => void
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function Error({ error, reset }: ErrorPropsType) {
   useEffect(() => {
     console.error("Playlist detail error:", error)
   }, [error])

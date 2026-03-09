@@ -73,7 +73,7 @@ All identified issues were fixed on branch `chore/ONB-7-code-quality-cleanup`:
 
 - **Accessibility**: The disabled iTunes badge is now a `<button disabled>` — it is reachable by keyboard, announced correctly by screen readers, and its disabled state is communicated via the HTML `disabled` attribute rather than CSS alone.
 
-- **Correctness**: Broken `error.tsx` and `not-found.tsx` boundaries mean uncaught server errors and missing resources now render a scoped, recoverable UI instead of crashing the root layout.
+- **Correctness**: The newly added `error.tsx` and `not-found.tsx` boundaries ensure that uncaught server errors and missing resources render a scoped, recoverable UI rather than crashing the root layout.
 
 - **Maintainability**: Consistent `Type` suffix across all type declarations removes the ambiguity between value identifiers and type identifiers. The naming convention is now uniformly enforced across all three features. Removing the slop wrapper and obvious comments reduces noise in code review and keeps the signal-to-noise ratio high.
 

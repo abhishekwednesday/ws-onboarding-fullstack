@@ -58,10 +58,12 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
         </div>
 
         {highResArtwork ? (
-          <img
+          <Image
             src={highResArtwork}
             alt={item.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
           <div className="bg-muted absolute inset-0 flex items-center justify-center">

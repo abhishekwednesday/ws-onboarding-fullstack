@@ -1,13 +1,19 @@
 "use client"
 
+import { useEffect } from "react"
+
 import { Button } from "@/components/ui/button"
 
-interface ErrorProps {
+interface ErrorPropsType {
   error: Error & { digest?: string }
   reset: () => void
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function Error({ error, reset }: ErrorPropsType) {
+  useEffect(() => {
+    console.error("Playlists error:", error)
+  }, [error])
+
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
       <p className="text-lg font-semibold text-rose-500">Failed to load playlists</p>

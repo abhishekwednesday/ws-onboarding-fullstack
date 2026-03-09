@@ -1,4 +1,3 @@
-
 // https://github.com/francoismassart/eslint-plugin-tailwindcss/pull/381
 // import eslintPluginTailwindcss from "eslint-plugin-tailwindcss"
 import eslintPluginNext from "@next/eslint-plugin-next"
@@ -50,6 +49,29 @@ const config = typescriptEslint.config(
       },
     },
     rules: {
+      // Prevent client-side files from importing server-only modules.
+      // The server-only mock in vitest.setup.ts silences the runtime error in tests,
+      // so this lint rule is the static enforcement layer that catches violations early.
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["*/lib/db/*", "*/lib/db"],
+              message: "DB modules are server-only. Import from a server action or data-access layer instead.",
+            },
+            {
+              group: ["*/lib/auth/auth", "*/lib/auth/auth.ts"],
+              message:
+                "lib/auth/auth is server-only. Use lib/auth/auth-client for client-side auth, or call a server action.",
+            },
+            {
+              group: ["*/playlist/api/playlist-utils", "*/playlist/api/playlist-utils.ts"],
+              message: "playlist-utils is server-only. Use a server action instead.",
+            },
+          ],
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
