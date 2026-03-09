@@ -7,7 +7,7 @@ import { create } from "zustand"
  * Primarily used to track which tracks have been added to which playlists
  * during the current session for immediate optimistic UI feedback (e.g., checkmarks).
  */
-interface PlaylistState {
+interface PlaylistStateType {
   // Map of playlistId -> Set of trackIds.
   // WARNING: Set<number> is not JSON-serializable. Do NOT add Zustand persist
   // middleware to this store without converting to a serializable structure first.
@@ -39,7 +39,7 @@ interface PlaylistState {
   reset: () => void
 }
 
-export const usePlaylistStore = create<PlaylistState>((set, get) => ({
+export const usePlaylistStore = create<PlaylistStateType>((set, get) => ({
   addedTracks: {},
 
   markTrackAsAdded: (playlistId, trackId) => {

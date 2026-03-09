@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
@@ -94,16 +95,29 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
               aria-label="Listen on Apple Music"
               className="opacity-50 transition-opacity hover:opacity-100"
             >
-              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
+              <Image
+                src="/images/branding/itunes-badge.png"
+                alt="Listen on Apple Music"
+                width={50}
+                height={20}
+                className="h-5 w-auto"
+              />
             </a>
           ) : item.trackViewUrl ? (
-            <span
+            <button
               onClick={handleBadgeClick}
               aria-label="Listen on Apple Music"
+              disabled
               className="cursor-not-allowed opacity-50 transition-opacity hover:opacity-100"
             >
-              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
-            </span>
+              <Image
+                src="/images/branding/itunes-badge.png"
+                alt="Listen on Apple Music"
+                width={50}
+                height={20}
+                className="h-5 w-auto"
+              />
+            </button>
           ) : null}
         </div>
       </div>

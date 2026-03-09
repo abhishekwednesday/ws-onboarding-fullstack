@@ -6,7 +6,7 @@ import { toast } from "sonner"
 import { createPlaylistAction } from "@/features/playlist/api/playlist-mutations"
 import { getPlaylistTrackMapAction, getUserPlaylistsAction } from "@/features/playlist/api/playlist-queries"
 import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
-import { type CreatePlaylistInput } from "@/features/playlist/types/playlist-types"
+import { type CreatePlaylistInputType } from "@/features/playlist/types/playlist-types"
 
 /**
  * Hook for managing the collection of user playlists.
@@ -43,7 +43,7 @@ export function usePlaylists() {
 
   // Create playlist mutation
   const createPlaylistMutation = useMutation({
-    mutationFn: async (data: CreatePlaylistInput) => {
+    mutationFn: async (data: CreatePlaylistInputType) => {
       const result = await createPlaylistAction(data)
       if (!result.success) {
         throw new Error(result.error)
@@ -60,19 +60,12 @@ export function usePlaylists() {
     },
   })
 
-  /**
-   * Wrapper for creating a playlist that returns a promise for the caller.
-   */
-  const createPlaylist = async (data: CreatePlaylistInput) => {
-    return createPlaylistMutation.mutateAsync(data)
-  }
-
   return {
     playlists,
     isLoading,
     isError,
     error,
-    createPlaylist,
+    createPlaylist: createPlaylistMutation.mutateAsync,
     isCreating: createPlaylistMutation.isPending,
     refetch,
   }

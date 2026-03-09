@@ -2,13 +2,13 @@
 
 import { useEffect, useRef } from "react"
 
-interface UseInfiniteScrollProps {
+interface UseInfiniteScrollPropsType {
   onIntersect: () => void
   enabled?: boolean
   rootMargin?: string
 }
 
-export function useInfiniteScroll({ onIntersect, enabled = true, rootMargin = "200px" }: UseInfiniteScrollProps) {
+export function useInfiniteScroll({ onIntersect, enabled = true, rootMargin = "200px" }: UseInfiniteScrollPropsType) {
   const sentinelRef = useRef<HTMLDivElement>(null)
   const onIntersectRef = useRef(onIntersect)
 

@@ -1,5 +1,7 @@
 "use server"
 
+import "server-only"
+
 import { headers } from "next/headers"
 import type { PoolClient } from "pg"
 

@@ -10,7 +10,7 @@ export const CreatePlaylistSchema = z.object({
   description: z.string().max(500, "Description must be 500 characters or less").optional(),
 })
 
-export type CreatePlaylistInput = z.infer<typeof CreatePlaylistSchema>
+export type CreatePlaylistInputType = z.infer<typeof CreatePlaylistSchema>
 
 /**
  * Represents a playlist owned by the current user.

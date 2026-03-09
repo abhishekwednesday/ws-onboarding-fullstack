@@ -3,12 +3,12 @@
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 import { getAuthenticatedUserId, verifyPlaylistOwner, withAuthenticatedClient } from "./playlist-utils"
-import { type CreatePlaylistInput, CreatePlaylistSchema, type PlaylistType } from "../types/playlist-types"
+import { type CreatePlaylistInputType, CreatePlaylistSchema, type PlaylistType } from "../types/playlist-types"
 
 /**
  * Creates a new playlist for the authenticated user.
  */
-export async function createPlaylistAction(data: CreatePlaylistInput): Promise<ActionState<PlaylistType>> {
+export async function createPlaylistAction(data: CreatePlaylistInputType): Promise<ActionState<PlaylistType>> {
   const userId = await getAuthenticatedUserId()
   if (!userId) return { success: false, error: "Unauthorized" }
 

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "../hooks/useAuth"
-import { type RegisterFormData, RegisterSchema } from "../types/auth-types"
+import { type RegisterFormDataType, RegisterSchema } from "../types/auth-types"
 
 export function RegisterForm() {
   const { register: registerAction, isPending } = useAuth()
@@ -20,14 +20,13 @@ export function RegisterForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterFormData>({
+  } = useForm<RegisterFormDataType>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: { name: "", email: "", password: "" },
   })
 
-  const onSubmit = (data: RegisterFormData) => {
+  const onSubmit = (data: RegisterFormDataType) => {
     setError("")
-    // Server action register hook wrapper
     registerAction(data, "/playlists", (errMs) => setError(errMs))
   }
 

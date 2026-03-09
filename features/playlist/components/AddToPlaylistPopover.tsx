@@ -10,13 +10,13 @@ import { usePlaylistDetail } from "../hooks/usePlaylistDetail"
 import { usePlaylists } from "../hooks/usePlaylists"
 import { usePlaylistStore } from "../store/usePlaylistStore"
 
-interface PlaylistItemProps {
+interface PlaylistItemPropsType {
   playlist: { id: string; name: string }
   track: CatalogItemType
   isTrackInPlaylist: (playlistId: string, trackId: number) => boolean
 }
 
-function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemProps) {
+function PlaylistItem({ playlist, track, isTrackInPlaylist }: PlaylistItemPropsType) {
   const {
     addTrack: addTrackToThis,
     removeTrack: removeTrackFromThis,

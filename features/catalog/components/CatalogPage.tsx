@@ -52,10 +52,6 @@ export function CatalogPage() {
     window.scrollTo(0, 0)
   }, [shouldShowFavoritesOnly, debouncedSearchTerm])
 
-  const handleToggleFavorites = () => {
-    toggleShowFavoritesOnly()
-  }
-
   const { sentinelRef } = useInfiniteScroll({
     onIntersect: loadMore,
     enabled: !isLoading && !isFetchingMore && hasMore,
@@ -76,7 +72,7 @@ export function CatalogPage() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
-                  onClick={handleToggleFavorites}
+                  onClick={toggleShowFavoritesOnly}
                   className={cn(
                     "group flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border transition-all duration-300",
                     shouldShowFavoritesOnly
