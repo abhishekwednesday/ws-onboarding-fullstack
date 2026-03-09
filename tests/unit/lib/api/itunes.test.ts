@@ -39,7 +39,7 @@ describe("searchItunes API client", () => {
       json: async () => ({ resultCount: 0, results: [] }),
     } as Response)
 
-    await searchItunes("test", 50)
+    await searchItunes("test", { offset: 50 })
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining("offset=50"))
   })
 })

@@ -1,5 +1,3 @@
-import { type ItunesTrackType } from "@/lib/api/schemas"
-
 /**
  * Shared props type for Next.js App Router error boundary components.
  * Used by catalog error.tsx files to type the error and reset callback.
@@ -53,21 +51,4 @@ export interface SearchInputPropsType {
   onClear: () => void
   placeholder?: string
   isPending?: boolean
-}
-
-/**
- * Mapper function to transform ItunesTrackType to CatalogItemType.
- */
-export function mapItunesTrackToCatalogItem(track: ItunesTrackType): CatalogItemType {
-  return {
-    id: track.trackId,
-    title: track.trackName,
-    artist: track.artistName,
-    album: track.collectionName,
-    artworkUrl: track.artworkUrl100,
-    previewUrl: track.previewUrl,
-    genre: track.primaryGenreName,
-    duration: track.trackTimeMillis,
-    trackViewUrl: track.trackViewUrl,
-  }
 }
