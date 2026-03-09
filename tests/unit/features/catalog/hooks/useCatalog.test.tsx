@@ -60,7 +60,12 @@ describe("useCatalog hook", () => {
     })
 
     expect(result.current.data.length).toBe(2)
-    expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", 0)
+    expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", {
+      offset: 0,
+      media: undefined,
+      country: undefined,
+      explicit: undefined,
+    })
   })
 
   it("should load more items when loadMore is called", async () => {
@@ -102,7 +107,12 @@ describe("useCatalog hook", () => {
     expect(result.current.isFetchingMore).toBe(false)
 
     expect(result.current.data.length).toBe(51)
-    expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", 50)
+    expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", {
+      offset: 50,
+      media: undefined,
+      country: undefined,
+      explicit: undefined,
+    })
   })
 
   it("should stop pagination when no new unique items are found", async () => {

@@ -1,11 +1,7 @@
-"use client"
-
-import { Clock } from "lucide-react"
+import Link from "next/link"
 import * as React from "react"
 
 import { FLAG_AI_SUMMARIES, useFeatureFlag } from "@/lib/feature-flags/flags"
-import { formatDuration } from "@/lib/utils/track-formatters"
-import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogItemType } from "../types/catalog-types"
 
 export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
@@ -23,8 +19,29 @@ export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
         <h1 className="text-foreground font-serif text-4xl leading-tight font-bold tracking-tight text-balance drop-shadow-sm sm:text-5xl">
           {item.title}
         </h1>
-        <p className="text-muted-foreground text-xl font-medium drop-shadow-sm sm:text-2xl">{item.artist}</p>
-        {item.album && <p className="text-muted-foreground/60 text-sm italic">{item.album}</p>}
+        <div className="flex flex-col items-center gap-1">
+          {item.artistId ? (
+            <Link
+              href={`/artist/${item.artistId}`}
+              className="text-muted-foreground hover:text-primary text-xl font-medium drop-shadow-sm transition-colors sm:text-2xl"
+            >
+              {item.artist}
+            </Link>
+          ) : (
+            <p className="text-muted-foreground text-xl font-medium drop-shadow-sm sm:text-2xl">{item.artist}</p>
+          )}
+          {item.album &&
+            (item.collectionId ? (
+              <Link
+                href={`/album/${item.collectionId}`}
+                className="text-muted-foreground/60 hover:text-primary text-sm font-medium italic transition-colors"
+              >
+                {item.album}
+              </Link>
+            ) : (
+              <p className="text-muted-foreground/60 text-sm italic">{item.album}</p>
+            ))}
+        </div>
       </div>
       {item.genre && (
         <div className="pt-2">

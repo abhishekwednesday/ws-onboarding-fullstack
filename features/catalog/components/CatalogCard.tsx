@@ -8,6 +8,7 @@ import { AddToPlaylistButton } from "@/features/playlist/components/AddToPlaylis
 import { trackTrackSelected } from "@/lib/analytics/events"
 import { FavoriteButton } from "./FavoriteButton"
 import { type CatalogCardPropsType } from "../types/catalog-types"
+import Link from "next/link"
 
 /**
  * Individual card component for a music track in the catalog.
@@ -81,7 +82,28 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
           <p className="text-foreground group-hover:text-primary line-clamp-1 font-serif text-lg font-bold tracking-tight transition-colors">
             {item.title}
           </p>
-          <p className="text-muted-foreground line-clamp-1 text-sm font-medium">{item.artist}</p>
+          <div className="flex flex-col gap-0.5">
+            {item.artistId ? (
+              <Link
+                href={`/artist/${item.artistId}`}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                className="text-muted-foreground hover:text-primary w-fit cursor-pointer text-left text-sm font-medium transition-colors"
+              >
+                {item.artist}
+              </Link>
+            ) : (
+              <p className="text-muted-foreground line-clamp-1 text-sm font-medium">{item.artist}</p>
+            )}
+            {item.album && item.collectionId && (
+              <Link
+                href={`/album/${item.collectionId}`}
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                className="text-muted-foreground/60 hover:text-primary line-clamp-1 w-fit cursor-pointer text-left text-xs font-medium transition-colors"
+              >
+                {item.album}
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 flex items-center justify-between">
