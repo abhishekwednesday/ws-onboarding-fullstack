@@ -197,7 +197,7 @@ describe("itunesSearchAction server action", () => {
     it("should call lookupItunes and return data on success", async () => {
       const mockResponse: ItunesSearchResponseType = {
         resultCount: 1,
-        results: [{ trackId: 123 } as any],
+        results: [{ trackId: 123, artistName: "Test Artist", trackName: "Test Track" }],
       }
       vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce(mockResponse)
 

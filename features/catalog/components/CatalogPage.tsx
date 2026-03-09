@@ -37,6 +37,7 @@ export function CatalogPage() {
     explicit,
     setExplicit,
     handleClear,
+    handleSearchClear,
     loadMore,
     hasMore,
     isFetchingMore,
@@ -78,7 +79,7 @@ export function CatalogPage() {
             <SearchInput
               value={searchTerm}
               onChange={setSearchTerm}
-              onClear={handleClear}
+              onClear={handleSearchClear}
               isPending={isSearchPending}
             />
             <CatalogFilters

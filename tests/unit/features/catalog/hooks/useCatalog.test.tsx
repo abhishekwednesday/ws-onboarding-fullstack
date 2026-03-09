@@ -62,9 +62,9 @@ describe("useCatalog hook", () => {
     expect(result.current.data.length).toBe(2)
     expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", {
       offset: 0,
-      media: "",
+      media: undefined,
       country: undefined,
-      explicit: "",
+      explicit: undefined,
     })
   })
 
@@ -109,9 +109,9 @@ describe("useCatalog hook", () => {
     expect(result.current.data.length).toBe(51)
     expect(catalogActions.itunesSearchAction).toHaveBeenCalledWith("top music", {
       offset: 50,
-      media: "",
+      media: undefined,
       country: undefined,
-      explicit: "",
+      explicit: undefined,
     })
   })
 

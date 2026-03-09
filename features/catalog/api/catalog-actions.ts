@@ -53,7 +53,7 @@ export async function itunesArtistLookupAction(
       .map((item) => mapItunesItemToCatalogItem(item))
       .filter((i): i is CatalogItemType => i !== null)
 
-    const artist = results.find((r) => r.id === artistId || r.artistId === artistId)
+    const artist = results.find((r) => r.id === artistId && r.collectionId === undefined)
     const albums = results.filter((r) => r.id !== (artist?.id ?? artistId))
 
     if (!artist) {
