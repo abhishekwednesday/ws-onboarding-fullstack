@@ -81,7 +81,48 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
           <p className="text-foreground group-hover:text-primary line-clamp-1 font-serif text-lg font-bold tracking-tight transition-colors">
             {item.title}
           </p>
-          <p className="text-muted-foreground line-clamp-1 text-sm font-medium">{item.artist}</p>
+          <div className="flex flex-col gap-0.5">
+            {item.artistId ? (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation()
+                  router.push(`/artist/${item.artistId}`)
+                }}
+                className="text-muted-foreground hover:text-primary w-fit cursor-pointer text-left text-sm font-medium transition-colors"
+                role="link"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation()
+                    router.push(`/artist/${item.artistId}`)
+                  }
+                }}
+              >
+                {item.artist}
+              </span>
+            ) : (
+              <p className="text-muted-foreground line-clamp-1 text-sm font-medium">{item.artist}</p>
+            )}
+            {item.album && item.collectionId && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation()
+                  router.push(`/album/${item.collectionId}`)
+                }}
+                className="text-muted-foreground/60 hover:text-primary line-clamp-1 w-fit cursor-pointer text-left text-xs font-medium transition-colors"
+                role="link"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.stopPropagation()
+                    router.push(`/album/${item.collectionId}`)
+                  }
+                }}
+              >
+                {item.album}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="mt-4 flex items-center justify-between">

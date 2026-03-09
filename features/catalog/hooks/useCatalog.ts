@@ -21,9 +21,16 @@ export function useCatalog() {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
-  // Initialise from URL param so Back navigation restores the search term
+  // Initialise from URL params so Back navigation restores the state
   const [searchTerm, setSearchTermState] = useState(() => searchParams.get("q") ?? "")
+  const [media, setMedia] = useState(() => searchParams.get("media") ?? "")
+  const [country, setCountry] = useState(() => searchParams.get("country") ?? "")
+  const [explicit, setExplicit] = useState(() => searchParams.get("explicit") ?? "")
+
   const deferredTerm = useDeferredValue(searchTerm)
+  const deferredMedia = useDeferredValue(media)
+  const deferredCountry = useDeferredValue(country)
+  const deferredExplicit = useDeferredValue(explicit)
 
   const [shouldShowFavoritesOnly, setShouldShowFavoritesOnly] = useState(false)
   const favoritesMap = useFavoritesStore(useShallow((state) => state.favorites))
@@ -40,19 +47,30 @@ export function useCatalog() {
     error,
     refetch,
   } = useInfiniteQuery({
-    queryKey: ["catalog", deferredTerm.trim() || DEFAULT_SEARCH_TERM],
+    queryKey: [
+      "catalog",
+      deferredTerm.trim() || DEFAULT_SEARCH_TERM,
+      deferredMedia,
+      deferredCountry,
+      deferredExplicit,
+    ],
     queryFn: ({ pageParam }) => {
       const normalizedTerm = deferredTerm.trim() || DEFAULT_SEARCH_TERM
-      return itunesSearchAction(normalizedTerm, pageParam)
+      const options = {
+        offset: pageParam,
+        media: deferredMedia as any,
+        country: deferredCountry || undefined,
+        explicit: deferredExplicit as any,
+      }
+      return itunesSearchAction(normalizedTerm, options)
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage.nextOffset) return null
 
+      // Deduplication logic
       const seen = new Set<number>()
-      // Pre-fill seen IDs from previous pages
-      for (let i = 0; i < allPages.length - 1; i++) {
-        const page = allPages[i]
+      for (const page of allPages) {
         if (page) {
           for (const item of page.items) {
             seen.add(item.id)
@@ -63,7 +81,6 @@ export function useCatalog() {
       let newUniqueCount = 0
       for (const item of lastPage.items) {
         if (!seen.has(item.id)) {
-          seen.add(item.id)
           newUniqueCount++
         }
       }
@@ -76,7 +93,7 @@ export function useCatalog() {
     enabled: !shouldShowFavoritesOnly,
   })
 
-  // Track search intent once the deferred term settles (after debounce)
+  // Track search intent once the deferred term settles
   useEffect(() => {
     const term = deferredTerm?.trim()
     if (term) trackCatalogSearch(term)
@@ -97,25 +114,33 @@ export function useCatalog() {
     return Array.from(uniqueItems.values())
   }, [data])
 
-  const setSearchTerm = useCallback(
-    (term: string) => {
-      setSearchTermState(term)
+  const setFilters = useCallback(
+    (newFilters: { q?: string; media?: string; country?: string; explicit?: string }) => {
+      if (newFilters.q !== undefined) setSearchTermState(newFilters.q)
+      if (newFilters.media !== undefined) setMedia(newFilters.media)
+      if (newFilters.country !== undefined) setCountry(newFilters.country)
+      if (newFilters.explicit !== undefined) setExplicit(newFilters.explicit)
+
       startTransition(() => {
         const params = new URLSearchParams(searchParams.toString())
-        if (term) {
-          params.set("q", term)
-        } else {
-          params.delete("q")
-        }
+        Object.entries(newFilters).forEach(([key, value]) => {
+          if (value) {
+            params.set(key, value)
+          } else {
+            params.delete(key)
+          }
+        })
         router.replace(`/catalog?${params.toString()}`, { scroll: false })
       })
     },
     [router, searchParams]
   )
 
+  const setSearchTerm = useCallback((q: string) => setFilters({ q }), [setFilters])
+
   const handleClear = useCallback(() => {
-    setSearchTerm("")
-  }, [setSearchTerm])
+    setFilters({ q: "", media: "", country: "", explicit: "" })
+  }, [setFilters])
 
   const loadMore = useCallback(() => {
     if (!shouldShowFavoritesOnly && hasNextPage && !isFetchingNextPage) {
@@ -130,6 +155,12 @@ export function useCatalog() {
   return {
     searchTerm,
     setSearchTerm,
+    media,
+    setMedia: (media: string) => setFilters({ media }),
+    country,
+    setCountry: (country: string) => setFilters({ country }),
+    explicit,
+    setExplicit: (explicit: string) => setFilters({ explicit }),
     handleClear,
     data: shouldShowFavoritesOnly ? favoriteItems : items,
     isLoading: shouldShowFavoritesOnly ? false : isInitialLoading,

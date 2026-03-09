@@ -23,8 +23,36 @@ export function TrackDetailInfo({ item }: { item: CatalogItemType }) {
         <h1 className="text-foreground font-serif text-4xl leading-tight font-bold tracking-tight text-balance drop-shadow-sm sm:text-5xl">
           {item.title}
         </h1>
-        <p className="text-muted-foreground text-xl font-medium drop-shadow-sm sm:text-2xl">{item.artist}</p>
-        {item.album && <p className="text-muted-foreground/60 text-sm italic">{item.album}</p>}
+        <div className="flex flex-col items-center gap-1">
+          {item.artistId ? (
+            <button
+              onClick={() => {
+                const url = `/artist/${item.artistId}`
+                window.location.href = url
+              }}
+              className="text-muted-foreground hover:text-primary text-xl font-medium transition-colors drop-shadow-sm sm:text-2xl"
+            >
+              {item.artist}
+            </button>
+          ) : (
+            <p className="text-muted-foreground text-xl font-medium drop-shadow-sm sm:text-2xl">{item.artist}</p>
+          )}
+          {item.album && (
+            item.collectionId ? (
+              <button
+                onClick={() => {
+                  const url = `/album/${item.collectionId}`
+                  window.location.href = url
+                }}
+                className="text-muted-foreground/60 hover:text-primary text-sm font-medium transition-colors italic"
+              >
+                {item.album}
+              </button>
+            ) : (
+              <p className="text-muted-foreground/60 text-sm italic">{item.album}</p>
+            )
+          )}
+        </div>
       </div>
       {item.genre && (
         <div className="pt-2">

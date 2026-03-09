@@ -15,7 +15,9 @@ export type CatalogItemType = {
   id: number
   title: string
   artist: string
+  artistId?: number
   album?: string
+  collectionId?: number
   artworkUrl?: string
   previewUrl?: string
   genre?: string

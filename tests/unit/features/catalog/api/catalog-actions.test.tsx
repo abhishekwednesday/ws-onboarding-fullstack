@@ -1,10 +1,17 @@
 import { describe, expect, it, vi } from "vitest"
-import { itunesSearchAction } from "@/features/catalog/api/catalog-actions"
+import {
+  itunesAlbumLookupAction,
+  itunesArtistLookupAction,
+  itunesLookupAction,
+  itunesSearchAction,
+} from "@/features/catalog/api/catalog-actions"
 import * as itunesApi from "@/lib/api/itunes"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
 vi.mock("@/lib/api/itunes", () => ({
   searchItunes: vi.fn(),
+  lookupItunes: vi.fn(),
+  lookupItunesTrack: vi.fn(),
   ITUNES_PAGE_SIZE: 50,
 }))
 
@@ -33,7 +40,7 @@ describe("itunesSearchAction server action", () => {
     expect(result.items[0]!.id).toBe(123)
     expect(result.nextOffset).toBe(null)
     expect(result.totalCount).toBe(1)
-    expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", { offset: 0 })
+    expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", {})
   })
 
   it("should return correct nextOffset for a full page", async () => {
@@ -53,7 +60,7 @@ describe("itunesSearchAction server action", () => {
     }
     vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockFullPage)
 
-    const result = await itunesSearchAction("test", 0)
+    const result = await itunesSearchAction("test", { offset: 0 })
     expect(result.items.length).toBe(50)
     expect(result.nextOffset).toBe(50)
     expect(itunesApi.searchItunes).toHaveBeenCalledWith("test", { offset: 0 })
@@ -76,7 +83,7 @@ describe("itunesSearchAction server action", () => {
     }
     vi.mocked(itunesApi.searchItunes).mockResolvedValueOnce(mockPage2)
 
-    const result = await itunesSearchAction("test", 50)
+    const result = await itunesSearchAction("test", { offset: 50 })
     expect(result.items.length).toBe(50)
     expect(result.nextOffset).toBe(100)
     expect(itunesApi.searchItunes).toHaveBeenCalledWith("test", { offset: 50 })
@@ -86,5 +93,67 @@ describe("itunesSearchAction server action", () => {
     vi.mocked(itunesApi.searchItunes).mockRejectedValueOnce(new Error("API Down"))
 
     await expect(itunesSearchAction("Queen")).rejects.toThrow("Failed to fetch data from ITunes API.")
+  })
+
+  describe("itunesAlbumLookupAction", () => {
+    it("should return album and tracks on success", async () => {
+      const mockResponse: ItunesSearchResponseType = {
+        resultCount: 2,
+        results: [
+          {
+            wrapperType: "collection",
+            collectionId: 456,
+            artistName: "Queen",
+            collectionName: "A Night at the Opera",
+            artworkUrl100: "http://example.com/art.jpg",
+          },
+          {
+            wrapperType: "track",
+            trackId: 123,
+            artistName: "Queen",
+            trackName: "Bohemian Rhapsody",
+            collectionId: 456,
+            trackTimeMillis: 300000,
+          },
+        ],
+      }
+      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce(mockResponse)
+
+      const result = await itunesAlbumLookupAction(456)
+      expect(result.album.id).toBe(456)
+      expect(result.items.length).toBe(1)
+      expect(result.items[0]!.id).toBe(123)
+      expect(itunesApi.lookupItunes).toHaveBeenCalledWith([456], "song")
+    })
+  })
+
+  describe("itunesArtistLookupAction", () => {
+    it("should return artist and albums on success", async () => {
+      const mockResponse: ItunesSearchResponseType = {
+        resultCount: 2,
+        results: [
+          {
+            wrapperType: "artist",
+            artistId: 789,
+            artistName: "Queen",
+            primaryGenreName: "Rock",
+          },
+          {
+            wrapperType: "collection",
+            collectionId: 456,
+            artistName: "Queen",
+            collectionName: "A Night at the Opera",
+            artistId: 789,
+          },
+        ],
+      }
+      vi.mocked(itunesApi.lookupItunes).mockResolvedValueOnce(mockResponse)
+
+      const result = await itunesArtistLookupAction(789)
+      expect(result.artist.id).toBe(789)
+      expect(result.albums.length).toBe(1)
+      expect(result.albums[0]!.id).toBe(456)
+      expect(itunesApi.lookupItunes).toHaveBeenCalledWith([789], "album")
+    })
   })
 })

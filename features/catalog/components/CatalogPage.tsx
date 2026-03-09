@@ -6,6 +6,7 @@ import * as React from "react"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { FLAG_NEW_CATALOG_LAYOUT, useFeatureFlag } from "@/lib/feature-flags/flags"
 import { cn } from "@/lib/utils"
+import { CatalogFilters } from "./CatalogFilters"
 import { CatalogGridVariantB } from "./CatalogGridVariantB"
 import { CatalogList } from "./CatalogList"
 import { EmptyState } from "./EmptyState"
@@ -29,6 +30,12 @@ export function CatalogPage() {
     refetch,
     searchTerm,
     setSearchTerm,
+    media,
+    setMedia,
+    country,
+    setCountry,
+    explicit,
+    setExplicit,
     handleClear,
     loadMore,
     hasMore,
@@ -59,15 +66,26 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-8 py-10">
-      <div className="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+      <div className="flex flex-col space-y-4 lg:flex-row lg:items-end lg:justify-between lg:space-y-0">
         <div className="flex flex-col space-y-2">
           <h1 className="text-foreground font-serif text-4xl font-bold tracking-tight sm:text-5xl">Music Catalog</h1>
           <p className="text-muted-foreground max-w-[500px] text-base leading-relaxed">
             Discover and explore millions of tracks and artists from the iTunes library.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} isPending={isSearchPending} />
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-1 items-center gap-2 min-w-[300px]">
+            <SearchInput value={searchTerm} onChange={setSearchTerm} onClear={handleClear} isPending={isSearchPending} />
+            <CatalogFilters
+              media={media}
+              setMedia={setMedia}
+              country={country}
+              setCountry={setCountry}
+              explicit={explicit}
+              setExplicit={setExplicit}
+              onClear={handleClear}
+            />
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
