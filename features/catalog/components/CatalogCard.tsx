@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import * as React from "react"
 
@@ -57,10 +58,12 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
         </div>
 
         {highResArtwork ? (
-          <img
+          <Image
             src={highResArtwork}
             alt={item.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
         ) : (
           <div className="bg-muted absolute inset-0 flex items-center justify-center">
@@ -94,16 +97,29 @@ export function CatalogCard({ item }: CatalogCardPropsType) {
               aria-label="Listen on Apple Music"
               className="opacity-50 transition-opacity hover:opacity-100"
             >
-              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
+              <Image
+                src="/images/branding/itunes-badge.png"
+                alt="Listen on Apple Music"
+                width={50}
+                height={20}
+                className="h-5 w-auto"
+              />
             </a>
           ) : item.trackViewUrl ? (
-            <span
+            <button
               onClick={handleBadgeClick}
               aria-label="Listen on Apple Music"
+              disabled
               className="cursor-not-allowed opacity-50 transition-opacity hover:opacity-100"
             >
-              <img src="/images/branding/itunes-badge.png" alt="Listen on Apple Music" className="h-5 w-auto" />
-            </span>
+              <Image
+                src="/images/branding/itunes-badge.png"
+                alt="Listen on Apple Music"
+                width={50}
+                height={20}
+                className="h-5 w-auto"
+              />
+            </button>
           ) : null}
         </div>
       </div>

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { useAuth } from "../hooks/useAuth"
-import { type LoginFormData, LoginSchema } from "../types/auth-types"
+import { type LoginFormDataType, LoginSchema } from "../types/auth-types"
 
 export function LoginForm() {
   const { login, isPending } = useAuth()
@@ -20,7 +20,7 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
+  } = useForm<LoginFormDataType>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
@@ -28,9 +28,8 @@ export function LoginForm() {
     },
   })
 
-  const onSubmit = (data: LoginFormData) => {
+  const onSubmit = (data: LoginFormDataType) => {
     setError("")
-    // Server action login hook wrapper
     login(data, "/playlists", (errMs) => setError(errMs))
   }
 

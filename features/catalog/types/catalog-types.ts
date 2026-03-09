@@ -1,6 +1,15 @@
 import { type ItunesTrackType } from "@/lib/api/schemas"
 
 /**
+ * Shared props type for Next.js App Router error boundary components.
+ * Used by catalog error.tsx files to type the error and reset callback.
+ */
+export interface ErrorPagePropsType {
+  error: Error & { digest?: string }
+  reset: () => void
+}
+
+/**
  * Represent a catalog item in the UI.
  * Standardized format mapped from ITunes API response.
  */

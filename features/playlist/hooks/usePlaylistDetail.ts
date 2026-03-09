@@ -12,11 +12,11 @@ import { usePlaylistStore } from "@/features/playlist/store/usePlaylistStore"
  * Hook for managing a single playlist's details and track list.
  * Handles fetching, adding tracks, and optimistic UI state.
  */
-interface UsePlaylistDetailOptions {
+interface UsePlaylistDetailOptionsType {
   skipQuery?: boolean
 }
 
-export function usePlaylistDetail(playlistId?: string, options?: UsePlaylistDetailOptions) {
+export function usePlaylistDetail(playlistId?: string, options?: UsePlaylistDetailOptionsType) {
   const queryClient = useQueryClient()
   const { markTrackAsAdded, removeTrackFromPlaylist, isTrackInPlaylist } = usePlaylistStore()
 

@@ -4,12 +4,12 @@ const CACHE_TTL_MS = 5 * 60 * 1000
 const MAX_CACHE_ENTRIES = 200
 const SWEEP_INTERVAL_MS = 60 * 1000
 
-interface CacheEntry {
+interface CacheEntryType {
   data: CatalogItemType[]
   timestamp: number
 }
 
-const recommendationCache = new Map<string, CacheEntry>()
+const recommendationCache = new Map<string, CacheEntryType>()
 
 function evictStaleEntries(): void {
   const now = Date.now()

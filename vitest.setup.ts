@@ -1,6 +1,10 @@
 import "@testing-library/jest-dom"
 import { vi } from "vitest"
 
+// server-only throws when imported outside a Next.js server context.
+// In jsdom (vitest), we mock it as a no-op so server modules can be imported in tests.
+vi.mock("server-only", () => ({}))
+
 // Mock Next.js navigation hooks — the app router is not mounted in jsdom
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(), prefetch: vi.fn() }),

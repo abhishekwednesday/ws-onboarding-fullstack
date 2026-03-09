@@ -6,7 +6,7 @@ import { useFavoritesStore } from "@/features/catalog/store/useFavoritesStore"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
 import { getLikedSongsAction, syncLikedSongsAction } from "@/features/playlist/api/playlist-sync"
 import { loginAction, logoutAction, registerAction } from "../api/auth-actions"
-import { type LoginFormData, type RegisterFormData } from "../types/auth-types"
+import { type LoginFormDataType, type RegisterFormDataType } from "../types/auth-types"
 
 async function syncFavoritesOnAuth(tracks: CatalogItemType[], context: string): Promise<void> {
   if (tracks.length === 0) return
@@ -32,7 +32,7 @@ export function useAuth() {
   const clearFavorites = useFavoritesStore((state) => state.clearFavorites)
   const replaceFavorites = useFavoritesStore((state) => state.replaceFavorites)
 
-  const login = (data: LoginFormData, redirectTo = "/playlists", onError?: (msg: string) => void) => {
+  const login = (data: LoginFormDataType, redirectTo = "/playlists", onError?: (msg: string) => void) => {
     startTransition(async () => {
       const res = await loginAction(data)
       if (res.success) {
@@ -55,7 +55,7 @@ export function useAuth() {
     })
   }
 
-  const register = (data: RegisterFormData, redirectTo = "/playlists", onError?: (msg: string) => void) => {
+  const register = (data: RegisterFormDataType, redirectTo = "/playlists", onError?: (msg: string) => void) => {
     startTransition(async () => {
       const res = await registerAction(data)
       if (res.success) {

@@ -3,6 +3,7 @@ import webpack from "webpack"
 import path from "node:path"
 
 const ENV_MOCK = path.resolve(__dirname, "mocks/env.ts")
+const SERVER_ONLY_MOCK = path.resolve(__dirname, "mocks/server-only.ts")
 
 const config: StorybookConfig = {
   stories: [
@@ -33,6 +34,7 @@ const config: StorybookConfig = {
     config.resolve.alias = {
       "@/env.mjs": ENV_MOCK,
       "@/env": ENV_MOCK,
+      "server-only": SERVER_ONLY_MOCK,
       ...config.resolve.alias,
     }
     config.resolve.fallback = {

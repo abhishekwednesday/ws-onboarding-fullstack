@@ -4,9 +4,9 @@ import { headers } from "next/headers"
 
 import { auth } from "@/lib/auth/auth"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
-import { type LoginFormData, type RegisterFormData } from "../types/auth-types"
+import { type LoginFormDataType, type RegisterFormDataType } from "../types/auth-types"
 
-export async function loginAction(data: LoginFormData): Promise<ActionState<unknown>> {
+export async function loginAction(data: LoginFormDataType): Promise<ActionState<unknown>> {
   return withActionHandler(async () => {
     return auth.api.signInEmail({
       body: data,
@@ -15,7 +15,7 @@ export async function loginAction(data: LoginFormData): Promise<ActionState<unkn
   }, "Failed to sign in")
 }
 
-export async function registerAction(data: RegisterFormData): Promise<ActionState<unknown>> {
+export async function registerAction(data: RegisterFormDataType): Promise<ActionState<unknown>> {
   return withActionHandler(async () => {
     return auth.api.signUpEmail({
       body: {

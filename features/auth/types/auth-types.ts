@@ -5,7 +5,7 @@ export const LoginSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 })
 
-export type LoginFormData = z.infer<typeof LoginSchema>
+export type LoginFormDataType = z.infer<typeof LoginSchema>
 
 export const RegisterSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -13,4 +13,4 @@ export const RegisterSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 })
 
-export type RegisterFormData = z.infer<typeof RegisterSchema>
+export type RegisterFormDataType = z.infer<typeof RegisterSchema>
