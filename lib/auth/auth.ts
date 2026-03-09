@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth"
 import { nextCookies } from "better-auth/next-js"
+import { testUtils } from "better-auth/plugins"
 
 import { env } from "@/env.mjs"
 import { dbPool } from "@/lib/db/pool"
@@ -15,5 +16,5 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  plugins: [nextCookies()],
+  plugins: [nextCookies(), ...(process.env.NODE_ENV === "test" ? [testUtils()] : [])],
 })
