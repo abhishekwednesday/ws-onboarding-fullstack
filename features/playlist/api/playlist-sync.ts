@@ -2,6 +2,7 @@
 
 import { itunesLookupAction } from "@/features/catalog/api/catalog-actions"
 import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+import { mapItunesItemToCatalogItem } from "@/features/catalog/utils/mappers"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 import { getAuthenticatedUserId, withAuthenticatedClient } from "./playlist-utils"
@@ -89,19 +90,10 @@ export async function getLikedSongsAction(): Promise<ActionState<CatalogItemType
 
     const seen = new Set<number>()
     return allResults.reduce<CatalogItemType[]>((acc, t) => {
-      if (!seen.has(t.trackId)) {
-        seen.add(t.trackId)
-        acc.push({
-          id: t.trackId,
-          title: t.trackName,
-          artist: t.artistName,
-          album: t.collectionName,
-          artworkUrl: t.artworkUrl100,
-          previewUrl: t.previewUrl,
-          genre: t.primaryGenreName,
-          duration: t.trackTimeMillis,
-          trackViewUrl: t.trackViewUrl,
-        } as CatalogItemType)
+      const mapped = mapItunesItemToCatalogItem(t)
+      if (mapped && !seen.has(mapped.id)) {
+        seen.add(mapped.id)
+        acc.push(mapped)
       }
       return acc
     }, [])

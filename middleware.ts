@@ -12,36 +12,52 @@ export async function middleware(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some(isBoundaryMatch)
   const isAuthRoute = authRoutes.some(isBoundaryMatch)
 
+  let response: NextResponse
+
   if (!isProtectedRoute && !isAuthRoute) {
-    return NextResponse.next()
+    response = NextResponse.next()
+  } else {
+    // In Next.js middleware (Edge Runtime), we cannot use the Node.js pg adapter directly.
+    // We must hit our own Next.js API route to validate the session.
+    let session: Session | null = null
+    try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 2000)
+
+      const fetchResponse = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
+        headers: {
+          cookie: request.headers.get("cookie") || "",
+        },
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+      session = fetchResponse.ok ? ((await fetchResponse.json()) as Session) : null
+    } catch (error) {
+      // Treat any network or parse error as an unauthenticated state
+      console.warn("Middleware session fetch failed or timed out:", error)
+      session = null
+    }
+
+    if (isProtectedRoute && !session) {
+      const loginUrl = new URL("/login", request.url)
+      loginUrl.searchParams.set("returnTo", request.nextUrl.pathname + request.nextUrl.search)
+      response = NextResponse.redirect(loginUrl)
+    } else if (isAuthRoute && session) {
+      response = NextResponse.redirect(new URL("/", request.url))
+    } else {
+      response = NextResponse.next()
+    }
   }
 
-  // In Next.js middleware (Edge Runtime), we cannot use the Node.js pg adapter directly.
-  // We must hit our own Next.js API route to validate the session.
-  let session: Session | null = null
-  try {
-    const response = await fetch(`${request.nextUrl.origin}/api/auth/get-session`, {
-      headers: {
-        cookie: request.headers.get("cookie") || "",
-      },
-    })
-    session = response.ok ? ((await response.json()) as Session) : null
-  } catch (error) {
-    // Treat any network or parse error as an unauthenticated state
-    session = null
+  // Geolocation: Set country cookie if not present
+  if (!request.cookies.has("x-user-country")) {
+    const geoRequest = request as NextRequest & { geo?: { country?: string } }
+    const country = geoRequest.geo?.country || request.headers.get("x-vercel-ip-country") || "US"
+    response.cookies.set("x-user-country", country)
   }
 
-  if (isProtectedRoute && !session) {
-    const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("returnTo", request.nextUrl.pathname + request.nextUrl.search)
-    return NextResponse.redirect(loginUrl)
-  }
-
-  if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL("/", request.url))
-  }
-
-  return NextResponse.next()
+  return response
 }
 
 export const config = {

@@ -1,6 +1,7 @@
 "use server"
 
-import { type CatalogItemType, mapItunesTrackToCatalogItem } from "@/features/catalog/types/catalog-types"
+import { type CatalogItemType } from "@/features/catalog/types/catalog-types"
+import { mapItunesItemToCatalogItem } from "@/features/catalog/utils/mappers"
 import { ITUNES_PAGE_SIZE, lookupItunes, lookupItunesTrack, searchItunes } from "@/lib/api/itunes"
 import { type ItunesSearchResponseType } from "@/lib/api/schemas"
 
@@ -17,8 +18,10 @@ export async function itunesSearchAction(
   offset: number = 0
 ): Promise<{ items: CatalogItemType[]; nextOffset: number | null; totalCount: number }> {
   try {
-    const response = await searchItunes(term, offset)
-    const items = response.results.map(mapItunesTrackToCatalogItem)
+    const response = await searchItunes(term, { offset })
+    const items = response.results
+      .map((item) => mapItunesItemToCatalogItem(item))
+      .filter((i): i is CatalogItemType => i !== null)
 
     return {
       items,
@@ -56,7 +59,9 @@ export async function itunesLookupSingleAction(id: number): Promise<CatalogItemT
     const response = await lookupItunesTrack(id)
     const track = response.results[0]
     if (!track) throw new Error(`Track with id ${id} not found`)
-    return mapItunesTrackToCatalogItem(track)
+    const mapped = mapItunesItemToCatalogItem(track)
+    if (!mapped) throw new Error(`Track with id ${id} could not be mapped`)
+    return mapped
   } catch (error) {
     console.error("ITunes Single Lookup Error:", error)
     if (error instanceof Error && error.message.includes("not found")) {

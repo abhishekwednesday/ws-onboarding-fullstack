@@ -33,7 +33,7 @@ describe("itunesSearchAction server action", () => {
     expect(result.items[0]!.id).toBe(123)
     expect(result.nextOffset).toBe(null)
     expect(result.totalCount).toBe(1)
-    expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", 0)
+    expect(itunesApi.searchItunes).toHaveBeenCalledWith("Queen", { offset: 0 })
   })
 
   it("should return correct nextOffset for a full page", async () => {
@@ -56,6 +56,7 @@ describe("itunesSearchAction server action", () => {
     const result = await itunesSearchAction("test", 0)
     expect(result.items.length).toBe(50)
     expect(result.nextOffset).toBe(50)
+    expect(itunesApi.searchItunes).toHaveBeenCalledWith("test", { offset: 0 })
   })
 
   it("should handle non-zero offsets correctly", async () => {
@@ -78,6 +79,7 @@ describe("itunesSearchAction server action", () => {
     const result = await itunesSearchAction("test", 50)
     expect(result.items.length).toBe(50)
     expect(result.nextOffset).toBe(100)
+    expect(itunesApi.searchItunes).toHaveBeenCalledWith("test", { offset: 50 })
   })
 
   it("should throw a user-friendly error if the API call fails", async () => {

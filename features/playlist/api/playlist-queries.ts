@@ -1,6 +1,7 @@
 "use server"
 
 import { itunesLookupAction } from "@/features/catalog/api/catalog-actions"
+import { mapItunesItemToCatalogItem } from "@/features/catalog/utils/mappers"
 import { type ActionState, withActionHandler } from "@/lib/utils/action-handler"
 import { getAuthenticatedUserId, withAuthenticatedClient } from "./playlist-utils"
 import { type PlaylistDetailType, type PlaylistTrackType, type PlaylistType } from "../types/playlist-types"
@@ -78,18 +79,15 @@ export async function getPlaylistDetailAction(id: string): Promise<ActionState<P
     if (trackIds.length > 0) {
       const itunesResponse = await itunesLookupAction(trackIds)
       tracks = itunesResponse.results
-        .map((t) => ({
-          id: t.trackId,
-          title: t.trackName,
-          artist: t.artistName,
-          album: t.collectionName,
-          artworkUrl: t.artworkUrl100,
-          previewUrl: t.previewUrl,
-          genre: t.primaryGenreName,
-          duration: t.trackTimeMillis,
-          trackViewUrl: t.trackViewUrl,
-          addedAt: addedAtMap[t.trackId] ?? new Date().toISOString(),
-        }))
+        .map((t) => {
+          const mapped = mapItunesItemToCatalogItem(t)
+          if (!mapped) return null
+          return {
+            ...mapped,
+            addedAt: addedAtMap[mapped.id] ?? new Date().toISOString(),
+          } as PlaylistTrackType
+        })
+        .filter((t): t is PlaylistTrackType => t !== null)
         // Ensure chronological order is preserved after API hydration
         .sort((a, b) => new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime())
     }
