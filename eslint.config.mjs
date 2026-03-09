@@ -49,29 +49,6 @@ const config = typescriptEslint.config(
       },
     },
     rules: {
-      // Prevent client-side files from importing server-only modules.
-      // The server-only mock in vitest.setup.ts silences the runtime error in tests,
-      // so this lint rule is the static enforcement layer that catches violations early.
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["*/lib/db/*", "*/lib/db"],
-              message: "DB modules are server-only. Import from a server action or data-access layer instead.",
-            },
-            {
-              group: ["*/lib/auth/auth", "*/lib/auth/auth.ts"],
-              message:
-                "lib/auth/auth is server-only. Use lib/auth/auth-client for client-side auth, or call a server action.",
-            },
-            {
-              group: ["*/playlist/api/playlist-utils", "*/playlist/api/playlist-utils.ts"],
-              message: "playlist-utils is server-only. Use a server action instead.",
-            },
-          ],
-        },
-      ],
       "@typescript-eslint/no-unused-vars": [
         "warn",
         {
@@ -120,6 +97,61 @@ const config = typescriptEslint.config(
   }
 )
 
+// Prevent client-side files from importing server-only modules.
+// The server-only mock in vitest.setup.ts silences the runtime error in tests,
+// so this lint rule is the static enforcement layer that catches violations early.
+// Scoped to client-side file patterns only — server route handlers, server actions,
+// and the server modules themselves are intentionally excluded via the files glob.
+const serverOnlyImportRestrictions = typescriptEslint.config({
+  files: [
+    // Client components
+    "**/*-client.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "features/**/components/**/*.{ts,tsx}",
+    "features/**/hooks/**/*.{ts,tsx}",
+    "features/**/store/**/*.{ts,tsx}",
+    // App Router client entry points (but NOT route handlers or server components)
+    "app/**/page.tsx",
+    "app/**/layout.tsx",
+    "app/**/loading.tsx",
+    "app/**/error.tsx",
+    "app/**/not-found.tsx",
+  ],
+  ignores: [
+    // These are server-side by definition and must be allowed to import server modules
+    "app/api/**",
+    "lib/db/**",
+    "lib/auth/auth.ts",
+    "features/**/api/**",
+  ],
+  rules: {
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["*/lib/db/*", "*/lib/db"],
+            message: "DB modules are server-only. Import from a server action or data-access layer instead.",
+          },
+          {
+            group: ["*/lib/auth/auth", "*/lib/auth/auth.ts"],
+            message:
+              "lib/auth/auth is server-only. Use lib/auth/auth-client for client-side auth, or call a server action.",
+          },
+          {
+            group: ["*/playlist/api/playlist-utils", "*/playlist/api/playlist-utils.ts"],
+            message: "playlist-utils is server-only. Use a server action instead.",
+          },
+        ],
+      },
+    ],
+  },
+})
+
+const finalConfig = [...config, ...serverOnlyImportRestrictions]
+
+export default finalConfig
+
 function getDirectoriesToSort() {
   const ignoredSortingDirectories = [".git", ".next", ".vscode", "node_modules"]
   return fs
@@ -127,5 +159,3 @@ function getDirectoriesToSort() {
     .filter((file) => fs.statSync(process.cwd() + "/" + file).isDirectory())
     .filter((f) => !ignoredSortingDirectories.includes(f))
 }
-
-export default config
